@@ -1,0 +1,2 @@
+# Minyar
+Mining Github
