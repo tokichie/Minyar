@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Minyar", "Minyar\Minyar.csproj", "{6F9A8CDB-2ACB-4F4B-BA26-DACBC54C69AC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Minyar.Tests", "Minyar.Tests\Minyar.Tests.csproj", "{DD46865E-2165-4BF1-B331-36B9A6B3F47F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{0403687F-1738-44AA-9C85-845CA0954790}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6F9A8CDB-2ACB-4F4B-BA26-DACBC54C69AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F9A8CDB-2ACB-4F4B-BA26-DACBC54C69AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F9A8CDB-2ACB-4F4B-BA26-DACBC54C69AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F9A8CDB-2ACB-4F4B-BA26-DACBC54C69AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD46865E-2165-4BF1-B331-36B9A6B3F47F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD46865E-2165-4BF1-B331-36B9A6B3F47F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD46865E-2165-4BF1-B331-36B9A6B3F47F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD46865E-2165-4BF1-B331-36B9A6B3F47F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
