@@ -1,0 +1,3 @@
+[submodule "submodules/fp"]
+	path = submodules/fp
+	url = git@github.com:shawpan/fp.git
