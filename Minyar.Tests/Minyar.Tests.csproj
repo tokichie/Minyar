@@ -170,6 +170,10 @@
     <Compile Include="LevenshteinDistanceTest.cs" />
     <Compile Include="TreeMappingTest.cs" />
     <Compile Include="CstChangeTest.cs" />
+    <Compile Include="NLP\WordTest.cs" />
+    <Compile Include="NLP\SentenceTest.cs" />
+    <Compile Include="NLP\TextParserTest.cs" />
+    <Compile Include="NLP\NPDictionaryTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -195,4 +199,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="NLP\" />
+    <Folder Include="Resources\" />
+  </ItemGroup>
 </Project>
