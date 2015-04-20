@@ -1,26 +1,30 @@
 ﻿<Properties StartupItem="Minyar/Minyar.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Minyar/Properties/AssemblyInfo.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Minyar/FPGrowthMiner.cs">
     <Files>
-      <File FileName="Minyar/ExasTreeSimilarity.cs" Line="73" Column="14" />
-      <File FileName="Minyar/LcsDetector.cs" Line="1" Column="1" />
-      <File FileName="Minyar/Program.cs" Line="1" Column="1" />
-      <File FileName="Minyar.Tests/XmlGeneratorTest.cs" Line="1" Column="1" />
-      <File FileName="Minyar.Tests/ExasTreeSimilarityTest.cs" Line="1" Column="1" />
-      <File FileName="Minyar.Tests/CstChangeTest.cs" Line="89" Column="41" />
-      <File FileName="Minyar.Tests/LevenshteinDistanceTest.cs" Line="1" Column="1" />
-      <File FileName="Minyar.Tests/packages.config" Line="1" Column="1" />
-      <File FileName="Minyar.Tests/TreeMappingTest.cs" Line="1" Column="1" />
-      <File FileName="Minyar/ChangePair.cs" Line="9" Column="19" />
-      <File FileName="Minyar/CstChangeOperation.cs" Line="1" Column="1" />
-      <File FileName="Minyar/LevenshteinDistance.cs" Line="1" Column="1" />
-      <File FileName="Minyar/packages.config" Line="1" Column="1" />
-      <File FileName="Minyar/TreeMapping.cs" Line="1" Column="1" />
-      <File FileName="Minyar/Properties/AssemblyInfo.cs" Line="13" Column="53" />
+      <File FileName="submodules/fp/FP/DAL/Gateway/FileInputDatabaseHelper.cs" Line="103" Column="53" />
+      <File FileName="Minyar.Tests/FPGrowthMinerTest.cs" Line="9" Column="13" />
+      <File FileName="submodules/fp/FP/DAL/Gateway/Interface/IInputDatabaseHelper.cs" Line="27" Column="46" />
+      <File FileName="submodules/fp/FP/Algorithm/FPTree.cs" Line="92" Column="52" />
+      <File FileName="Minyar/ChangePair.cs" Line="41" Column="23" />
+      <File FileName="Minyar/TreeMapping.cs" Line="241" Column="1" />
+      <File FileName="Minyar.Tests/CstChangeTest.cs" Line="98" Column="69" />
+      <File FileName="Minyar/FPGrowthMiner.cs" Line="18" Column="34" NotebookId="1" />
+      <File FileName="submodules/fp/FP/Algorithm/FPGrowth.cs" Line="50" Column="30" NotebookId="1" />
     </Files>
     <Pads>
       <Pad Id="MonoDevelop.NUnit.TestPad">
-        <State expanded="True" selected="True" />
+        <State expanded="True">
+          <Node name="Minyar.Tests" expanded="True">
+            <Node name="Minyar" expanded="True">
+              <Node name="Tests" expanded="True">
+                <Node name="CstChangeTest" expanded="True">
+                  <Node name="TestToString" selected="True" />
+                </Node>
+              </Node>
+            </Node>
+          </Node>
+        </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
@@ -31,6 +35,9 @@
       <Breakpoint file="/Users/tokitake/Projects/Code2Xml/Minyar/LcsDetector.cs" line="36" column="1" />
       <Breakpoint enabled="false" conditionExpression="ancestor.Name == &quot;expression&quot; &amp;&amp; ancestor.TokenText == &quot;a=a-b&quot;" file="/Users/tokitake/Projects/Minyar/Minyar/TreeMapper.cs" line="159" column="1" />
       <Breakpoint file="/Users/tokitake/Projects/Minyar/Minyar/TreeMapper.cs" line="186" column="1" />
+      <Breakpoint file="/Users/tokitake/repos/Minyar/Minyar/NLP/SentenceParser.cs" line="46" column="1" />
+      <Breakpoint file="/Users/tokitake/repos/Minyar/Minyar/NLP/TextParser.cs" line="49" column="1" />
+      <Breakpoint file="/Users/tokitake/repos/Minyar/Minyar.Tests/NLP/WordTest.cs" line="12" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
