@@ -31,6 +31,15 @@ namespace Minyar {
             this.OriginalToken = orgToken;
             this.ChangedToken = cmpToken;
         }
+
+        public override string ToString() {
+            var res = "";
+            if (NodeType == "TOKEN")
+                res = string.Format("<{0}:TOKEN:{1}:{2}>", Operation.ToString(), OriginalToken, ChangedToken);
+            else
+                res = string.Format("<{0}:{1}>", Operation.ToString(), NodeType);
+            return res;
+        }
     }
 }
 
