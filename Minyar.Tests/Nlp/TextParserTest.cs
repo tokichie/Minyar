@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Minyar.Nlp;
 using NUnit.Framework;
 
 namespace Minyar.Tests.Nlp {
@@ -20,7 +21,8 @@ namespace Minyar.Tests.Nlp {
                 dir = dir.Parent;
             }
 
-            //TestHelper.Download("http://nlp.stanford.edu/software/stanford-corenlp-full-2015-01-29.zip", "");
+            var dictPath = Path.Combine(dir.FullName, "StanfordNLP", "stanford-corenlp-3.5.1-models");
+            TestHelper.Download("http://nlp.stanford.edu/software/stanford-corenlp-full-2015-01-29.zip", "");
         }
 
         [Test]

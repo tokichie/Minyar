@@ -1,4 +1,5 @@
 ﻿using System;
+using Minyar.Nlp;
 using NUnit.Framework;
 
 namespace Minyar.Tests.Nlp {

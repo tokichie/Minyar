@@ -1,8 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 
-namespace Minyar {
+namespace Minyar.Nlp {
     public static class NPDictionary {
         private static readonly string dicPath = Path.Combine("..", "..", "Resources", "pn_en.dic");
         public static Dictionary<char, Dictionary<string, double>> English { get; private set; }

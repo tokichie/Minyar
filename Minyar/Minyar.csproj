@@ -171,10 +171,10 @@
     <Compile Include="TreeMapping.cs" />
     <Compile Include="CstChangeOperation.cs" />
     <Compile Include="ChangePair.cs" />
-    <Compile Include="NLP\NPDictionary.cs" />
-    <Compile Include="NLP\Word.cs" />
-    <Compile Include="NLP\TextParser.cs" />
-    <Compile Include="NLP\Sentence.cs" />
+    <Compile Include="Nlp\NPDictionary.cs" />
+    <Compile Include="Nlp\Word.cs" />
+    <Compile Include="Nlp\TextParser.cs" />
+    <Compile Include="Nlp\Sentence.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -196,8 +196,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <Folder Include="NLP\" />
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>

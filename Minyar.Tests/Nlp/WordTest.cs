@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Minyar.Nlp;
+using NUnit.Framework;
 
 namespace Minyar.Tests.Nlp {
     [TestFixture]

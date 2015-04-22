@@ -2,7 +2,7 @@
 using System.Net;
 using ICSharpCode.SharpZipLib.Zip;
 
-namespace Minyar.Tests.Nlp {
+namespace Minyar.Tests {
     public static class TestHelper {
         public static void Download(string url, string outPath) {
             using (var client = new WebClient()) {
@@ -16,10 +16,6 @@ namespace Minyar.Tests.Nlp {
                     }
                 }
             }
-        }
-
-        public static Stream GetStream(string url) {
-            return new WebClient().OpenRead(url);
         }
 
         public static void Unzip(string inPath, string outDirPath) {

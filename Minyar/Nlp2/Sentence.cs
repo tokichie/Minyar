@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Minyar {
+namespace Minyar.Nlp {
     public class Sentence {
         public string Text;
         public int TokenCount;

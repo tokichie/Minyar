@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Minyar {
+namespace Minyar.Nlp {
     public class Word {
         private static string[] targetPOS = {
             "NN", "NN$", "NNS", "NNS$", "NP", "NP$", "NPS", "NPS$", "NR",

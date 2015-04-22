@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using java.util;
+using System.Linq;
 using edu.stanford.nlp.pipeline;
 using java.io;
-using System.Collections.Generic;
-using System.Linq;
+using java.util;
 
-namespace Minyar {
+namespace Minyar.Nlp {
     public class TextParser {
         private static readonly string jarRoot = 
             Path.Combine("..", "..", "..", "StanfordNLP", "stanford-corenlp-3.5.1-models");
