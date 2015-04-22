@@ -186,8 +186,7 @@ FakesAssemblies/
 .DS_Store
 *.swp
 *~
-StanfordNLP/stanford-corenlp-3.5.1-models/*
-!StanfordNLP/stanford-corenlp-3.5.1-models/README.md
+StanfordNLP/
 
 # MonoDevelop
 Minyar.userprefs

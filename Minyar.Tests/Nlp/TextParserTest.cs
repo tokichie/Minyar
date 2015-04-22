@@ -21,8 +21,19 @@ namespace Minyar.Tests.Nlp {
                 dir = dir.Parent;
             }
 
-            var dictPath = Path.Combine(dir.FullName, "StanfordNLP", "stanford-corenlp-3.5.1-models");
-            TestHelper.Download("http://nlp.stanford.edu/software/stanford-corenlp-full-2015-01-29.zip", "");
+            var baseDirPath = Path.Combine(dir.FullName, "StanfordNLP");
+            var outDirPath = Path.Combine(baseDirPath, "stanford-corenlp-3.5.1-models");
+            Directory.CreateDirectory(outDirPath);
+            if (!Directory.Exists(Path.Combine(outDirPath, "edu"))) {
+                var dictFilePath = Path.Combine(baseDirPath, "stanford-corenlp-full-2015-01-29.zip");
+                TestHelper.Download(
+                        "http://nlp.stanford.edu/software/stanford-corenlp-full-2015-01-29.zip",
+                        dictFilePath);
+                TestHelper.Unzip(dictFilePath, Path.GetDirectoryName(dictFilePath));
+                var jarFilePath = Path.Combine(baseDirPath, "stanford-corenlp-full-2015-01-29",
+                        "stanford-corenlp-3.5.1-models.jar");
+                TestHelper.Unzip(jarFilePath, outDirPath);
+            }
         }
 
         [Test]
