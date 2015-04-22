@@ -1,13 +1,26 @@
 ﻿using System;
-using NUnit.Framework;
 using System.IO;
+using NUnit.Framework;
 
-namespace Minyar.Tests {
+namespace Minyar.Tests.Nlp {
     [TestFixture]
     public class TextParserTest {
         [SetUp]
         public void ChangeWorkingDirectory() {
-            Environment.CurrentDirectory = Path.Combine("..", "..", "..", "Minyar", "bin", "Debug");
+            var dir = new DirectoryInfo(".");
+            while(true) {
+                var newPath = Path.Combine(dir.FullName, "Minyar", "bin", "Debug");
+                if (Directory.Exists(newPath)) {
+                    Environment.CurrentDirectory = newPath;
+                    break;
+                }
+                if (dir.Parent == null) {
+                    throw new Exception("Cannot find the directory 'Minyar/bin/Debug'.");
+                }
+                dir = dir.Parent;
+            }
+
+            //TestHelper.Download("http://nlp.stanford.edu/software/stanford-corenlp-full-2015-01-29.zip", "");
         }
 
         [Test]

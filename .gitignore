@@ -188,3 +188,7 @@ FakesAssemblies/
 *~
 StanfordNLP/stanford-corenlp-3.5.1-models/*
 !StanfordNLP/stanford-corenlp-3.5.1-models/README.md
+
+# MonoDevelop
+Minyar.userprefs
+

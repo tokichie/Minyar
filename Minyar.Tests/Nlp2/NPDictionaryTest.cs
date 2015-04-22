@@ -1,8 +1,8 @@
 ﻿using System;
-using NUnit.Framework;
 using System.IO;
+using NUnit.Framework;
 
-namespace Minyar.Tests {
+namespace Minyar.Tests.Nlp {
     [TestFixture]
     public class NPDictionaryTest {
         [SetUp]

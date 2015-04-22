@@ -1,7 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 
-namespace Minyar.Tests {
+namespace Minyar.Tests.Nlp {
     [TestFixture]
     public class SentenceTest {
         [Test]
