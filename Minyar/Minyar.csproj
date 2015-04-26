@@ -91,7 +91,7 @@
   </Target>
   -->
   <ItemGroup>
-    <ProjectReference Include="..\submodules\fp\FP\FP.csproj">
+    <ProjectReference Include="..\library\fp\FP\FP.csproj">
       <Project>{0FD86AB4-576C-42D6-8012-EFD82CC470A7}</Project>
       <Name>FP</Name>
     </ProjectReference>

@@ -181,7 +181,7 @@
       <Project>{6F9A8CDB-2ACB-4F4B-BA26-DACBC54C69AC}</Project>
       <Name>Minyar</Name>
     </ProjectReference>
-    <ProjectReference Include="..\submodules\fp\FP\FP.csproj">
+    <ProjectReference Include="..\library\fp\FP\FP.csproj">
       <Project>{0FD86AB4-576C-42D6-8012-EFD82CC470A7}</Project>
       <Name>FP</Name>
     </ProjectReference>
