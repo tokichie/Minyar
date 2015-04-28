@@ -195,4 +195,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Github\" />
+  </ItemGroup>
 </Project>

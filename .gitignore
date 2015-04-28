@@ -186,3 +186,4 @@ FakesAssemblies/
 .DS_Store
 *.swp
 *~
+Minyar/Resources/AuthInfo.txt
