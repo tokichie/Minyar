@@ -8,7 +8,32 @@ namespace Minyar.Tests.Nlp {
     public class NPDictionaryTest {
         [SetUp]
         public void ChangeWorkingDirectory() {
-            Environment.CurrentDirectory = Path.Combine("..", "..", "..", "Minyar", "bin", "Debug");
+            var dir = new DirectoryInfo(".");
+            while(true) {
+                var newPath = Path.Combine(dir.FullName, "Minyar", "bin", "Debug");
+                if (Directory.Exists(newPath)) {
+                    Environment.CurrentDirectory = newPath;
+                    break;
+                }
+                if (dir.Parent == null) {
+                    throw new Exception("Cannot find the directory 'Minyar/bin/Debug'.");
+                }
+                dir = dir.Parent;
+            }
+
+            var baseDirPath = Path.Combine(dir.FullName, "StanfordNLP");
+            var outDirPath = Path.Combine(baseDirPath, "stanford-corenlp-3.5.1-models");
+            Directory.CreateDirectory(outDirPath);
+            if (!Directory.Exists(Path.Combine(outDirPath, "edu"))) {
+                var dictFilePath = Path.Combine(baseDirPath, "stanford-corenlp-full-2015-01-29.zip");
+                TestHelper.Download(
+                        "http://nlp.stanford.edu/software/stanford-corenlp-full-2015-01-29.zip",
+                        dictFilePath);
+                TestHelper.Unzip(dictFilePath, Path.GetDirectoryName(dictFilePath));
+                var jarFilePath = Path.Combine(baseDirPath, "stanford-corenlp-full-2015-01-29",
+                        "stanford-corenlp-3.5.1-models.jar");
+                TestHelper.Unzip(jarFilePath, outDirPath);
+            }
         }
 
         [Test]
