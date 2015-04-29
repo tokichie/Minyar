@@ -169,6 +169,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Github\GithubDiffTest.cs" />
     <Compile Include="Github\OctokitClientTest.cs" />
     <Compile Include="XmlGeneratorTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

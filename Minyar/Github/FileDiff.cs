@@ -9,24 +9,16 @@ namespace Minyar.Github {
     struct FileDiff {
         public string ChangedFilePath;
         public string NewFilePath;
-        public int ChangedLineOffset;
-        public int ChangedLineLength;
-        public int NewLineOffset;
-        public int NewLineLength;
+        public List<LineChange> ChangedLineList { get; private set; }
 
-        public FileDiff(string pathA, string pathB, int offsetA, int lengthA, int offsetB, int lengthB) {
-            ChangedFilePath = pathA;
-            NewFilePath = pathB;
-            ChangedLineOffset = offsetA;
-            ChangedLineLength = lengthA;
-            NewLineOffset = offsetA;
-            NewLineLength = lengthB;
+        public FileDiff(string changedPath, string newPath) : this() {
+            ChangedFilePath = changedPath;
+            NewFilePath = newPath;
+            ChangedLineList = new List<LineChange>();
         }
 
-        public FileDiff(GroupCollection groups) :
-            this(groups[0].Value, groups[1].Value, 
-                int.Parse(groups[2].Value), int.Parse(groups[3].Value), 
-                int.Parse(groups[4].Value), int.Parse(groups[5].Value)) { }
-
+        public void AddLine(int[] changedLine, int[] newLine) {
+            ChangedLineList.Add(new LineChange(changedLine, newLine));
+        }
     }
 }
