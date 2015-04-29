@@ -93,8 +93,8 @@ namespace Minyar.Tests {
             var orgXml = gen.GenerateXmlFromTree(org);
             var cmpXml = gen.GenerateXmlFromTree(cmp);
 
-            var orgWriter = new System.IO.StreamWriter("/Users/tokitake/org.xml");
-            var cmpWriter = new System.IO.StreamWriter("/Users/tokitake/cmp.xml");
+            var orgWriter = new System.IO.StreamWriter("org.xml");
+            var cmpWriter = new System.IO.StreamWriter("cmp.xml");
 
             orgXml.Save(orgWriter);
             cmpXml.Save(cmpWriter);

@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace Minyar.Tests {
     [TestFixture]
-    public class XmlGeneratorTest {
+    public class MinyarTest {
         [Test]
         public void Test() {
             var gen = CstGenerators.JavaUsingAntlr3;

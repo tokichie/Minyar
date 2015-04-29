@@ -186,3 +186,8 @@ FakesAssemblies/
 .DS_Store
 *.swp
 *~
+StanfordNLP/
+
+# MonoDevelop
+Minyar.userprefs
+
