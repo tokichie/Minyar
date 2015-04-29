@@ -1,17 +1,28 @@
 ﻿using System;
 using Octokit;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Minyar.Github {
-	public class OctokitClient {
-		private GitHubClient github;
+	public static class OctokitClient {
+        private static GitHubClient client;
 
-		public OctokitClient() {
-			github = new GitHubClient(new ProductHeaderValue("Minyar"));
-			github.Credentials = new Credentials(IncludeToken());
-		}
+        public static GitHubClient Client {
+            get {
+                if (client == null) {
+                    SetClient();
+                }
+                return client;
+            }
+        }
 
-		private string IncludeToken() {
+        private static void SetClient() {
+            client = new GitHubClient(new ProductHeaderValue(
+                System.Reflection.Assembly.GetExecutingAssembly().GetName().Name));
+		    client.Credentials = new Credentials(IncludeToken());
+        }
+
+		public static string IncludeToken() {
 			var token = "";
 			try {
 				var path = Path.Combine("..", "..", "Resources", "AuthInfo.txt");
