@@ -70,5 +70,16 @@ namespace Minyar.Git {
                 repo.ObjectDatabase.Archive(tree2, @"J:\repos\archive2.tar");
             }
         }
+
+        public static string GetDiff() {
+            string res = "";
+            using (var repo = new Repository(@"J:\repos\pattern-detection")) {
+                var commit = repo.Lookup<Commit>("ce5da41be1a55587e6b55d8fca813ee99db309d8");
+                var parentCommit = commit.Parents.Single();
+                var patch = repo.Diff.Compare<Patch>(parentCommit.Tree, commit.Tree);
+                res = patch.Content;
+            }
+            return res;
+        }
     }
 }

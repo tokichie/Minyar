@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Minyar.Tests.Git {
     [TestFixture]
-    class RepositoryTest {
+    class GitRepositoryTest {
         [Test]
         public void TestArchiveFiles() {
             GitRepository.ArchiveFiles();
@@ -17,6 +17,18 @@ namespace Minyar.Tests.Git {
         [Test]
         public void TestUpdateRepositories() {
             GitRepository.UpdateRepositories(null);
+        }
+
+        [Test]
+        public void TestDownload() {
+            var list = new List<string[]> { new string[] {"tokichie", "pattern-detection"} };
+            GitRepository.DownloadRepositories(list);
+        }
+
+        [Test]
+        public void TestGetDiff() {
+            var res = GitRepository.GetDiff();
+            Console.WriteLine(res);
         }
     }
 }
