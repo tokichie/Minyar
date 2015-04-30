@@ -50,7 +50,15 @@ namespace Minyar.Tests.Github {
         public async void TestGetPullRequests() {
             var repo = new GithubRepository("tokichie", "pattern-detection");
             await repo.GetPullRequests();
+            //repo.Save();
             Console.WriteLine(repo.Serialize());
+        }
+
+        [Test]
+        public void TestLoad() {
+            var repo = GithubRepository.Load("tokichie", "pattern-detection");
+            Assert.That(repo.Owner == "tokichie");
+            Assert.That(repo.Name == "pattern-detection");
         }
     }
 }

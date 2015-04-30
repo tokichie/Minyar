@@ -187,3 +187,5 @@ FakesAssemblies/
 *.swp
 *~
 Minyar/Resources/AuthInfo.txt
+json/*
+repos/*
