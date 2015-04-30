@@ -56,6 +56,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -87,6 +88,8 @@
   <ItemGroup>
     <Compile Include="Github\FileDiff.cs" />
     <Compile Include="Github\GithubDiff.cs" />
+    <Compile Include="Github\GithubPullRequest.cs" />
+    <Compile Include="Github\GithubRepository.cs" />
     <Compile Include="Github\LineChange.cs" />
     <Compile Include="Git\Repository.cs" />
     <Compile Include="Program.cs" />

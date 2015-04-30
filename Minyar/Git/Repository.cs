@@ -39,6 +39,15 @@ namespace Minyar.Git {
             }
         }
 
+        public static void UpdateRepositories(List<string[]> repositories) {
+            using (var repo = new Repository(@"J:\repos\pattern-detection")) {
+                var commit = repo.Lookup<Commit>("de9529e7e5fe7dcd7b6f2e917cd4e81fcedd0fd3");
+                foreach (var c in commit.Parents) {
+                    Console.WriteLine(c.Sha);
+                }
+            }
+        }
+
         public static void ArchiveFiles() {
             using (var repo = new Repository(@"J:\repos\pattern-detection")) {
                 //var commit = repo.Lookup<Commit>("ea147829712ada77623bb4f5174250966a6bd7a8");

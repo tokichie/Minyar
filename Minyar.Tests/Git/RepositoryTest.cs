@@ -13,5 +13,10 @@ namespace Minyar.Tests.Git {
         public void TestArchiveFiles() {
             GitRepository.ArchiveFiles();
         }
+
+        [Test]
+        public void TestUpdateRepositories() {
+            GitRepository.UpdateRepositories(null);
+        }
     }
 }

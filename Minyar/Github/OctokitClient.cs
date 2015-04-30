@@ -16,6 +16,7 @@ namespace Minyar.Github {
             }
         }
 
+
         private static void SetClient() {
             client = new GitHubClient(new ProductHeaderValue(
                 System.Reflection.Assembly.GetExecutingAssembly().GetName().Name));
