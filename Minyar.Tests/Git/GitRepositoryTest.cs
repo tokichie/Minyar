@@ -11,7 +11,7 @@ namespace Minyar.Tests.Git {
     class GitRepositoryTest {
         [Test]
         public void TestArchiveFiles() {
-            GitRepository.ArchiveFiles();
+//            GitRepository.ArchiveFiles();
         }
 
         [Test]
@@ -27,8 +27,8 @@ namespace Minyar.Tests.Git {
 
         [Test]
         public void TestGetDiff() {
-            var res = GitRepository.GetDiff();
-            Console.WriteLine(res);
+            //var res = gitrepository.getdiff();
+            //console.writeline(res);
         }
     }
 }

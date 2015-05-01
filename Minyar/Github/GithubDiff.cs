@@ -15,6 +15,7 @@ namespace Minyar.Github {
         public string RawDiff { get; private set; }
         public List<FileDiff> FileDiffList { get; private set; }
 
+        public GithubDiff() : this(new Uri("http://hoge")) { }
         public GithubDiff(Uri diffUrl) {
             DiffUrl = diffUrl;
             FileDiffList = new List<FileDiff>();

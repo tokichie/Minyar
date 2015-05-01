@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using LibGit2Sharp;
 using System.IO;
+using Minyar.Github;
+using System.Diagnostics;
+using ICSharpCode.SharpZipLib.Tar;
 
 namespace Minyar.Git {
     class GitRepository {
@@ -33,9 +36,12 @@ namespace Minyar.Git {
                 var owner = repo[0];
                 var name = repo[1];
                 var clonePath = Path.Combine("..", "..", "..", "repos", owner, name);
-                if (!Directory.Exists(clonePath))
+                if (!Directory.Exists(clonePath)) {
                     Directory.CreateDirectory(clonePath);
-                Repository.Clone(string.Format(baseUrl, owner, name), clonePath);
+                    Repository.Clone(string.Format(baseUrl, owner, name), clonePath);
+                } else {
+                    Console.WriteLine("[Skipped] Repository {0} already exists.", clonePath);
+                }
             }
         }
 
@@ -48,34 +54,60 @@ namespace Minyar.Git {
             }
         }
 
-        public static void ArchiveFiles() {
-            using (var repo = new Repository(@"J:\repos\pattern-detection")) {
-                //var commit = repo.Lookup<Commit>("ea147829712ada77623bb4f5174250966a6bd7a8");
-                //var parentCommit = commit.Parents.Single();
-                ////repo.ObjectDatabase.Archive();
-                //var tree = repo.Lookup<Tree>("ea147829712ada77623bb4f5174250966a6bd7a8");
-                //foreach (var entry in tree) {
-                //    Console.WriteLine(entry.Name);
-                //}
-                //var changes = repo.Diff.Compare<TreeChanges>(parentCommit.Tree, commit.Tree);
-                var commit = repo.Lookup<Commit>("ce5da41be1a55587e6b55d8fca813ee99db309d8");
-                var parentCommit = commit.Parents.Single();
-                var td1 = new TreeDefinition();
-                td1.Add(".gitignore", commit.Tree.First(x => x.Name == ".gitignore"));
-                var tree1 = repo.ObjectDatabase.CreateTree(td1);
-                var td2 = new TreeDefinition();
-                td2.Add(".gitignore", parentCommit.Tree.First(x => x.Name == ".gitignore"));
-                var tree2 = repo.ObjectDatabase.CreateTree(td2);
-                repo.ObjectDatabase.Archive(tree1, @"J:\repos\archive1.tar");
-                repo.ObjectDatabase.Archive(tree2, @"J:\repos\archive2.tar");
+        public static void ArchiveFiles(GithubRepository ghRepo, List<FileDiff> fileDiffs, string sha) {
+            using (var repo = new Repository(ghRepo.RepositoryDirectory)) {
+                var commit = repo.Lookup<Commit>(sha);
+                if (commit == null) {
+                    Console.WriteLine("[Skipped] Sha {0} is not found.", sha);
+                    return;
+                }
+                var parentCommit = commit.Parents.First();
+                var tdNew = new TreeDefinition();
+                var tdOld = new TreeDefinition();
+                foreach (var fileDiff in fileDiffs) {
+                    try {
+                        tdNew.Add(fileDiff.NewFilePath, commit.Tree.First(x => fileDiff.NewFilePath.IndexOf(x.Name) >= 0));
+                        tdOld.Add(fileDiff.NewFilePath, parentCommit.Tree.First(x => fileDiff.NewFilePath.IndexOf(x.Name) >= 0));
+                    } catch (Exception e) {
+                        Console.WriteLine("[Error] Exception has occured");
+                    }
+                }
+                var treeNew = repo.ObjectDatabase.CreateTree(tdNew);
+                var treeOld = repo.ObjectDatabase.CreateTree(tdOld);
+                if (!Directory.Exists(Path.Combine(ghRepo.DiffDirectory, commit.Sha)))
+                    Directory.CreateDirectory(Path.Combine(ghRepo.DiffDirectory, commit.Sha));
+                if (!Directory.Exists(Path.Combine(ghRepo.DiffDirectory, parentCommit.Sha)))
+                    Directory.CreateDirectory(Path.Combine(ghRepo.DiffDirectory, parentCommit.Sha));
+                try {
+                    var pathForNewTree = Path.Combine(ghRepo.DiffDirectory, commit.Sha, "archive.tar");
+                    var pathForOldTree = Path.Combine(ghRepo.DiffDirectory, parentCommit.Sha, "archive.tar");
+                    repo.ObjectDatabase.Archive(treeNew, pathForNewTree);
+                    repo.ObjectDatabase.Archive(treeOld, pathForOldTree);
+                    ExtractArchiveFile(pathForNewTree, pathForNewTree.Replace(".tar", ""));                    
+                    ExtractArchiveFile(pathForOldTree, pathForOldTree.Replace(".tar", ""));                    
+                } catch (Exception e) {
+                    Console.WriteLine("[Error] Exception has occured");
+                }
             }
         }
 
-        public static string GetDiff() {
+        private static void ExtractArchiveFile(string srcPath, string dstPath) {
+            using (var inStream = File.OpenRead(srcPath)) {
+                var archive = TarArchive.CreateInputTarArchive(inStream);
+                archive.ExtractContents(dstPath);
+                archive.Close();
+            }
+        }
+
+        public static string GetDiff(string path, string sha) {
             string res = "";
-            using (var repo = new Repository(@"J:\repos\pattern-detection")) {
-                var commit = repo.Lookup<Commit>("ce5da41be1a55587e6b55d8fca813ee99db309d8");
-                var parentCommit = commit.Parents.Single();
+            using (var repo = new Repository(path)) {
+                var commit = repo.Lookup<Commit>(sha);
+                if (commit == null) {
+                    Console.WriteLine("[Skipped] Commit {0} is not found.", sha);
+                    return res;
+                }
+                var parentCommit = commit.Parents.First();
                 var patch = repo.Diff.Compare<Patch>(parentCommit.Tree, commit.Tree);
                 res = patch.Content;
             }

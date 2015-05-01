@@ -21,6 +21,12 @@ namespace Minyar.Github {
         public string Name { get; set; }
         [DataMember(Name = "Pulls")]
         public List<GithubPullRequest> Pulls { get;  set; }
+        public string RepositoryDirectory {
+            get { return Path.Combine(RootDirectory, "repos", Owner, Name); }
+        }
+        public string DiffDirectory {
+            get { return Path.Combine(RootDirectory, "diffs", Owner, Name); }
+        }
 
         private string jsonDirectory;
 
@@ -39,11 +45,13 @@ namespace Minyar.Github {
             };
             var pulls = await client.PullRequest.GetAllForRepository(Owner, Name, options);
             foreach (var pull in pulls) {
-                var pr = new GithubPullRequest(pull.Number);
-                var commits = await client.PullRequest.Commits(Owner, Name, pull.Number);
-                foreach (var commit in commits)
-                    pr.AddCommit(commit.Sha);
-                Pulls.Add(pr);
+                if (pull.Merged) {
+                    var pr = new GithubPullRequest(pull.Number);
+                    var commits = await client.PullRequest.Commits(Owner, Name, pull.Number);
+                    foreach (var commit in commits)
+                        pr.AddCommit(commit.Sha);
+                    Pulls.Add(pr);
+                }
             }
         }
 

@@ -26,7 +26,7 @@ namespace Minyar.Github {
 		public static string IncludeToken() {
 			var token = "";
 			try {
-				var path = Path.Combine("..", "..", "Resources", "AuthInfo.txt");
+				var path = Path.Combine("..", "..", "..", "Minyar", "Resources", "AuthInfo.txt");
 				var reader = new StreamReader(path);
 				token = reader.ReadLine().Trim();
 			} catch (IOException e) {
