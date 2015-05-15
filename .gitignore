@@ -190,3 +190,8 @@ Minyar/Resources/AuthInfo.txt
 json/*
 repos/*
 diffs/*
+StanfordNLP/
+
+# MonoDevelop
+Minyar.userprefs
+
