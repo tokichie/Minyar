@@ -91,6 +91,45 @@ namespace Minyar.Git {
             }
         }
 
+        public static Dictionary<string, List<string>> GetChangedCodes(
+            GithubRepository githubRepo, List<FileDiff> fileDiffs, string targetSha) {
+            string parentSha;
+            var changedCodes = new Dictionary<string, List<string>>();
+            using (var repo = new Repository(githubRepo.RepositoryDirectory)) {
+                var commit = repo.Lookup<Commit>(targetSha);
+                if (commit == null) {
+                    Console.WriteLine("[Skipped] Sha {0} is not found.", targetSha);
+                    throw new ArgumentException("Invalid sha");
+                }
+                parentSha = commit.Parents.First().Sha;
+                if (parentSha == null) {
+                    Console.WriteLine("[Skipped] Parent of sha {0} is null.", targetSha);
+                    throw new ArgumentException("Invalid parent sha");
+                }
+                foreach (var fileDiff in fileDiffs) {
+                    var filePath = fileDiff.NewFilePath;
+                    changedCodes[filePath] = new List<string>();
+                }
+                foreach (var sha in new string[] { parentSha, targetSha }) {
+                    repo.Checkout(sha);
+                    foreach (var fileDiff in fileDiffs) {
+                        var filePath = fileDiff.NewFilePath;
+                        if (Directory.Exists(Path.Combine(githubRepo.RepositoryDirectory, filePath))) {
+                            Console.WriteLine("[Skipped] {0} is directory", filePath);
+                            continue;
+                        }
+                        string code = "";
+                        using (var reader = new StreamReader(
+                            Path.Combine(githubRepo.RepositoryDirectory, filePath))) {
+                                code = reader.ReadToEnd();
+                        }
+                        changedCodes[filePath].Add(code);
+                    }
+                }
+            }
+            return changedCodes;
+        }
+
         private static void ExtractArchiveFile(string srcPath, string dstPath) {
             using (var inStream = File.OpenRead(srcPath)) {
                 var archive = TarArchive.CreateInputTarArchive(inStream);

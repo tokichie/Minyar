@@ -39,35 +39,23 @@ namespace Minyar.Tests {
                         var diff = GitRepository.GetDiff(githubRepo.RepositoryDirectory, sha);
                         var githubDiff = new GithubDiff();
                         githubDiff.ParseDiff(diff);
-                        GitRepository.ArchiveFiles(githubRepo, githubDiff.FileDiffList, sha);
-                        CreateAstAndTakeDiff(githubRepo, githubDiff, sha);
+                        CreateAstAndTakeDiff(githubRepo, githubDiff.FileDiffList, sha);
                     }
                 }
             }
         }
 
-        private void CreateAstAndTakeDiff(GithubRepository githubRepo, GithubDiff diff, string sha) {
-            string parentSha;
-            using (var repo = new Repository(githubRepo.RepositoryDirectory)) {
-                var commit = repo.Lookup<Commit>(sha);
-                if (commit == null) {
-                    Console.WriteLine("[Skipped] Sha {0} is not found.", sha);
-                    return;
-                }
-                parentSha = commit.Parents.First().Sha;
-                if (parentSha == null) {
-                    Console.WriteLine("[Skipped] Parent of sha {0} is null.", sha);
-                    return;
-                }
-            }
-            foreach (var fileDiff in diff.FileDiffList) {
+        private void CreateAstAndTakeDiff(GithubRepository githubRepo, List<FileDiff> fileDiffs, string sha) {
+            var changedCodes = GitRepository.GetChangedCodes(githubRepo, fileDiffs, sha);
+            foreach (var fileDiff in fileDiffs) {
                 var filePath = fileDiff.NewFilePath;
-                var orgCode = new StreamReader(
-                    Path.Combine(githubRepo.DiffDirectory, parentSha, "archive", filePath)).ReadToEnd();
-                var cmpCode = new StreamReader(
-                    Path.Combine(githubRepo.DiffDirectory, sha, "archive", filePath)).ReadToEnd();
-                var orgCst = Program.GenerateCst(orgCode);
-                var cmpCst = Program.GenerateCst(cmpCode);
+                var codes = changedCodes[filePath];
+                if (codes.Count < 2) {
+                    Console.WriteLine("[Skipped] {0}", filePath);
+                    continue;
+                }
+                var orgCst = Program.GenerateCst(codes[0]);
+                var cmpCst = Program.GenerateCst(codes[1]);
                 foreach (var lineChange in fileDiff.ChangedLineList) {
                     var mapper = new TreeMapping(orgCst, cmpCst, lineChange.ChangedLine, lineChange.NewLine);
                     mapper.Map();
