@@ -45,7 +45,7 @@ namespace Minyar.Github {
             };
             var pulls = await client.PullRequest.GetAllForRepository(Owner, Name, options);
             foreach (var pull in pulls) {
-                if (pull.Merged) {
+                if (pull.MergedAt != null) {
                     var pr = new GithubPullRequest(pull.Number);
                     var commits = await client.PullRequest.Commits(Owner, Name, pull.Number);
                     foreach (var commit in commits)
