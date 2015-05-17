@@ -46,6 +46,10 @@ namespace Minyar {
             }
         }
 
+        private void ClassifyComments() {
+
+        }
+
         private void CreateAstAndTakeDiff(GithubRepository githubRepo, List<FileDiff> fileDiffs, string sha) {
             var changedCodes = GitRepository.GetChangedCodes(githubRepo, fileDiffs, sha);
             foreach (var fileDiff in fileDiffs) {

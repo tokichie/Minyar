@@ -193,6 +193,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Github\FileDiff.cs" />
+    <Compile Include="Github\GithubComment.cs" />
     <Compile Include="Github\GithubDiff.cs" />
     <Compile Include="Github\GithubPullRequest.cs" />
     <Compile Include="Github\GithubRepository.cs" />
