@@ -44,7 +44,7 @@ namespace Minyar {
 
             this.TopDownMapping(bottomUpNodeMap);
 
-            Debug(orgTree, 0, tokenMap, bottomUpNodeMap);
+            //Debug(orgTree, 0, tokenMap, bottomUpNodeMap);
 
             this.MergeNodeMap(tokenMap, bottomUpNodeMap);
             this.GetChangeSet(tokenMap);
@@ -171,8 +171,8 @@ namespace Minyar {
                 if (!nodeMap.ContainsValue(child))
                     cmpUnmappedChildren.Add(child);
 
-            foreach (var children in orgUnmappedChildren.Zip(cmpUnmappedChildren, (l, r) => Tuple.Create(l, r)))
-                Console.WriteLine("<" + children.Item1 + "> <" + children.Item2 + ">");
+            //foreach (var children in orgUnmappedChildren.Zip(cmpUnmappedChildren, (l, r) => Tuple.Create(l, r)))
+            //    Console.WriteLine("<" + children.Item1 + "> <" + children.Item2 + ">");
 
             if (orgUnmappedChildren.Count != 0) {
                 this.MapUnalignedChildren(nodeMap, orgUnmappedChildren, cmpUnmappedChildren);
