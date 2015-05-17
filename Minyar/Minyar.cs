@@ -1,31 +1,32 @@
 ﻿using Minyar.Git;
 using Minyar.Github;
-using NUnit.Framework;
-using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.IO;
 
-namespace Minyar.Tests {
-    [TestFixture]
+namespace Minyar {
     class Minyar {
-        [Test]
-        public async void TestMinyar() {
-            var repoIds = new List<string[]> {
-                //new string[] { "nathanmarz", "storm" },
-                //new string[] { "spring-projects", "spring-framework" },
-                //new string[] { "ReactiveX", "RxJava" },
-                //new string[] { "netty", "netty" },
-                //new string[] { "clojure", "clojure" }
-                new string[] {"tokichie", "pattern-detection"}
-            };
-            GitRepository.DownloadRepositories(repoIds);
-            foreach (var id in repoIds) {
-                var owner = id[0];
-                var name = id[1];
+        public List<string[]> Repositories;
+
+        public Minyar() {
+            Repositories = new List<string[]>();
+        }
+
+        public Minyar(List<string[]> repositories) {
+            Repositories = repositories;
+        }
+
+        public void AddRepository(string[] repository) {
+            Repositories.Add(repository);
+        }
+
+        public async void StartMining() {
+            GitRepository.DownloadRepositories(Repositories);
+            foreach (var repoId in Repositories) {
+                var owner = repoId[0];
+                var name = repoId[1];
                 var githubRepo = GithubRepository.Load(owner, name);
                 if (githubRepo == null) {
                     githubRepo = new GithubRepository(owner, name);
@@ -72,5 +73,4 @@ namespace Minyar.Tests {
             }            
         }
     }
-
 }
