@@ -1,4 +1,5 @@
-﻿using Octokit;
+﻿using Minyar.Nlp;
+using Octokit;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -47,9 +48,18 @@ namespace Minyar.Github {
             foreach (var pull in pulls) {
                 if (pull.MergedAt != null) {
                     var pr = new GithubPullRequest(pull.Number);
+                    var pullComments = await client.PullRequest.Comment.GetAll(Owner, Name, pull.Number);
+                    var issueComments = await client.Issue.Comment.GetAllForIssue(Owner, Name, pull.Number);
                     var commits = await client.PullRequest.Commits(Owner, Name, pull.Number);
-                    foreach (var commit in commits)
-                        pr.AddCommit(commit.Sha);
+                    var commentsWithCommit = AssociateCommentsToCommit(issueComments, commits);
+                    foreach (var item in commentsWithCommit) {
+                        var commitSha = item.Key;
+                        var comments = item.Value;
+                        double score = CalculateNpScore(comments);
+                        Console.WriteLine("[Trace] Score for {0} is {1}", commitSha, score);
+                        if (score >= 0)
+                            pr.AddCommit(commitSha);
+                    }
                     Pulls.Add(pr);
                 }
             }
@@ -77,6 +87,32 @@ namespace Minyar.Github {
                 return serializer.Deserialize<GithubRepository>(json);
             }
             return null;
+        }
+
+        private double CalculateNpScore(List<IssueComment> comments) {
+            double score = 0;
+            int div = 0;
+            foreach (var comment in comments) {
+                var parser = new TextParser();
+                var words = parser.Parse(comment.Body);
+                score += NPDictionary.CalculateNPScore(words);
+                div++;
+            }
+            return score / div;
+        }
+
+        private Dictionary<string, List<IssueComment>> AssociateCommentsToCommit(
+            IReadOnlyList<IssueComment> comments, IReadOnlyList<PullRequestCommit> commits) {
+            var dic = new Dictionary<string, List<IssueComment>>();
+            for (int i = 1; i < commits.Count; i++) {
+                var associatedComments = comments.Where(
+                    x => (x.CreatedAt.DateTime > commits[i - 1].Committer.Date.DateTime) &&
+                         (x.CreatedAt.DateTime <= commits[i].Committer.Date.DateTime));
+                if (associatedComments.Count() > 0) {
+                    dic[commits[i].Sha] = associatedComments.ToList();
+                }
+            }
+            return dic;
         }
     }
 }
