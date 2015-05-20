@@ -186,6 +186,10 @@ FakesAssemblies/
 .DS_Store
 *.swp
 *~
+Minyar/Resources/AuthInfo.txt
+json/*
+repos/*
+diffs/*
 StanfordNLP/
 
 # MonoDevelop
