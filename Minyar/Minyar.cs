@@ -22,7 +22,7 @@ namespace Minyar {
             Repositories.Add(repository);
         }
 
-        public async void StartMining() {
+        public async Task StartMining() {
             GitRepository.DownloadRepositories(Repositories);
             foreach (var repoId in Repositories) {
                 var owner = repoId[0];

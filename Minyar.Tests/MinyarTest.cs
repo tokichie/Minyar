@@ -2,7 +2,10 @@
 using Code2Xml.Core.Generators;
 using NUnit.Framework;
 using System.Collections.Generic;
+using java.security.acl;
 using Minyar;
+using Minyar.Github;
+using Octokit;
 
 namespace Minyar.Tests {
     [TestFixture]
@@ -15,10 +18,11 @@ namespace Minyar.Tests {
                 //new string[] { "ReactiveX", "RxJava" },
                 //new string[] { "netty", "netty" },
                 //new string[] { "clojure", "clojure" }
-                new string[] {"tokichie", "pattern-detection"}
+                new[] {"tokichie", "pattern-detection"}
             };
             var minyar = new Minyar(repos);
-            minyar.StartMining();
+            var task = minyar.StartMining();
+            task.Wait();
         }
     }
 }

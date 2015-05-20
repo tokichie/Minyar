@@ -36,7 +36,7 @@ namespace Minyar.Git {
                 var owner = repo[0];
                 var name = repo[1];
                 var clonePath = Path.Combine("..", "..", "..", "repos", owner, name);
-                if (!Directory.Exists(clonePath)) {
+                if (!Directory.Exists(clonePath) || Directory.GetFileSystemEntries(clonePath).Length == 0) {
                     Directory.CreateDirectory(clonePath);
                     Repository.Clone(string.Format(baseUrl, owner, name), clonePath);
                 } else {
