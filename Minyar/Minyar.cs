@@ -40,7 +40,7 @@ namespace Minyar {
                         var diff = GitRepository.GetDiff(githubRepo.RepositoryDirectory, sha);
                         var githubDiff = new GithubDiff();
                         githubDiff.ParseDiff(diff);
-                        CreateAstAndTakeDiff(githubRepo, githubDiff.FileDiffList, sha);
+                        var changeSet = CreateAstAndTakeDiff(githubRepo, githubDiff.FileDiffList, sha);
                     }
                 }
             }
@@ -50,7 +50,9 @@ namespace Minyar {
 
         }
 
-        private void CreateAstAndTakeDiff(GithubRepository githubRepo, List<FileDiff> fileDiffs, string sha) {
+        private HashSet<ChangePair> CreateAstAndTakeDiff
+            (GithubRepository githubRepo, List<FileDiff> fileDiffs, string sha) {
+            HashSet<ChangePair> changeSet = null;
             var changedCodes = GitRepository.GetChangedCodes(githubRepo, fileDiffs, sha);
             foreach (var fileDiff in fileDiffs) {
                 var filePath = fileDiff.NewFilePath;
@@ -64,10 +66,10 @@ namespace Minyar {
                 foreach (var lineChange in fileDiff.ChangedLineList) {
                     var mapper = new TreeMapping(orgCst, cmpCst, lineChange.ChangedLine, lineChange.NewLine);
                     mapper.Map();
-                    var changeSet = mapper.ChangeSet;
-                    Print(changeSet);
+                    changeSet = mapper.ChangeSet;
                 }
             }
+            return changeSet;
         }
 
         private void Print(HashSet<ChangePair> changeSet) {
