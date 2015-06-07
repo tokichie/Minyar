@@ -111,9 +111,18 @@ namespace Minyar.Git {
                     changedCodes[filePath] = new List<string>();
                 }
                 foreach (var sha in new string[] { parentSha, targetSha }) {
-                    repo.Checkout(sha);
+                    var checkoutOpts = new CheckoutOptions() {
+                        CheckoutModifiers = CheckoutModifiers.Force
+                    };
+                    try {
+                        repo.Checkout(sha, checkoutOpts);
+                    } catch (Exception e) {
+                        //Console.WriteLine(e);
+                        continue;
+                    }
                     foreach (var fileDiff in fileDiffs) {
                         var filePath = fileDiff.NewFilePath;
+                        if (!filePath.EndsWith(".java")) continue;
                         if (Directory.Exists(Path.Combine(githubRepo.RepositoryDirectory, filePath))) {
                             Console.WriteLine("[Skipped] {0} is directory", filePath);
                             continue;
