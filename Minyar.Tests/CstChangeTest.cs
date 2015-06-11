@@ -86,6 +86,18 @@ namespace Minyar.Tests {
             Print(mapper.ChangeSet);
         }
 
+        [Test]
+        public void TestToString() {
+            var change1 = new ChangePair(CstChangeOperation.Insert, "multiplicativeExpression", "", "f(b)");
+            var change2 = new ChangePair(CstChangeOperation.Insert, "TOKEN", "", ")");
+            var change3 = new ChangePair(CstChangeOperation.Move, "TOKEN", "b", "b");
+            var change4 = new ChangePair(CstChangeOperation.Update, "TOKEN", "-", "+");
+            Assert.That(change1.ToString() == "<Insert:multiplicativeExpression>");
+            Assert.That(change2.ToString() == "<Insert:TOKEN::)>");
+            Assert.That(change3.ToString() == "<Move:TOKEN:b:b>");
+            Assert.That(change4.ToString() == "<Update:TOKEN:-:+>");
+        }
+
         private void Print(HashSet<ChangePair> changeSet) {
             foreach (var ch in changeSet) {
                 Console.WriteLine(String.Format("{0} {1} : \"{2}\" -> \"{3}\"", 

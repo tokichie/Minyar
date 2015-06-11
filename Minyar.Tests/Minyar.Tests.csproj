@@ -188,6 +188,7 @@
     <Compile Include="LevenshteinDistanceTest.cs" />
     <Compile Include="TreeMappingTest.cs" />
     <Compile Include="CstChangeTest.cs" />
+    <Compile Include="FPGrowthMinerTest.cs" />
     <Compile Include="Nlp\WordTest.cs" />
     <Compile Include="Nlp\SentenceTest.cs" />
     <Compile Include="Nlp\TextParserTest.cs" />
@@ -195,11 +196,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="TestData\FrequentItemset1.dat" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Minyar\Minyar.csproj">
       <Project>{6F9A8CDB-2ACB-4F4B-BA26-DACBC54C69AC}</Project>
       <Name>Minyar</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\library\fp\FP\FP.csproj">
+      <Project>{0FD86AB4-576C-42D6-8012-EFD82CC470A7}</Project>
+      <Name>FP</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -219,6 +225,7 @@
   </Target>
   -->
   <ItemGroup>
+    <Folder Include="TestData\" />
     <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>

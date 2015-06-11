@@ -2,6 +2,7 @@
 using Minyar.Github;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,23 +35,45 @@ namespace Minyar {
                     await githubRepo.GetPullRequests();
                     githubRepo.Save();
                 }
-                foreach (var pull in githubRepo.Pulls) {
-                    Console.WriteLine("[Trace] Extracting Pull #{0}", pull.Number);
-                    foreach (var sha in pull.Commits) {
-                        var diff = GitRepository.GetDiff(githubRepo.RepositoryDirectory, sha);
-                        var githubDiff = new GithubDiff();
-                        githubDiff.ParseDiff(diff);
-                        CreateAstAndTakeDiff(githubRepo, githubDiff.FileDiffList, sha);
+                var path = Path.Combine("..", "..", "..", "items", owner);
+                if (!Directory.Exists(path)) {
+                    Directory.CreateDirectory(path);
+                }
+                using (var writer = new StreamWriter(Path.Combine(path, name + ".txt"))) {
+                    foreach (var pull in githubRepo.Pulls) {
+                        Console.WriteLine("[Trace] Extracting Pull #{0}", pull.Number);
+                        foreach (var sha in pull.Commits) {
+                            var diff = GitRepository.GetDiff(githubRepo.RepositoryDirectory, sha);
+                            var githubDiff = new GithubDiff();
+                            githubDiff.ParseDiff(diff);
+                            var changeSet = CreateAstAndTakeDiff(githubRepo, githubDiff.FileDiffList, sha);
+                            if (changeSet != null)
+                                WriteOut(writer, changeSet);
+                        }
                     }
                 }
+                var miner = new FPGrowthMiner(
+                    Path.Combine(path, name + ".txt"),
+                    Path.Combine(path, name + ".out"),
+                    2.0 / 9.0);
+
+                var res = miner.GenerateFrequentItemsets();
+                Console.WriteLine(res);
             }
         }
 
-        private void ClassifyComments() {
-
+        private void WriteOut(StreamWriter writer, HashSet<ChangePair> changeSet) {
+            var builder = new StringBuilder();
+            foreach (var item in changeSet) {
+                builder.Append("<").Append(item.Operation).Append(":").Append(item.NodeType).Append("> ");
+            }
+            builder.Remove(builder.Length - 1, 1);
+            writer.WriteLine(builder.ToString());
         }
 
-        private void CreateAstAndTakeDiff(GithubRepository githubRepo, List<FileDiff> fileDiffs, string sha) {
+        private HashSet<ChangePair> CreateAstAndTakeDiff
+            (GithubRepository githubRepo, List<FileDiff> fileDiffs, string sha) {
+            HashSet<ChangePair> changeSet = null;
             var changedCodes = GitRepository.GetChangedCodes(githubRepo, fileDiffs, sha);
             foreach (var fileDiff in fileDiffs) {
                 var filePath = fileDiff.NewFilePath;
@@ -64,10 +87,10 @@ namespace Minyar {
                 foreach (var lineChange in fileDiff.ChangedLineList) {
                     var mapper = new TreeMapping(orgCst, cmpCst, lineChange.ChangedLine, lineChange.NewLine);
                     mapper.Map();
-                    var changeSet = mapper.ChangeSet;
-                    Print(changeSet);
+                    changeSet = mapper.ChangeSet;
                 }
             }
+            return changeSet;
         }
 
         private void Print(HashSet<ChangePair> changeSet) {

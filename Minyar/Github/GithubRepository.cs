@@ -50,14 +50,15 @@ namespace Minyar.Github {
                     var pr = new GithubPullRequest(pull.Number);
                     var pullComments = await client.PullRequest.Comment.GetAll(Owner, Name, pull.Number);
                     var issueComments = await client.Issue.Comment.GetAllForIssue(Owner, Name, pull.Number);
-                    var commits = await client.PullRequest.Commits(Owner, Name, pull.Number);
-                    var commentsWithCommit = AssociateCommentsToCommit(issueComments, commits);
+                    var pullCommits = await client.PullRequest.Commits(Owner, Name, pull.Number);
+                    var commitDetails = await OctokitClient.Client.Repository.Commits.GetAll(Owner, Name);
+                    var commentsWithCommit = AssociateCommentsToCommit(issueComments, pullCommits, commitDetails);
                     foreach (var item in commentsWithCommit) {
                         var commitSha = item.Key;
                         var comments = item.Value;
                         double score = CalculateNpScore(comments);
                         Console.WriteLine("[Trace] Score for {0} is {1}", commitSha, score);
-                        if (score >= 0)
+                        if (score <= 0)
                             pr.AddCommit(commitSha);
                     }
                     Pulls.Add(pr);
@@ -102,12 +103,16 @@ namespace Minyar.Github {
         }
 
         private Dictionary<string, List<IssueComment>> AssociateCommentsToCommit(
-            IReadOnlyList<IssueComment> comments, IReadOnlyList<PullRequestCommit> commits) {
+            IReadOnlyList<IssueComment> comments, IReadOnlyList<PullRequestCommit> commits,
+            IReadOnlyList<GitHubCommit> commitDetails ) {
             var dic = new Dictionary<string, List<IssueComment>>();
+            if (commits.Count == 0) return dic;
+            var previousCommit = commitDetails.Where(x => x.Sha == commits[0].Sha);
             for (int i = 1; i < commits.Count; i++) {
+                var currentCommit = commitDetails.Where(x => x.Sha == commits[i].Sha);
                 var associatedComments = comments.Where(
-                    x => (x.CreatedAt.DateTime > commits[i - 1].Committer.Date.DateTime) &&
-                         (x.CreatedAt.DateTime <= commits[i].Committer.Date.DateTime));
+                    x => (x.CreatedAt.DateTime > commits[i - 1].Commit.Committer.Date.DateTime) &&
+                         (x.CreatedAt.DateTime <= commits[i].Commit.Committer.Date.DateTime));
                 if (associatedComments.Count() > 0) {
                     dic[commits[i].Sha] = associatedComments.ToList();
                 }
