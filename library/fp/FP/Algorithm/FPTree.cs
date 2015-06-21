@@ -167,9 +167,11 @@ namespace FP.Algorithm {
 				}
 			}
 
-			tree.FrequentItems = FrequentItems.FindAll
-            (
+			tree.FrequentItems = FrequentItems.FindAll(
 				delegate(Item item) {
+					if (tree.headerTable.ContainsKey(item.Symbol)) {
+						item.SupportCount = tree.headerTable[item.Symbol].FpCount;
+					}
 					return tree.headerTable.ContainsKey(item.Symbol);
 				}
 			);

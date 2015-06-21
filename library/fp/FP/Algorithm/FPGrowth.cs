@@ -27,6 +27,8 @@ namespace FP.Algorithm {
 			foreach (Item anItem in frequentItems) {
 				ItemSet anItemSet = new ItemSet();
 				anItemSet.AddItem(anItem);
+				anItemSet.SupportCount = anItem.SupportCount;
+				Console.WriteLine(anItemSet);
 				totalFrequentItemSets += Mine(fpTree, anItemSet);
 				Console.WriteLine(totalFrequentItemSets + " itemsets for " + anItem.Symbol);
 			}
@@ -42,6 +44,7 @@ namespace FP.Algorithm {
 			foreach (Item anItem in projectedTree.FrequentItems) {
 				ItemSet nextItemSet = anItemSet.Clone();
 				nextItemSet.AddItem(anItem);
+				nextItemSet.SupportCount = anItem.SupportCount;
 				Console.WriteLine(nextItemSet);
 				minedItemSets += Mine(projectedTree, nextItemSet);
 			}
