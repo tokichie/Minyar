@@ -10,15 +10,19 @@ namespace FP.Algorithm {
 		FPTree fpTree;
 		IOutputDatabaseHelper outputDatabaseHelper;
 
+	    public List<ItemSet> MinedItemSets; 
+
 		public FPGrowth() {
 			fpTree = null;
 			outputDatabaseHelper = null;
+            MinedItemSets = new List<ItemSet>();
 		}
 
 		public FPGrowth(FPTree tree, IOutputDatabaseHelper outDatabaseHelper)
 			: this() {
 			fpTree = tree;
 			outputDatabaseHelper = outDatabaseHelper;
+            MinedItemSets = new List<ItemSet>();
 		}
 
 		public int GenerateFrequentItemSets() {
@@ -29,6 +33,7 @@ namespace FP.Algorithm {
 				anItemSet.AddItem(anItem);
 				anItemSet.SupportCount = anItem.SupportCount;
 				Console.WriteLine(anItemSet);
+                MinedItemSets.Add(anItemSet);
 				totalFrequentItemSets += Mine(fpTree, anItemSet);
 				Console.WriteLine(totalFrequentItemSets + " itemsets for " + anItem.Symbol);
 			}
@@ -46,6 +51,7 @@ namespace FP.Algorithm {
 				nextItemSet.AddItem(anItem);
 				nextItemSet.SupportCount = anItem.SupportCount;
 				Console.WriteLine(nextItemSet);
+                MinedItemSets.Add(nextItemSet);
 				minedItemSets += Mine(projectedTree, nextItemSet);
 			}
 			return minedItemSets;

@@ -13,6 +13,7 @@ namespace Minyar.Tests {
 				            2.0 / 9.0);
 
 			var res = miner.GenerateFrequentItemsets();
+		    var sets = miner.GetMinedItemSets();
 			Console.WriteLine(res);
 		}
 	}

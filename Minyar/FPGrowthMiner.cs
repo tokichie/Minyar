@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using FP.Algorithm;
+using FP.DAL.DAO;
 using FP.DAL.Gateway.Interface;
 using FP.DAL.Gateway;
 
@@ -26,6 +28,12 @@ namespace Minyar {
 			return fpGrowth.CreateFPTreeAndGenerateFrequentItemsets(
 				inputHelper, outputHelper, minSup);
 		}
+
+	    public List<ItemSet> GetMinedItemSets() {
+	        var res = fpGrowth.MinedItemSets;
+            res.Sort((set1, set2) => set2.SupportCount.CompareTo(set1.SupportCount));
+	        return res;
+	    }
 	}
 }
 
