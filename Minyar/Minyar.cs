@@ -54,8 +54,7 @@ namespace Minyar {
                 }
                 var miner = new FPGrowthMiner(
                     Path.Combine(path, name + ".txt"),
-                    Path.Combine(path, name + ".out"),
-                    2.0 / 9.0);
+                    Path.Combine(path, name + ".out"), 2);
 
                 var res = miner.GenerateFrequentItemsets();
                 Console.WriteLine(res);

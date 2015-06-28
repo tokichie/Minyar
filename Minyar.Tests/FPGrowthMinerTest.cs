@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using System.IO;
+using FP.DAL.DAO;
 
 namespace Minyar.Tests {
 	[TestFixture]
@@ -10,12 +12,18 @@ namespace Minyar.Tests {
 			var miner = new FPGrowthMiner(
 				            Path.Combine("..", "..", "TestData", "FrequentItemset1.dat"),
 				            Path.Combine("..", "..", "TestData", "FrequentItemset1.out"),
-				            2.0 / 9.0);
+				            2);
 
 			var res = miner.GenerateFrequentItemsets();
-		    var sets = miner.GetMinedItemSets();
-			Console.WriteLine(res);
+		    var items = miner.GetMinedItemSets();
+            PrintResult(items);
 		}
+
+	    private void PrintResult(List<ItemSet> items) {
+	        foreach (var item in items) {
+                Console.WriteLine(item); 
+	        }
+	    }
 	}
 }
 

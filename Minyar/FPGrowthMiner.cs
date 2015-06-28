@@ -11,22 +11,19 @@ namespace Minyar {
 		private IInputDatabaseHelper inputHelper;
 		private IOutputDatabaseHelper outputHelper;
 
-		public float minSup;
+	    public int Threshold;
 
-		public FPGrowthMiner(string inputPath, string outputPath, double minSup) :
-			this(inputPath, outputPath, (float)minSup) {
-		}
-
-		public FPGrowthMiner(string inputPath, string outputPath, float minSup = 0.74f) {
+		public FPGrowthMiner(string inputPath, string outputPath, int threshold = 5) { 
 			fpGrowth = new FPGrowth();
 			this.inputHelper = new FileInputDatabaseHelper(inputPath);
 			this.outputHelper = new FileOutputDatabaseHelper(outputPath);
-			this.minSup = minSup;
+		    this.Threshold = threshold;
 		}
 
 		public int GenerateFrequentItemsets() {
 			return fpGrowth.CreateFPTreeAndGenerateFrequentItemsets(
-				inputHelper, outputHelper, minSup);
+				inputHelper, outputHelper,
+                (float)Threshold / inputHelper.TotalTransactionNumber);
 		}
 
 	    public List<ItemSet> GetMinedItemSets() {
