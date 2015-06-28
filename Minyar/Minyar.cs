@@ -57,7 +57,9 @@ namespace Minyar {
                     Path.Combine(path, name + ".out"), 2);
 
                 var res = miner.GenerateFrequentItemsets();
-                Console.WriteLine(res);
+                foreach (var itemset in miner.GetMinedItemSets()) {
+                    Console.WriteLine(itemset);
+                }
             }
         }
 
