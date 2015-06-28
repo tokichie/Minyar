@@ -18,6 +18,18 @@ namespace Minyar.Tests {
 		    var items = miner.GetMinedItemSets();
             PrintResult(items);
 		}
+       
+		[Test]
+		public void TestFPGrowth2() {
+			var miner = new FPGrowthMiner(
+				            Path.Combine("..", "..", "TestData", "FrequentItemset2.dat"),
+				            Path.Combine("..", "..", "TestData", "FrequentItemset2.out"),
+				            2);
+
+			var res = miner.GenerateFrequentItemsets();
+		    var items = miner.GetMinedItemSets();
+            PrintResult(items);
+		}
 
 	    private void PrintResult(List<ItemSet> items) {
 	        foreach (var item in items) {
