@@ -13,12 +13,12 @@ namespace Minyar.Tests {
         [Test]
         public void TestWholeProgram() {
             var repos = new List<string[]> {
-                //new string[] { "nathanmarz", "storm" },
-                //new string[] { "spring-projects", "spring-framework" },
-                //new string[] { "ReactiveX", "RxJava" },
-                //new string[] { "netty", "netty" },
-                //new string[] { "clojure", "clojure" }
-                new[] {"tokichie", "pattern-detection"}
+                new string[] { "clojure", "clojure" },
+                new string[] { "nathanmarz", "storm" },
+                new string[] { "spring-projects", "spring-framework" },
+                new string[] { "ReactiveX", "RxJava" },
+                new string[] { "netty", "netty" }
+                //new[] {"tokichie", "pattern-detection"}
             };
             var minyar = new Minyar(repos);
             var task = minyar.StartMining();

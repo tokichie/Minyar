@@ -117,6 +117,8 @@ namespace Minyar.Git {
                     try {
                         repo.Checkout(sha, checkoutOpts);
                     } catch (Exception e) {
+                        //repo.Reset(ResetMode.Hard);
+                        //repo.Checkout(sha, checkoutOpts);
                         //Console.WriteLine(e);
                         continue;
                     }

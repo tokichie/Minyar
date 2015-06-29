@@ -44,14 +44,18 @@ namespace Minyar.Github {
             var options = new PullRequestRequest {
                 State = ItemState.Closed
             };
+            int totalApiRequestCount = 0;
+            int apiRequestCount = 0;
             var pulls = await client.PullRequest.GetAllForRepository(Owner, Name, options);
+            apiRequestCount++;
             foreach (var pull in pulls) {
                 if (pull.MergedAt != null) {
                     var pr = new GithubPullRequest(pull.Number);
-                    var pullComments = await client.PullRequest.Comment.GetAll(Owner, Name, pull.Number);
+                    //var pullComments = await client.PullRequest.Comment.GetAll(Owner, Name, pull.Number);
                     var issueComments = await client.Issue.Comment.GetAllForIssue(Owner, Name, pull.Number);
                     var pullCommits = await client.PullRequest.Commits(Owner, Name, pull.Number);
                     var commitDetails = await OctokitClient.Client.Repository.Commits.GetAll(Owner, Name);
+                    apiRequestCount += 3;
                     var commentsWithCommit = AssociateCommentsToCommit(issueComments, pullCommits, commitDetails);
                     foreach (var item in commentsWithCommit) {
                         var commitSha = item.Key;
@@ -63,7 +67,16 @@ namespace Minyar.Github {
                     }
                     Pulls.Add(pr);
                 }
+                if (apiRequestCount > 1000) {
+                    totalApiRequestCount += apiRequestCount;
+                    Console.WriteLine("[Info] Sleeping until {0}", DateTime.Now.AddMinutes(15));
+                    System.Threading.Thread.Sleep(new TimeSpan(0, 15, 0));
+                    apiRequestCount = 0;
+                }
+                Console.WriteLine("[Info] Current API Requst Count is {0}", apiRequestCount);
             }
+            totalApiRequestCount += apiRequestCount;
+            Console.WriteLine("[Info] API Requst Count was {0}", totalApiRequestCount);
         }
 
         public string Serialize() {
