@@ -176,6 +176,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApiRateLimitTest.cs" />
     <Compile Include="Github\GithubDiffTest.cs" />
     <Compile Include="Github\OctokitClientTest.cs" />
     <Compile Include="Git\GitRepositoryTest.cs" />
@@ -224,7 +225,6 @@
   </Target>
   -->
   <ItemGroup>
-    <Folder Include="TestData\" />
     <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>

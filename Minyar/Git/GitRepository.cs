@@ -130,11 +130,16 @@ namespace Minyar.Git {
                             continue;
                         }
                         string code = "";
-                        using (var reader = new StreamReader(
-                            Path.Combine(githubRepo.RepositoryDirectory, filePath))) {
+                        try {
+                            using (var reader = new StreamReader(
+                                Path.Combine(githubRepo.RepositoryDirectory, filePath))) {
                                 code = reader.ReadToEnd();
+                            }
+                            changedCodes[filePath].Add(code);
+                        } catch (FileNotFoundException e) {
+                            Console.WriteLine(e.Message);
+                            Console.WriteLine(e.StackTrace);
                         }
-                        changedCodes[filePath].Add(code);
                     }
                 }
             }
