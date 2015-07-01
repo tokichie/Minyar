@@ -65,6 +65,7 @@ namespace Minyar {
 
         private void WriteOut(StreamWriter writer, HashSet<ChangePair> changeSet) {
             var builder = new StringBuilder();
+            if (changeSet.Count == 0) return;
             foreach (var item in changeSet) {
                 builder.Append("<").Append(item.Operation).Append(":").Append(item.NodeType).Append("> ");
             }
