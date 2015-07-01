@@ -7,12 +7,13 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
+using Minyar.Github;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Minyar {
     class ApiRateLimit {
-        private static readonly string token = "a23e7ecd104c8ae7e66f68cb53840facaadc8a5d";
+        private static readonly string token = OctokitClient.Token;
         private static readonly string rateLimitUrl = 
             string.Format("https://api.github.com/rate_limit?access_token={0}", token);
 
@@ -37,8 +38,8 @@ namespace Minyar {
             var request = WebRequest.Create(rateLimitUrl) as HttpWebRequest;
             request.ContentType = "application/json";
             request.Method = WebRequestMethods.Http.Get;
-            //request.Headers.Add("Authorization", string.Format("Token {0}", token));
-            //request.Credentials = CredentialCache.DefaultCredentials;
+            request.Headers.Add("Authorization", string.Format("Token {0}", token));
+            request.Credentials = CredentialCache.DefaultCredentials;
             request.UserAgent = "Minyar";
             var response = (HttpWebResponse) request.GetResponse();
             string json = "";

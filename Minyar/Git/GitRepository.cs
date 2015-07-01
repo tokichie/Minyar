@@ -136,7 +136,7 @@ namespace Minyar.Git {
                                 code = reader.ReadToEnd();
                             }
                             changedCodes[filePath].Add(code);
-                        } catch (FileNotFoundException e) {
+                        } catch (Exception e) {
                             Console.WriteLine(e.Message);
                             Console.WriteLine(e.StackTrace);
                         }
