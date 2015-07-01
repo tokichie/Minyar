@@ -10,6 +10,10 @@ using Octokit;
 namespace Minyar.Tests {
     [TestFixture]
     class ApiRateLimitTest {
+        [Test]
+        public void TestCheckLimit() {
+            ApiRateLimit.CheckLimit();
+        }
 
         [Test]
         public async Task TestRateLimitUsage() {

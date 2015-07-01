@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 namespace Minyar.Github {
 	public static class OctokitClient {
         private static GitHubClient client;
+	    private static string token;
 
         public static GitHubClient Client {
             get {
@@ -16,14 +17,23 @@ namespace Minyar.Github {
             }
         }
 
+	    public static string Token {
+	        get {
+	            if (token == null) {
+	                token = IncludeToken();
+	            }
+	            return token;
+;	        }
+	    }
+
 
         private static void SetClient() {
             client = new GitHubClient(new ProductHeaderValue(
                 System.Reflection.Assembly.GetExecutingAssembly().GetName().Name));
-		    client.Credentials = new Credentials(IncludeToken());
+            client.Credentials = new Credentials(Token);
         }
 
-		public static string IncludeToken() {
+		private static string IncludeToken() {
 			var token = "";
 			try {
 				var path = Path.Combine("..", "..", "..", "Minyar", "Resources", "AuthInfo.txt");
