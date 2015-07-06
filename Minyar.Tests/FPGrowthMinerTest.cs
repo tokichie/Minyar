@@ -6,9 +6,9 @@ using FP.DAL.DAO;
 
 namespace Minyar.Tests {
 	[TestFixture]
-	public class FPGrowthMinerTest {
+	public class FpGrowthMinerTest {
 		[Test]
-		public void TestFPGrowth() {
+		public void TestFpGrowth() {
 			var miner = new FPGrowthMiner(
 				            Path.Combine("..", "..", "TestData", "FrequentItemset1.dat"),
 				            Path.Combine("..", "..", "TestData", "FrequentItemset1.out"),
@@ -20,7 +20,7 @@ namespace Minyar.Tests {
 		}
        
 		[Test]
-		public void TestFPGrowth2() {
+		public void TestFpGrowth2() {
 			var miner = new FPGrowthMiner(
 				            Path.Combine("..", "..", "TestData", "FrequentItemset2.dat"),
 				            Path.Combine("..", "..", "TestData", "FrequentItemset2.out"),

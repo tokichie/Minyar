@@ -187,7 +187,7 @@
     <Compile Include="LevenshteinDistanceTest.cs" />
     <Compile Include="TreeMappingTest.cs" />
     <Compile Include="CstChangeTest.cs" />
-    <Compile Include="FPGrowthMinerTest.cs" />
+    <Compile Include="FpGrowthMinerTest.cs" />
     <Compile Include="Nlp\WordTest.cs" />
     <Compile Include="Nlp\SentenceTest.cs" />
     <Compile Include="Nlp\TextParserTest.cs" />
