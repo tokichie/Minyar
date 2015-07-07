@@ -25,6 +25,8 @@ namespace Minyar {
 
         public async Task StartMining() {
             GitRepository.DownloadRepositories(Repositories);
+            var allResultFilePath = Path.Combine("..", "..", "..", "20150708.txt");
+            var allResultFileWriter = new StreamWriter(new FileStream(allResultFilePath, FileMode.Append));
             foreach (var repoId in Repositories) {
                 var owner = repoId[0];
                 var name = repoId[1];
@@ -47,18 +49,32 @@ namespace Minyar {
                             var githubDiff = new GithubDiff();
                             githubDiff.ParseDiff(diff);
                             var changeSet = CreateAstAndTakeDiff(githubRepo, githubDiff.FileDiffList, sha);
-                            if (changeSet != null)
+                            if (changeSet != null) {
                                 WriteOut(writer, changeSet);
+                                WriteOut(allResultFileWriter, changeSet);
+                            }
                         }
                     }
                 }
-                var miner = new FPGrowthMiner(
-                    Path.Combine(path, name + ".txt"),
-                    Path.Combine(path, name + ".out"), 2);
+                //var miner = new FPGrowthMiner(
+                //    Path.Combine(path, name + ".txt"),
+                //    Path.Combine(path, name + ".out"), 200);
 
-                var res = miner.GenerateFrequentItemsets();
+                //var res = miner.GenerateFrequentItemsets();
+                //foreach (var itemset in miner.GetMinedItemSets()) {
+                //    Console.WriteLine(itemset);
+                //}
+            }
+            var miner = new FPGrowthMiner(
+                Path.Combine("..", "..", "..", "20150708.txt"),
+                Path.Combine("..", "..", "..", "20150708.out"), 200);
+
+            var res = miner.GenerateFrequentItemsets();
+            using (
+                var resWriter =
+                    new StreamWriter(new FileStream(Path.Combine("..", "..", "..", "20150708.res"), FileMode.Create))) {
                 foreach (var itemset in miner.GetMinedItemSets()) {
-                    Console.WriteLine(itemset);
+                    resWriter.WriteLine(itemset);
                 }
             }
         }

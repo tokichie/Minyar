@@ -40,8 +40,7 @@ namespace FP.Algorithm {
 
 		private int Mine(FPTree fpTree, ItemSet anItemSet) {
 			int minedItemSets = 0;
-			FPTree projectedTree;
-			projectedTree = fpTree.Project(anItemSet.GetLastItem());
+			FPTree projectedTree = fpTree.Project(anItemSet.GetLastItem());
 			minedItemSets = projectedTree.FrequentItems.Count;
 			foreach (Item anItem in projectedTree.FrequentItems) {
 				ItemSet nextItemSet = anItemSet.Clone();
