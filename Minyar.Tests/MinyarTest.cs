@@ -16,7 +16,7 @@ namespace Minyar.Tests {
     public class MinyarTest {
         [Test]
         public void TestWholeProgram() {
-            /*
+            
             var repos = new List<string[]> {
                 new string[] { "clojure", "clojure" },
                 new string[] { "spring-projects", "spring-boot" },
@@ -29,8 +29,8 @@ namespace Minyar.Tests {
                 new string[] { "netty", "netty" },
                 new string[] { "nathanmarz", "storm" }
                 //new[] {"tokichie", "pattern-detection"}
-            };*/
-            var repos = ReadCsvFile();
+            };
+            //var repos = ReadCsvFile();
             var minyar = new Minyar(repos);
             var task = minyar.StartMining();
             task.Wait();
@@ -42,6 +42,36 @@ namespace Minyar.Tests {
             var pulls = githubRepo.Pulls.Where((pull) => pull.Commits.Count > 0);
             Console.WriteLine("# of pulls: {0}", pulls.Count());
             Console.WriteLine("# of commits: {0}", pulls.Sum((commit) => commit.Commits.Count));
+        }
+
+        [Test]
+        public void TestSmallRepo() {
+            var codeChanges = new List<string[]>() {
+                new [] {
+                    "class A { void m() { a = a - b; } }",
+                    "class A { void m() { a = a + f(b); } }"
+                },
+                new [] {
+                    "class B { void m() { a = a - c; } }",
+                    "class A { void m() { a = a + g(c); } }"
+                },
+                new [] {
+                    "class D { void m() { a = a - b; } }",
+                    "class F { void m() { a = a + f(b); } }"
+                },
+            };
+            foreach (var codeChange in codeChanges) {
+                using (
+                    var writer =
+                        new StreamWriter(new FileStream(Path.Combine("..", "..", "TestData", "test.dat"),
+                            FileMode.Append))) {
+                    var orgCst = Program.GenerateCst(codeChange[0]);
+                    var cmpCst = Program.GenerateCst(codeChange[1]);
+                    var mapper = new TreeMapping(orgCst, cmpCst, new []{0, 1}, new []{0, 1});
+                    mapper.Map();
+                    Minyar.WriteOut(writer, mapper.ChangeSet);
+                }
+            }
         }
 
         private List<string[]> ReadCsvFile() {

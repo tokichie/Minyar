@@ -41,7 +41,7 @@ namespace Minyar {
                 if (!Directory.Exists(path)) {
                     Directory.CreateDirectory(path);
                 }
-                using (var writer = new StreamWriter(Path.Combine(path, name + ".txt"))) {
+                using (var writer = new StreamWriter(new FileStream(Path.Combine(path, name + ".txt"), FileMode.Append))) {
                     foreach (var pull in githubRepo.Pulls) {
                         Console.WriteLine("[Trace] Extracting Pull #{0}", pull.Number);
                         foreach (var sha in pull.Commits) {
@@ -65,21 +65,21 @@ namespace Minyar {
                 //    Console.WriteLine(itemset);
                 //}
             }
-            var miner = new FPGrowthMiner(
-                Path.Combine("..", "..", "..", "20150708.txt"),
-                Path.Combine("..", "..", "..", "20150708.out"), 200);
+            //var miner = new FPGrowthMiner(
+            //    Path.Combine("..", "..", "..", "20150708.txt"),
+            //    Path.Combine("..", "..", "..", "20150708.out"), 200);
 
-            var res = miner.GenerateFrequentItemsets();
-            using (
-                var resWriter =
-                    new StreamWriter(new FileStream(Path.Combine("..", "..", "..", "20150708.res"), FileMode.Create))) {
-                foreach (var itemset in miner.GetMinedItemSets()) {
-                    resWriter.WriteLine(itemset);
-                }
-            }
+            //var res = miner.GenerateFrequentItemsets();
+            //using (
+            //    var resWriter =
+            //        new StreamWriter(new FileStream(Path.Combine("..", "..", "..", "20150708.res"), FileMode.Create))) {
+            //    foreach (var itemset in miner.GetMinedItemSets()) {
+            //        resWriter.WriteLine(itemset);
+            //    }
+            //}
         }
 
-        private void WriteOut(StreamWriter writer, HashSet<ChangePair> changeSet) {
+        public static void WriteOut(StreamWriter writer, HashSet<ChangePair> changeSet) {
             var builder = new StringBuilder();
             if (changeSet.Count == 0) return;
             foreach (var item in changeSet) {
