@@ -24,7 +24,7 @@ namespace Minyar.Tests {
                 new string[] { "antlr", "antlr4" },
                 new string[] { "junit-team", "junit" },
                 new string[] { "libgdx", "libgdx" },
-                new string[] { "ReactiveX", "RxJava" },
+                //new string[] { "ReactiveX", "RxJava" },
                 new string[] { "spring-projects", "spring-framework" },
                 new string[] { "netty", "netty" },
                 new string[] { "nathanmarz", "storm" }

@@ -99,12 +99,14 @@ namespace Minyar.Git {
                 var commit = repo.Lookup<Commit>(targetSha);
                 if (commit == null) {
                     Console.WriteLine("[Skipped] Sha {0} is not found.", targetSha);
-                    throw new ArgumentException("Invalid sha");
+                    return changedCodes;
+                    //throw new ArgumentException("Invalid sha");
                 }
                 parentSha = commit.Parents.First().Sha;
                 if (parentSha == null) {
                     Console.WriteLine("[Skipped] Parent of sha {0} is null.", targetSha);
-                    throw new ArgumentException("Invalid parent sha");
+                    return changedCodes;
+                    //throw new ArgumentException("Invalid parent sha");
                 }
                 foreach (var fileDiff in fileDiffs) {
                     var filePath = fileDiff.NewFilePath;
