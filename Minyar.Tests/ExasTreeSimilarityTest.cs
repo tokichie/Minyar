@@ -18,7 +18,7 @@ namespace Minyar.Tests {
             MethodInfo methodInfo = typeof(ExasTreeSimilarity)
                 .GetMethod("DetectVerticalFeatures", BindingFlags.Static | BindingFlags.NonPublic);
             var dic = new SortedDictionary<string, int>();
-            methodInfo.Invoke(null, new object[]{ exp, new List<CstNode>(), dic });
+            methodInfo.Invoke(null, new object[]{ exp, new List<AstNode>(), dic });
             Debug(dic);
             Assert.AreEqual(5, dic.Count);
             Assert.That(dic.ContainsKey("expression") && dic["expression"] == 2);
@@ -37,7 +37,7 @@ namespace Minyar.Tests {
             MethodInfo methodInfo = typeof(ExasTreeSimilarity)
                 .GetMethod("DetectVerticalFeatures", BindingFlags.Static | BindingFlags.NonPublic);
             var dic = new SortedDictionary<string, int>();
-            methodInfo.Invoke(null, new object[]{ exp, new List<CstNode>(), dic });
+            methodInfo.Invoke(null, new object[]{ exp, new List<AstNode>(), dic });
             Debug(dic);
             Assert.AreEqual(15, dic.Count);
             Assert.That(dic["expression"] == 2);

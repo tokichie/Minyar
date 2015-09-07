@@ -14,14 +14,14 @@ namespace Minyar {
         /// </summary>
         /// <param name="left">Root node of the left tree.</param>
         /// <param name="right">Root node of the right tree.</param>
-        public static double Calculate(CstNode left, CstNode right) {
+        public static double Calculate(AstNode left, AstNode right) {
             IDictionary<string, int> leftFeatures = new SortedDictionary<string, int>();
             IDictionary<string, int> rightFeatures = new SortedDictionary<string, int>();
 
-            DetectVerticalFeatures(left, new List<CstNode>(), leftFeatures);
+            DetectVerticalFeatures(left, new List<AstNode>(), leftFeatures);
             DetectHorizontalFeatures(left, leftFeatures);
 
-            DetectVerticalFeatures(right, new List<CstNode>(), rightFeatures);
+            DetectVerticalFeatures(right, new List<AstNode>(), rightFeatures);
             DetectHorizontalFeatures(right, rightFeatures);
 
             return MakeFeatureVectors(leftFeatures, rightFeatures);
@@ -81,7 +81,7 @@ namespace Minyar {
         /// <param name="node">Root node of the tree.</param>
         /// <param name="list">Stack for DFS (using List instead of Stack because List can be serialized more easily).</param>
         /// <param name="features">Dictionary for storing feature.</param>
-        private static void DetectVerticalFeatures(CstNode node, List<CstNode> list, IDictionary<string, int> features) {
+        private static void DetectVerticalFeatures(AstNode node, List<AstNode> list, IDictionary<string, int> features) {
             list.Add(node);
             for (int l = 1; l <= Math.Min(list.Count, 3); l++)
                 SerializeFeatures(list, features, l);
@@ -97,8 +97,8 @@ namespace Minyar {
         /// </summary>
         /// <param name="node">Root node of the tree.</param>
         /// <param name="features">Dictionary for storing feature.</param>
-        private static void DetectHorizontalFeatures(CstNode node, IDictionary<string, int> features) {
-            List<CstNode> children = new List<CstNode>();
+        private static void DetectHorizontalFeatures(AstNode node, IDictionary<string, int> features) {
+            List<AstNode> children = new List<AstNode>();
             foreach (var c in node.Children())
                 children.Add(c);
 
@@ -117,7 +117,7 @@ namespace Minyar {
         /// <param name="list">List for being serialized.</param>
         /// <param name="features">Dictionary for storing feature.</param>
         /// <param name="featureLength">Feature length</param>
-        private static void SerializeFeatures(List<CstNode> list, IDictionary<string, int> features, int featureLength) {
+        private static void SerializeFeatures(List<AstNode> list, IDictionary<string, int> features, int featureLength) {
             for (int i = list.Count - featureLength; i < list.Count - (featureLength - 1); i++) {
                 string nodeName;
                 if (featureLength == 1) {
