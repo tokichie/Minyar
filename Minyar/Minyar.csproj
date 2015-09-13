@@ -181,9 +181,6 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Octokit">
-      <HintPath>..\packages\Octokit.0.14.0\lib\net45\Octokit.dll</HintPath>
-    </Reference>
     <Reference Include="TreeDotNet">
       <HintPath>..\packages\TreeDotNet.1.3.2.21\lib\net40\TreeDotNet.dll</HintPath>
     </Reference>

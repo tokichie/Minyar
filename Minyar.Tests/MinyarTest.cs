@@ -74,6 +74,14 @@ namespace Minyar.Tests {
             }
         }
 
+        [Test]
+        public void TestAst() {
+            var codeFile = new StreamReader(new FileStream(@"C:\code.txt", FileMode.Open));
+            var code = codeFile.ReadToEnd();
+            var gen = AstGenerators.Java;
+            var ast = gen.GenerateTreeFromCodeText(code);
+        }
+
         private List<string[]> ReadCsvFile() {
             var repoList = new List<string[]>();
             var csvFilePath = Path.Combine("..", "..", "..", "Minyar", "Resources", "java3.csv");
