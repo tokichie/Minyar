@@ -51,11 +51,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Code2Xml.Core, Version=3.3.3.99, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Code2Xml.3.3.3.99\lib\Code2Xml.Core.dll</HintPath>
+    </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="LibGit2Sharp">
       <HintPath>..\packages\LibGit2Sharp.0.21.0.176\lib\net40\LibGit2Sharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Octokit">
+      <HintPath>..\packages\Octokit.0.15.0\lib\net45\Octokit.dll</HintPath>
     </Reference>
     <Reference Include="stanford-corenlp-3.5.2">
       <HintPath>..\packages\Stanford.NLP.CoreNLP.3.5.2\lib\stanford-corenlp-3.5.2.dll</HintPath>
@@ -186,9 +193,6 @@
     </Reference>
     <Reference Include="xom">
       <HintPath>..\packages\Stanford.NLP.CoreNLP.3.5.2\lib\xom.dll</HintPath>
-    </Reference>
-    <Reference Include="Code2Xml.Core">
-      <HintPath>..\packages\Code2Xml.3.3.2.98\lib\Code2Xml.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -16,10 +16,12 @@ namespace Minyar {
 			this.ChangedToken = "";
 			if (orgNode != null) {
 				this.NodeType = orgNode.Name;
-				this.OriginalToken = orgNode.Token.Text;
+                if (orgNode.HasToken)
+                    this.OriginalToken = orgNode.Token.Text;
 			}
 			if (cmpNode != null) {
-				this.ChangedToken = cmpNode.Token.Text;
+                if (cmpNode.HasToken)
+                    this.ChangedToken = cmpNode.Token.Text;
 				if (op == CstChangeOperation.Insert)
 					this.NodeType = cmpNode.Name;
 			}

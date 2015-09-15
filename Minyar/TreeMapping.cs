@@ -198,9 +198,11 @@ namespace Minyar {
 						isMapped[i] = true;
 						break;
 					}
+				    if (orgNode.HasToken == false) continue;
 					var maxSim = TreeMapping.SimThreshold;
 					var minDist = Int32.MaxValue;
 					foreach (var descendant in cmpNode.DescendantsAndSelf()) {
+                        if (descendant.HasToken == false) continue;
 						double sim = ExasTreeSimilarity.Calculate(orgNode, descendant);
 						if (sim >= maxSim) {
 							var dist = LevenshteinDistance.Calculate(orgNode.Token.Text, descendant.Token.Text);
@@ -255,14 +257,15 @@ namespace Minyar {
 				if (cmpNode == null) {
 					this.ChangeSet.Add(new ChangePair(CstChangeOperation.Delete, orgNode));
 				} else {
-					checkedFlag.Add(cmpNode);
-					if (orgNode.Token.Text == cmpNode.Token.Text) {
-						if (this.movedNodes.Contains(orgNode))
-							this.ChangeSet.Add(new ChangePair(CstChangeOperation.Move, orgNode, cmpNode));
-					} else {
-						if (orgNode.Name == "TOKEN" && cmpNode.Name == "TOKEN")
-							this.ChangeSet.Add(new ChangePair(CstChangeOperation.Update, orgNode, cmpNode));
-					} 
+                    checkedFlag.Add(cmpNode);
+                    if (orgNode.HasToken && cmpNode.HasToken && orgNode.Token.Text != cmpNode.Token.Text) {
+                        this.ChangeSet.Add(new ChangePair(CstChangeOperation.Update, orgNode, cmpNode));
+                    }
+                    if (orgNode.Name == cmpNode.Name) {
+                        if (this.movedNodes.Contains(orgNode)) {
+                            this.ChangeSet.Add(new ChangePair(CstChangeOperation.Move, orgNode, cmpNode));
+                        }
+                    }
 				}
 			}
 

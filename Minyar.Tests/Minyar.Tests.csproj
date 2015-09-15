@@ -40,15 +40,18 @@
     <Reference Include="Antlr4.Runtime.net45">
       <HintPath>..\packages\Antlr4.Runtime.4.3.0\lib\net45\Antlr4.Runtime.net45.dll</HintPath>
     </Reference>
-    <Reference Include="Code2Xml.Core, Version=3.3.2.98, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Code2Xml.Core, Version=3.3.3.99, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Code2Xml.3.3.2.98\lib\Code2Xml.Core.dll</HintPath>
+      <HintPath>..\packages\Code2Xml.3.3.3.99\lib\Code2Xml.Core.dll</HintPath>
     </Reference>
     <Reference Include="LibGit2Sharp">
       <HintPath>..\packages\LibGit2Sharp.0.21.0.176\lib\net40\LibGit2Sharp.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Octokit">
+      <HintPath>..\packages\Octokit.0.15.0\lib\net45\Octokit.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
