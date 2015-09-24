@@ -26,8 +26,8 @@ namespace Minyar.Tests {
                 new string[] { "libgdx", "libgdx" },
                 //new string[] { "ReactiveX", "RxJava" },
                 new string[] { "spring-projects", "spring-framework" },
-                new string[] { "netty", "netty" },
-                new string[] { "nathanmarz", "storm" }
+                //new string[] { "netty", "netty" },
+                //new string[] { "nathanmarz", "storm" }
                 //new[] {"tokichie", "pattern-detection"}
             };
             //var repos = ReadCsvFile();

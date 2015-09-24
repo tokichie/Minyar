@@ -20,9 +20,13 @@ namespace Minyar.Nlp {
         }
 
         private int GetTokenCount(string str) {
-            var left = str.IndexOf('(');
-            var right = str.IndexOf(" token", left);
-            return Int32.Parse(str.Substring(left + 1, right - left - 1));
+            try {
+                var left = str.IndexOf('(');
+                var right = str.IndexOf(" token", left);
+                return Int32.Parse(str.Substring(left + 1, right - left - 1));
+            } catch (Exception e) {
+                return 0;
+            }
         }
 
         private string[] SplitAnnotations(string str) {

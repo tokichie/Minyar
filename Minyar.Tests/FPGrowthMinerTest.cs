@@ -35,9 +35,9 @@ namespace Minyar.Tests {
 	    [Test]
 	    public void ExecuteMining() {
 			var miner = new FPGrowthMiner(
-				            Path.Combine("..", "..", "TestData", "test.dat"),
-				            Path.Combine("..", "..", "TestData", "test.out"),
-				            4);
+				            Path.Combine("..", "..", "TestData", "20150923.txt"),
+				            Path.Combine("..", "..", "TestData", "20150923.out"),
+				            150);
 	        
 			var res = miner.GenerateFrequentItemsets();
 		    var items = miner.GetMinedItemSets();
@@ -46,9 +46,9 @@ namespace Minyar.Tests {
 
 	    [Test]
 	    public void ReplaceItemByNumber() {
-	        var inputFilePath = Path.Combine("..", "..", "TestData", "20150703.txt");
-	        var outputFilePath = Path.Combine("..", "..", "TestData", "20150703_replaced.txt");
-	        var mapFilePath = Path.Combine("..", "..", "TestData", "20150703_mapping.csv");
+	        var inputFilePath = Path.Combine("..", "..", "TestData", "20150923.txt");
+	        var outputFilePath = Path.Combine("..", "..", "TestData", "20150923_replaced.txt");
+	        var mapFilePath = Path.Combine("..", "..", "TestData", "20150923_mapping.csv");
 
             var mapping = new Dictionary<string, int>();
             var sb = new StringBuilder();
@@ -82,8 +82,17 @@ namespace Minyar.Tests {
 	    }
 
 	    private void PrintResult(List<ItemSet> items) {
-	        foreach (var item in items) {
-                Console.WriteLine(item); 
+            var sb = new StringBuilder();
+	        int i = 1;
+            foreach (var item in items) {
+                //Console.WriteLine(item);
+                sb.Append(item).AppendLine();
+                if (i % 1000 == 0) Console.WriteLine("{0}/{1}", i, items.Count);
+                i++;
+            }
+	        var itemFilePath = Path.Combine("..", "..", "TestData", "20150923_items_150.txt");
+	        using (var file = new StreamWriter(new FileStream(itemFilePath, FileMode.Create))) {
+                file.Write(sb.ToString());
 	        }
 	    }
 	}

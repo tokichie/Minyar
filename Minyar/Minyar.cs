@@ -25,7 +25,7 @@ namespace Minyar {
 
         public async Task StartMining() {
             GitRepository.DownloadRepositories(Repositories);
-            var allResultFilePath = Path.Combine("..", "..", "..", "20150708.txt");
+            var allResultFilePath = Path.Combine("..", "..", "..", "20150923.txt");
             var allResultFileWriter = new StreamWriter(new FileStream(allResultFilePath, FileMode.Append));
             foreach (var repoId in Repositories) {
                 var owner = repoId[0];
