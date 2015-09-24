@@ -15,6 +15,8 @@ namespace Minyar {
 
 		public HashSet<ChangePair> ChangeSet { get; private set; }
 
+		public string FilePath;
+
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="code2xml.TreeMapper"/> class.
@@ -26,6 +28,7 @@ namespace Minyar {
 		public TreeMapping(
 			AstNode orgTree, 
 			AstNode cmpTree, 
+			string filePath,
 			int[] orgRange = null,
 			int[] cmpRange = null) {
 			this.orgTree = orgTree;
@@ -33,6 +36,7 @@ namespace Minyar {
 			this.orgRange = orgRange;
 			this.cmpRange = cmpRange;
 			this.movedNodes = new HashSet<AstNode>();
+			this.FilePath = filePath;
 		}
 
 		/// <summary>
@@ -198,11 +202,13 @@ namespace Minyar {
 						isMapped[i] = true;
 						break;
 					}
-				    if (orgNode.HasToken == false) continue;
+					if (orgNode.HasToken == false)
+						continue;
 					var maxSim = TreeMapping.SimThreshold;
 					var minDist = Int32.MaxValue;
 					foreach (var descendant in cmpNode.DescendantsAndSelf()) {
-                        if (descendant.HasToken == false) continue;
+						if (descendant.HasToken == false)
+							continue;
 						double sim = ExasTreeSimilarity.Calculate(orgNode, descendant);
 						if (sim >= maxSim) {
 							var dist = LevenshteinDistance.Calculate(orgNode.Token.Text, descendant.Token.Text);
@@ -255,17 +261,17 @@ namespace Minyar {
 
 				var cmpNode = map[orgNode];
 				if (cmpNode == null) {
-					this.ChangeSet.Add(new ChangePair(CstChangeOperation.Delete, orgNode));
+					this.ChangeSet.Add(new ChangePair(CstChangeOperation.Delete, FilePath, orgNode));
 				} else {
-                    checkedFlag.Add(cmpNode);
-                    if (orgNode.HasToken && cmpNode.HasToken && orgNode.Token.Text != cmpNode.Token.Text) {
-                        this.ChangeSet.Add(new ChangePair(CstChangeOperation.Update, orgNode, cmpNode));
-                    }
-                    if (orgNode.Name == cmpNode.Name) {
-                        if (this.movedNodes.Contains(orgNode)) {
-                            this.ChangeSet.Add(new ChangePair(CstChangeOperation.Move, orgNode, cmpNode));
-                        }
-                    }
+					checkedFlag.Add(cmpNode);
+					if (orgNode.HasToken && cmpNode.HasToken && orgNode.Token.Text != cmpNode.Token.Text) {
+						this.ChangeSet.Add(new ChangePair(CstChangeOperation.Update, FilePath, orgNode, cmpNode));
+					}
+					if (orgNode.Name == cmpNode.Name) {
+						if (this.movedNodes.Contains(orgNode)) {
+							this.ChangeSet.Add(new ChangePair(CstChangeOperation.Move, FilePath, orgNode, cmpNode));
+						}
+					}
 				}
 			}
 

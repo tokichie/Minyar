@@ -5,41 +5,73 @@ using System.Collections.Generic;
 namespace Minyar {
 	public struct ChangePair {
 		public CstChangeOperation Operation;
+		public bool IsToken;
 		public string NodeType;
 		public string OriginalToken;
 		public string ChangedToken;
+		public string OriginalPath;
+		public string ChangedPath;
+		public string OriginalPosition;
+		public string ChangedPosition;
 
-		public ChangePair(CstChangeOperation op, AstNode orgNode = null, AstNode cmpNode = null) {
+		public ChangePair(CstChangeOperation op, string filePath, AstNode orgNode = null, AstNode cmpNode = null) {
 			this.Operation = op;
 			this.NodeType = "";
 			this.OriginalToken = "";
 			this.ChangedToken = "";
+			this.OriginalPath = "";
+			this.ChangedPath = filePath;
+			this.OriginalPosition = "";
+			this.ChangedPosition = "";
+			this.IsToken = false;
 			if (orgNode != null) {
-				this.NodeType = orgNode.Name;
-                if (orgNode.HasToken)
-                    this.OriginalToken = orgNode.Token.Text;
+				this.IsToken = orgNode.HasToken;
+				if (orgNode.HasToken) {
+					this.OriginalToken = orgNode.Token.Text;
+					this.OriginalPosition = orgNode.Token.Range.ToString();
+				}
 			}
 			if (cmpNode != null) {
-                if (cmpNode.HasToken)
-                    this.ChangedToken = cmpNode.Token.Text;
+				if (cmpNode.HasToken) {
+					this.ChangedToken = cmpNode.Token.Text;
+					this.ChangedPosition = cmpNode.Token.Range.ToString();
+				}
 				if (op == CstChangeOperation.Insert)
 					this.NodeType = cmpNode.Name;
 			}
 		}
 
-		public ChangePair(CstChangeOperation op, string nodeType, string orgToken, string cmpToken) {
+		public ChangePair(CstChangeOperation op, string filePath, string orgToken, string cmpToken) {
 			this.Operation = op;
-			this.NodeType = nodeType;
+			this.IsToken = true;
+			this.NodeType = "";
+			this.OriginalPath = "";
+			this.OriginalPosition = "";
+			this.ChangedPosition = "";
+			this.ChangedPath = filePath;
 			this.OriginalToken = orgToken;
 			this.ChangedToken = cmpToken;
 		}
 
 		public override string ToString() {
 			var res = "";
-			if (NodeType == "TOKEN")
-				res = string.Format("<{0}:TOKEN:{1}:{2}>", Operation.ToString(), OriginalToken, ChangedToken);
+			if (IsToken)
+				res = string.Format(
+					"<{0}:TOKEN:{1}:{2}:{3}:{4}:{5}>",
+					Operation.ToString(),
+					OriginalToken,
+					ChangedToken,
+					ChangedPath,
+					OriginalPosition,
+					ChangedPosition);
 			else
-				res = string.Format("<{0}:{1}>", Operation.ToString(), NodeType);
+				res = string.Format(
+					"<{0}:{1}:{2}:{3}:{4}>",
+					Operation.ToString(),
+					NodeType,
+					ChangedPath,
+					OriginalPosition,
+					ChangedPosition);
 			return res;
 		}
 	}
