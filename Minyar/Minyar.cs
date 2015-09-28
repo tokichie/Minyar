@@ -25,7 +25,7 @@ namespace Minyar {
 
 		public async Task StartMining() {
 			GitRepository.DownloadRepositories(Repositories);
-			var allResultFilePath = Path.Combine("..", "..", "..", "20150928-test.txt");
+			var allResultFilePath = Path.Combine("..", "..", "..", "20150928-test2.txt");
 			var allResultFileWriter = new StreamWriter(new FileStream(allResultFilePath, FileMode.Append));
 		    var allResultFilePathWithPR = allResultFilePath.Replace(".txt", "(PR).txt");
 			var allResultFileWriterWithPR = new StreamWriter(new FileStream(allResultFilePathWithPR, FileMode.Append));
