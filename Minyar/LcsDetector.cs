@@ -27,12 +27,12 @@ namespace Minyar {
 				}
 			}
 
-		    for (int i = 0; i < n + 1; i++) {
-		        for (int j = 0; j < m + 1; j++) {
-		            Console.Write(dp[i, j] + " ");
-		        }
-                Console.WriteLine();
-		    }
+            //for (int i = 0; i < n + 1; i++) {
+            //    for (int j = 0; j < m + 1; j++) {
+            //        Console.Write(dp[i, j] + " ");
+            //    }
+            //    Console.WriteLine();
+            //}
 
 			var mapping = new Dictionary<AstNode, AstNode>();
 			GetMapping(n, m, dp, left, right, mapping, compareToken);

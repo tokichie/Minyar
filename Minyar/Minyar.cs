@@ -25,8 +25,10 @@ namespace Minyar {
 
 		public async Task StartMining() {
 			GitRepository.DownloadRepositories(Repositories);
-			var allResultFilePath = Path.Combine("..", "..", "..", "20150928.txt");
+			var allResultFilePath = Path.Combine("..", "..", "..", "20150928-test.txt");
 			var allResultFileWriter = new StreamWriter(new FileStream(allResultFilePath, FileMode.Append));
+		    var allResultFilePathWithPR = allResultFilePath.Replace(".txt", "(PR).txt");
+			var allResultFileWriterWithPR = new StreamWriter(new FileStream(allResultFilePathWithPR, FileMode.Append));
 			foreach (var repoId in Repositories) {
 				var owner = repoId[0];
 				var name = repoId[1];
@@ -37,7 +39,7 @@ namespace Minyar {
 					await githubRepo.GetPullRequests();
 					githubRepo.Save();
 				}
-				var path = Path.Combine("..", "..", "..", "items", owner);
+				var path = Path.Combine("..", "..", "..", "..", "..", "Dropbox", "private", "items", owner);
 				if (!Directory.Exists(path)) {
 					Directory.CreateDirectory(path);
 				}
@@ -50,8 +52,9 @@ namespace Minyar {
 							githubDiff.ParseDiff(diff);
 							var changeSet = CreateAstAndTakeDiff(githubRepo, githubDiff.FileDiffList, sha);
 							if (changeSet != null) {
-								WriteOut(writer, changeSet);
+                                //WriteOut(writer, changeSet);
 								WriteOut(allResultFileWriter, changeSet);
+								WriteOut(allResultFileWriterWithPR, changeSet, GithubUrl(repoId, pull.Number));
 							}
 						}
 					}
@@ -79,13 +82,27 @@ namespace Minyar {
 			//}
 		}
 
-		public static void WriteOut(StreamWriter writer, HashSet<ChangePair> changeSet) {
+	    private string GithubUrl(string[] repoId, int pullId) {
+	        var sb = new StringBuilder();
+	        sb.Append("https://github.com/").Append(repoId[0]).Append("/")
+                .Append(repoId[1]).Append("/pull/").Append(pullId);
+	        return sb.ToString();
+	    }
+
+		public static void WriteOut(StreamWriter writer, HashSet<ChangePair> changeSet, string githubUrl = null) {
 			var builder = new StringBuilder();
 			if (changeSet.Count == 0)
 				return;
+		    if (githubUrl != null)
+		        builder.Append(githubUrl).Append(" ");
 			foreach (var item in changeSet) {
                 //builder.Append("<").Append(item.Operation).Append(":").Append(item.NodeType).Append("> ");
-			    builder.Append(item).Append("$&$");
+			    builder.Append(item);
+			    if (githubUrl == null) {
+			        builder.Append("$&$");
+			    } else {
+			        builder.Append(" ");
+			    }
 			}
 			builder.Remove(builder.Length - 3, 3);
 			writer.WriteLine(builder.ToString());

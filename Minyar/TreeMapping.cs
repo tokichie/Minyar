@@ -12,6 +12,7 @@ namespace Minyar {
 		private int[] orgRange;
 		private int[] cmpRange;
 		private HashSet<AstNode> movedNodes;
+        private HashSet<AstNode> targetNodes;
 
 		public HashSet<ChangePair> ChangeSet { get; private set; }
 
@@ -36,6 +37,7 @@ namespace Minyar {
 			this.orgRange = orgRange;
 			this.cmpRange = cmpRange;
 			this.movedNodes = new HashSet<AstNode>();
+            this.targetNodes = new HashSet<AstNode>();
 			this.FilePath = filePath;
 		}
 
@@ -48,7 +50,7 @@ namespace Minyar {
 
 			this.TopDownMapping(bottomUpNodeMap);
 
-            //Debug(orgTree, 0, tokenMap, bottomUpNodeMap);
+            Debug(orgTree, 0, tokenMap, bottomUpNodeMap);
 
 			this.MergeNodeMap(tokenMap, bottomUpNodeMap);
 			this.GetChangeSet(tokenMap);
@@ -103,15 +105,16 @@ namespace Minyar {
 			var cmpTokenList = new List<AstNode>();
 
 			foreach (var node in this.orgTree.AllTokenNodes()) {
-				if (this.orgRange != null && node.Token.StartLine >= this.orgRange[0] && node.Token.StartLine <= this.orgRange[1]) {
+				if (orgRange != null && node.Token.StartLine >= orgRange[0] && node.Token.StartLine < orgRange[0] + orgRange[1]) {
 					if (node.Name != "EOF") {
 						orgTokenList.Add(node);
+					    targetNodes.Add(node);
 					}
 				}
 			}
 
 			foreach (var node in cmpTree.AllTokenNodes()) {
-				if (this.cmpRange != null && node.Token.StartLine >= this.cmpRange[0] && node.Token.StartLine <= this.cmpRange[1]) {
+				if (cmpRange != null && node.Token.StartLine >= cmpRange[0] && node.Token.StartLine < cmpRange[0] + cmpRange[1]) {
 					if (node.Name != "EOF") {
 						cmpTokenList.Add(node);
 					}
@@ -130,6 +133,7 @@ namespace Minyar {
 					if (bottomUpNodeMap.ContainsKey(ancestor))
 						continue;
 
+				    targetNodes.Add(ancestor);
 					bool isMapped = false;
 					double maxScore = TreeMapping.SimThreshold;
 					var cmpAncestors = cmpTokenNode.Ancestors().Where(x => x.Name == ancestor.Name);
@@ -152,6 +156,8 @@ namespace Minyar {
 					if (!isMapped) {
 						bottomUpNodeMap[ancestor] = null;
 					}
+                    var codeRange = new CodeRange(orgTokenNode.ToXml());
+				    var outerMostNode = codeRange.FindOutermostNode(this.orgTree);
 				}
 			}
 			return bottomUpNodeMap;
@@ -166,8 +172,10 @@ namespace Minyar {
 
 		private void MapRecursively(Dictionary<AstNode, AstNode> nodeMap, AstNode node) {
 			this.DetectUnmappedChildren(nodeMap, node);
-			foreach (var child in node.Children())
-				MapRecursively(nodeMap, child);
+		    foreach (var child in node.Children()) {
+                if (targetNodes.Contains(child))
+                    MapRecursively(nodeMap, child);
+		    }
 		}
 
 		private void DetectUnmappedChildren(Dictionary<AstNode, AstNode> nodeMap, AstNode orgNode) {

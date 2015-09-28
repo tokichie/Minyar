@@ -52,19 +52,19 @@ namespace Minyar {
 		}
 
 		public override string ToString() {
+            var res = string.Format(
+                    "<{0}:{1}|{2}:{3}:{4}:{5}:{6}>",
+                    Operation,
+                    NodeType,
+                    OriginalToken,
+                    ChangedToken,
+                    ChangedPath,
+                    OriginalPosition,
+                    ChangedPosition);
             //var res = string.Format(
-            //        "<{0}:{1}|{2}:{3}:{4}:{5}:{6}>",
-            //        Operation,
-            //        NodeType,
-            //        OriginalToken,
-            //        ChangedToken,
-            //        ChangedPath,
-            //        OriginalPosition,
-            //        ChangedPosition);
-		    var res = string.Format(
-		        "<{0}:{1}>",
-		        Operation,
-		        NodeType);
+            //    "<{0}:{1}>",
+            //    Operation,
+            //    NodeType);
 			return res;
 		}
 	}
