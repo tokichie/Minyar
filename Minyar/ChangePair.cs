@@ -5,7 +5,6 @@ using System.Collections.Generic;
 namespace Minyar {
 	public struct ChangePair {
 		public CstChangeOperation Operation;
-		public bool IsToken;
 		public string NodeType;
 		public string OriginalToken;
 		public string ChangedToken;
@@ -23,18 +22,18 @@ namespace Minyar {
 			this.ChangedPath = filePath;
 			this.OriginalPosition = "";
 			this.ChangedPosition = "";
-			this.IsToken = false;
 			if (orgNode != null) {
-				this.IsToken = orgNode.HasToken;
 				if (orgNode.HasToken) {
 					this.OriginalToken = orgNode.Token.Text;
-					this.OriginalPosition = orgNode.Token.Range.ToString();
+					this.OriginalPosition = orgNode.Token.Range.ToString().Replace(" ", "");
 				}
+				if (op != CstChangeOperation.Insert)
+					this.NodeType = orgNode.Name;
 			}
 			if (cmpNode != null) {
 				if (cmpNode.HasToken) {
 					this.ChangedToken = cmpNode.Token.Text;
-					this.ChangedPosition = cmpNode.Token.Range.ToString();
+					this.ChangedPosition = cmpNode.Token.Range.ToString().Replace(" ", "");
 				}
 				if (op == CstChangeOperation.Insert)
 					this.NodeType = cmpNode.Name;
@@ -43,7 +42,6 @@ namespace Minyar {
 
 		public ChangePair(CstChangeOperation op, string filePath, string orgToken, string cmpToken) {
 			this.Operation = op;
-			this.IsToken = true;
 			this.NodeType = "";
 			this.OriginalPath = "";
 			this.OriginalPosition = "";
@@ -54,24 +52,19 @@ namespace Minyar {
 		}
 
 		public override string ToString() {
-			var res = "";
-			if (IsToken)
-				res = string.Format(
-					"<{0}:TOKEN:{1}:{2}:{3}:{4}:{5}>",
-					Operation.ToString(),
-					OriginalToken,
-					ChangedToken,
-					ChangedPath,
-					OriginalPosition,
-					ChangedPosition);
-			else
-				res = string.Format(
-					"<{0}:{1}:{2}:{3}:{4}>",
-					Operation.ToString(),
-					NodeType,
-					ChangedPath,
-					OriginalPosition,
-					ChangedPosition);
+            //var res = string.Format(
+            //        "<{0}:{1}|{2}:{3}:{4}:{5}:{6}>",
+            //        Operation,
+            //        NodeType,
+            //        OriginalToken,
+            //        ChangedToken,
+            //        ChangedPath,
+            //        OriginalPosition,
+            //        ChangedPosition);
+		    var res = string.Format(
+		        "<{0}:{1}>",
+		        Operation,
+		        NodeType);
 			return res;
 		}
 	}

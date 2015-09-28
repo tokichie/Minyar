@@ -27,27 +27,34 @@ namespace Minyar {
 				}
 			}
 
+		    for (int i = 0; i < n + 1; i++) {
+		        for (int j = 0; j < m + 1; j++) {
+		            Console.Write(dp[i, j] + " ");
+		        }
+                Console.WriteLine();
+		    }
+
 			var mapping = new Dictionary<AstNode, AstNode>();
-			GetMapping(0, 0, dp, left, right, mapping, compareToken);
+			GetMapping(n, m, dp, left, right, mapping, compareToken);
 
 			return mapping;
 		}
 
 		private static void GetMapping(int i, int j, int[,] dp, List<AstNode> left, List<AstNode> right, 
 		                                     Dictionary<AstNode, AstNode> mapping, bool compareToken = true) {
-			if (i == left.Count || j == right.Count)
+			if (i == 0 || j == 0)
 				return;
-			bool b = left[i].Name == right[j].Name;
+			bool b = left[i - 1].Name == right[j - 1].Name;
 			if (compareToken)
-				b &= left[i].Token.Text == right[j].Token.Text;
+				b &= left[i - 1].Token.Text == right[j - 1].Token.Text;
 			if (b) {
-				mapping[left[i]] = right[j];
-				GetMapping(i + 1, j + 1, dp, left, right, mapping, compareToken);
+				mapping[left[i - 1]] = right[j - 1];
+				GetMapping(i - 1, j - 1, dp, left, right, mapping, compareToken);
 			} else {
-				if (dp[i + 1, j] >= dp[i, j + 1])
-					GetMapping(i + 1, j, dp, left, right, mapping, compareToken);
+				if (dp[i - 1, j] >= dp[i, j - 1])
+					GetMapping(i - 1, j, dp, left, right, mapping, compareToken);
 				else
-					GetMapping(i, j + 1, dp, left, right, mapping, compareToken);
+					GetMapping(i, j - 1, dp, left, right, mapping, compareToken);
 			}
 		}
 	}

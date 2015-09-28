@@ -104,8 +104,9 @@ namespace Minyar.Tests {
 
 		private void Print(HashSet<ChangePair> changeSet) {
 			foreach (var ch in changeSet) {
-				Console.WriteLine(String.Format("{0} {1} : \"{2}\" -> \"{3}\"", 
-					ch.Operation, ch.NodeType, ch.OriginalToken, ch.ChangedToken));
+				//Console.WriteLine(String.Format("{0} {1} : \"{2}\" -> \"{3}\"", 
+				//	ch.Operation, ch.NodeType, ch.OriginalToken, ch.ChangedToken));
+                Console.WriteLine(ch);
 			}            
 		}
 	}

@@ -9,20 +9,23 @@ namespace FP.DAL.DAO {
 
 		public string Symbol { get; private set; }
 
+        public List<string> AstItems { get; private set; }
+
 		//constructors
-		public Item() : this(null, -1) {
+		public Item() : this(null, -1, new List<string>()) {
 		}
 
-		public Item(string _symbol) : this(_symbol, -1) {
+		public Item(string _symbol) : this(_symbol, -1, new List<string>()) {
 		}
 
-		public Item(string _symbol, int _supportCount) {
+		public Item(string _symbol, int _supportCount, List<string> astItems ) {
 			Symbol = _symbol;
 			SupportCount = _supportCount;
+		    AstItems = astItems;
 		}
 
 		public Item Clone() {
-			Item item = new Item(Symbol, SupportCount);
+			Item item = new Item(Symbol, SupportCount, AstItems.Select(x => (string)x.Clone()).ToList());
 			return item;
 		}
 	}

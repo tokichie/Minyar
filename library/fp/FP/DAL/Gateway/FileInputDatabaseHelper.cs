@@ -56,7 +56,7 @@ namespace FP.DAL.Gateway
 			{
 				if ((line = inputFilePointer.ReadLine()) != null)
 				{
-					transaction = new List<string>(line.Trim().Split(' '));
+					transaction = new List<string>(line.Trim().Split(new []{"$&$"}, StringSplitOptions.RemoveEmptyEntries));
 					transaction = transaction.Select(s => s.Trim()).ToList();
 				}
 				else
@@ -102,37 +102,44 @@ namespace FP.DAL.Gateway
 		public List<Item> CalculateFrequencyAllItems()
 		{
 			List<Item> items = new List<Item>();
+			IDictionary<string, List<string>> astItems = new Dictionary<string, List<string>>();
 			IDictionary<string, int> dictionary = new Dictionary<string, int>(); // temporary associative array for counting frequency of items
 			string line;
 			System.IO.StreamReader file ;
-			try
-			{
+            //try
+            //{
 				file = new System.IO.StreamReader(Path);//open file for streaming
-				while ((line = file.ReadLine()) != null)
-				{
-					string[] tempItems = line.Split(' ');
+				while ((line = file.ReadLine()) != null) {
+				    string[] tempItems = line.Split(new[] {"$&$"}, StringSplitOptions.RemoveEmptyEntries);
 					foreach(string tempItem in tempItems)
 					{
 						string item = tempItem.Trim();
 						if (item.Length == 0) continue;
-						if (dictionary.ContainsKey(item))
-							dictionary[item]++; // increase frequency of item
-						else
-							dictionary[item] = 1; //set initial frequency
+                        //var nodeName = item.Substring(0, item.IndexOf("|"));
+                        //var metaData = item.Substring(item.IndexOf("|"));
+					    var nodeName = item;
+					    var metaData = "hoge";
+					    if (dictionary.ContainsKey(nodeName)) {
+					        dictionary[nodeName]++; // increase frequency of item
+					    } else {
+					        dictionary[nodeName] = 1; //set initial frequency
+                            astItems[nodeName] = new List<string>();
+					    }
+                        astItems[nodeName].Add(metaData);
 					}
 				}
 
 				file.Close(); // close file
-			}
-			catch(Exception e)
-			{
-				Console.WriteLine(e.Message);
-				Console.WriteLine(e.StackTrace);
-			}
+            //}
+            //catch(Exception e)
+            //{
+            //    Console.WriteLine(e.Message);
+            //    Console.WriteLine(e.StackTrace);
+            //}
 			//insert all the item, frequency pair in items list
 			foreach (KeyValuePair<string, int> pair in dictionary)
 			{
-				Item anItem = new Item(pair.Key, pair.Value);
+				Item anItem = new Item(pair.Key, pair.Value, astItems[pair.Key]);
 				items.Add(anItem);
 			}
 

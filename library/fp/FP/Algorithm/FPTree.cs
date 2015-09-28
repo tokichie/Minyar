@@ -44,7 +44,7 @@ namespace FP.Algorithm {
 		private void InsertTransaction(List<string> aTransaction) {
 			//filter transactions to get frequent items in sorted order of frequentItems
 			List<Item> items = FrequentItems.FindAll(
-				                   (Item anItem) => aTransaction.Exists(x => x == anItem.Symbol));
+				                   anItem => aTransaction.Exists(x => x.IndexOf(anItem.Symbol) >= 0));
 			Node tempRoot = root;
 			Node tempNode;
 			foreach (Item anItem in items) {

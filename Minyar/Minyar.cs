@@ -25,7 +25,7 @@ namespace Minyar {
 
 		public async Task StartMining() {
 			GitRepository.DownloadRepositories(Repositories);
-			var allResultFilePath = Path.Combine("..", "..", "..", "20150923.txt");
+			var allResultFilePath = Path.Combine("..", "..", "..", "20150928.txt");
 			var allResultFileWriter = new StreamWriter(new FileStream(allResultFilePath, FileMode.Append));
 			foreach (var repoId in Repositories) {
 				var owner = repoId[0];
@@ -84,9 +84,10 @@ namespace Minyar {
 			if (changeSet.Count == 0)
 				return;
 			foreach (var item in changeSet) {
-				builder.Append("<").Append(item.Operation).Append(":").Append(item.NodeType).Append("> ");
+                //builder.Append("<").Append(item.Operation).Append(":").Append(item.NodeType).Append("> ");
+			    builder.Append(item).Append("$&$");
 			}
-			builder.Remove(builder.Length - 1, 1);
+			builder.Remove(builder.Length - 3, 3);
 			writer.WriteLine(builder.ToString());
 		}
 

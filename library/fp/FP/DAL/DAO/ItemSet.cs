@@ -79,7 +79,7 @@ namespace FP.DAL.DAO {
 			if (items.Count > 0) {
 				sb.Append("<");
 				foreach (var item in items) {
-					sb.Append(item.Symbol).Append(", ");
+					sb.Append(item.Symbol).Append("|").Append(item.AstItems[0]).Append(", ");
 				}
 				sb.Remove(sb.Length - 2, 2).Append(">");
 			}

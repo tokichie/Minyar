@@ -46,6 +46,7 @@
     <Compile Include="Algorithm\FPGrowth.cs" />
     <Compile Include="Algorithm\FPTree.cs" />
     <Compile Include="Algorithm\Node.cs" />
+    <Compile Include="DAL\DAO\AstItem.cs" />
     <Compile Include="DAL\DAO\Item.cs" />
     <Compile Include="DAL\DAO\ItemSet.cs" />
     <Compile Include="DAL\Gateway\FileInputDatabaseHelper.cs" />
