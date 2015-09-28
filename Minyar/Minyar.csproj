@@ -198,6 +198,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiRateLimit.cs" />
+    <Compile Include="CodeRange.cs" />
     <Compile Include="Github\FileDiff.cs" />
     <Compile Include="Github\GithubComment.cs" />
     <Compile Include="Github\GithubDiff.cs" />

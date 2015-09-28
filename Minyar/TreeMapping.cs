@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Code2Xml.Core.SyntaxTree;
-using Code2Xml.Core.Location;
 using System.Linq;
+using Code2Xml.Core.Location;
 
 namespace Minyar {
 	public class TreeMapping {
@@ -15,8 +15,8 @@ namespace Minyar {
 		private int[] cmpRange;
 		private HashSet<AstNode> movedNodes;
         private HashSet<AstNode> targetNodes;
-	    private CodeRange orgCodeRange;
-	    private CodeRange cmpCodeRange;
+	    private Code2XmlDummy.CodeRange orgCodeRange;
+	    private Code2XmlDummy.CodeRange cmpCodeRange;
 
 		public HashSet<ChangePair> ChangeSet { get; private set; }
 
@@ -44,13 +44,13 @@ namespace Minyar {
             this.targetNodes = new HashSet<AstNode>();
 			this.FilePath = filePath;
 
-		    orgCodeRange = new CodeRange(
+		    orgCodeRange = new Code2XmlDummy.CodeRange(
 		        new CodeLocation(orgRange[0], 0),
 		        new CodeLocation(orgRange[0] + orgRange[1], 0));
             Console.Write(filePath + " " + orgCodeRange + " ");
 		    orgOuterMostRoot = orgCodeRange.FindOutermostNode(orgTree);
 		    Console.WriteLine(orgOuterMostRoot == null);
-		    cmpCodeRange = new CodeRange(
+		    cmpCodeRange = new Code2XmlDummy.CodeRange(
 		        new CodeLocation(cmpRange[0], 0),
 		        new CodeLocation(cmpRange[0] + cmpRange[1], 0));
 		    cmpOuterMostRoot = cmpCodeRange.FindOutermostNode(cmpTree);
