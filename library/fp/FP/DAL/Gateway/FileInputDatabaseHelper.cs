@@ -30,7 +30,7 @@ namespace FP.DAL.Gateway
 		{
 			try
 			{
-				inputFilePointer = new System.IO.StreamReader(Path);//open file for streaming
+				inputFilePointer = new StreamReader(Path);//open file for streaming
 			}
 			catch(Exception ex)
 			{
@@ -50,16 +50,19 @@ namespace FP.DAL.Gateway
 				Console.WriteLine(ex.StackTrace);
 			}
 		}
-		public List<string> GetNextTransaction()
+		public List<Item> GetNextTransaction()
 		{
-			List<string> transaction = new List<string>();
+			var transaction = new List<Item>();
 			string line=""; 
 			try
 			{
-				if ((line = inputFilePointer.ReadLine()) != null)
-				{
-					transaction = new List<string>(line.Trim().Split(new []{"$&$"}, StringSplitOptions.RemoveEmptyEntries));
-					transaction = transaction.Select(s => s.Trim()).ToList();
+				if ((line = inputFilePointer.ReadLine()) != null) {
+				    var itemWrapper = ItemWrapper.Deserialize(line.Trim());
+				    foreach (var item in itemWrapper.Items) {
+				        transaction.Add(new Item(item.Symbol));
+				    }
+				    //transaction = new list<string>(line.trim().split(new []{"$&$"}, stringsplitoptions.removeemptyentries));
+				    //transaction = transaction.Select(s => s.Trim()).ToList();
 				}
 				else
 				{
@@ -99,100 +102,92 @@ namespace FP.DAL.Gateway
 		}
 
 		//get support count of all items
-		public List<JsonItem> CalculateFrequencyAllItems()
+		public List<Item> CalculateFrequencyAllItems()
 		{
-			List<JsonItem> items = new List<JsonItem>();
-			IDictionary<string, List<string>> astItems = new Dictionary<string, List<string>>();
-			IDictionary<string, int> dictionary = new Dictionary<string, int>(); // temporary associative array for counting frequency of items
+			var items = new List<Item>();
+		    var jsonItems = new List<JsonItem>();
+			var dictionary = new Dictionary<string, int>(); // temporary associative array for counting frequency of items
 			string line;
-			System.IO.StreamReader file ;
-            //try
-            //{
-				file = new System.IO.StreamReader(Path);//open file for streaming
+			StreamReader file ;
+            try {
+                file = new StreamReader(Path);//open file for streaming
 				while ((line = file.ReadLine()) != null) {
-				    string[] tempItems = line.Split(new[] {"$&$"}, StringSplitOptions.RemoveEmptyEntries);
-					foreach(string tempItem in tempItems)
-					{
-						string item = tempItem.Trim();
-						if (item.Length == 0) continue;
-                        //var nodeName = item.Substring(0, item.IndexOf("|"));
-                        //var metaData = item.Substring(item.IndexOf("|"));
-					    var nodeName = item;
-					    var metaData = "hoge";
-					    if (dictionary.ContainsKey(nodeName)) {
-					        dictionary[nodeName]++; // increase frequency of item
+				    var itemWrapper = ItemWrapper.Deserialize(line.Trim());
+					foreach(JsonItem item in itemWrapper.Items) {
+					    item.OriginalPath = itemWrapper.OriginalPath;
+					    item.ChangedPath = itemWrapper.ChangedPath;
+					    item.GithubUrl = itemWrapper.GithubUrl;
+                        jsonItems.Add(item);
+					    if (dictionary.ContainsKey(item.Symbol)) {
+					        dictionary[item.Symbol]++; // increase frequency of item
 					    } else {
-					        dictionary[nodeName] = 1; //set initial frequency
-                            astItems[nodeName] = new List<string>();
+					        dictionary[item.Symbol] = 1; //set initial frequency
 					    }
-                        astItems[nodeName].Add(metaData);
 					}
 				}
 
 				file.Close(); // close file
-            //}
-            //catch(Exception e)
-            //{
-            //    Console.WriteLine(e.Message);
-            //    Console.WriteLine(e.StackTrace);
-            //}
-			//insert all the item, frequency pair in items list
-			foreach (KeyValuePair<string, int> pair in dictionary)
-			{
-				JsonItem anItem = new JsonItem(pair.Key, pair.Value);
-				items.Add(anItem);
-			}
+            } catch (Exception e) {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+
+		    foreach (var dicItem in dictionary) {
+		        var item = new Item(dicItem.Key, dicItem.Value);
+		        item.JsonItems = jsonItems;
+                items.Add(item);
+		    }
 
 			return items;
 		}
 
 		//get frequency of an item set
-		public int GetFrequency(JsonItemSet itemSet)
-		{
-			int frequency = 0;
-			IDictionary<string, int> dictionary = new Dictionary<string, int>(); // temporary associative array for counting frequency of items
-			string line;
-			System.IO.StreamReader file;
-			try
-			{
-				file = new System.IO.StreamReader(Path);//open file for streaming
-				while ((line = file.ReadLine()) != null)
-				{
-					string[] tempItems = line.Split(' ');
-					dictionary.Clear();
-					foreach (string tempItem in tempItems)
-					{
-						string item = tempItem.Trim();
-						dictionary[item] = 1; //set dictionary for this item
-					}
+		//public int GetFrequency(JsonItemSet itemSet)
+		//{
+		//	int frequency = 0;
+		//	IDictionary<string, int> dictionary = new Dictionary<string, int>(); // temporary associative array for counting frequency of items
+		//	string line;
+		//	System.IO.StreamReader file;
+		//	try
+		//	{
+		//		file = new System.IO.StreamReader(Path);//open file for streaming
+		//		while ((line = file.ReadLine()) != null)
+		//		{
+		//			string[] tempItems = line.Split(' ');
+		//			dictionary.Clear();
+		//			foreach (string tempItem in tempItems)
+		//			{
+		//				string item = tempItem.Trim();
+		//				dictionary[item] = 1; //set dictionary for this item
+		//			}
 
-					bool itemSetExist = true; //indicates if this transaction contains itemset 
-					for(int i=0; i<itemSet.GetLength(); ++i)
-					{
-						JsonItem item = itemSet.GetItem(i);
-						if(!dictionary.ContainsKey(item.Symbol))
-						{
-							itemSetExist = false;
-							break;
-						}
-					}
-					if(itemSetExist)
-					{
-						frequency++;
-					}
-				}
+		//			bool itemSetExist = true; //indicates if this transaction contains itemset 
+		//			for(int i=0; i<itemSet.GetLength(); ++i)
+		//			{
+		//				JsonItem item = itemSet.GetItem(i);
+		//				if(!dictionary.ContainsKey(item.Symbol))
+		//				{
+		//					itemSetExist = false;
+		//					break;
+		//				}
+		//			}
+		//			if(itemSetExist)
+		//			{
+		//				frequency++;
+		//			}
+		//		}
 
-				file.Close(); // close file
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e.Message);
-				Console.WriteLine(e.StackTrace);
-			}
+		//		file.Close(); // close file
+		//	}
+		//	catch (Exception e)
+		//	{
+		//		Console.WriteLine(e.Message);
+		//		Console.WriteLine(e.StackTrace);
+		//	}
 
-			itemSet.SupportCount = frequency;
-			return frequency;
-		}
+		//	itemSet.SupportCount = frequency;
+		//	return frequency;
+		//}
 
 	}
 }

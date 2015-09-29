@@ -10,14 +10,10 @@ namespace FP.DAL.DAO {
         private List<JsonItem> items;
 
         public int SupportCount;
-        public string OriginalPath { get; private set; }
-        public string ChangedPath { get; private set; }
 
-        public JsonItemSet(string originalPath, string changedPath) {
+        public JsonItemSet() {
             items = new List<JsonItem>();
             SupportCount = -1;
-            OriginalPath = originalPath;
-            ChangedPath = changedPath;
         }
 
         public void AddItem(JsonItem item) {
@@ -41,7 +37,7 @@ namespace FP.DAL.DAO {
         }
 
         public JsonItemSet Clone() {
-            JsonItemSet itemSet = new JsonItemSet(OriginalPath, ChangedPath);
+            JsonItemSet itemSet = new JsonItemSet();
             itemSet.SupportCount = SupportCount;
             foreach (JsonItem anItem in items) {
                 itemSet.AddItem(anItem.Clone());
@@ -79,10 +75,7 @@ namespace FP.DAL.DAO {
                 }
                 sb.Remove(sb.Length - 2, 2);
             }
-            if (OriginalPath != ChangedPath) {
-                return string.Format("[SupportCount={0} Path:{1} -> {2} {3}]", SupportCount, OriginalPath, ChangedPath, sb);
-            }
-            return string.Format("[SupportCount={0} Path:{1} {2} ]", SupportCount, OriginalPath, sb);
+            return string.Format("[SupportCount={0} {1}]", SupportCount, sb);
         }
     }
 }

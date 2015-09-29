@@ -51,6 +51,7 @@
     <Compile Include="DAL\DAO\AstItem.cs" />
     <Compile Include="DAL\DAO\Item.cs" />
     <Compile Include="DAL\DAO\ItemSet.cs" />
+    <Compile Include="DAL\DAO\ItemWrapper.cs" />
     <Compile Include="DAL\DAO\JsonItem.cs" />
     <Compile Include="DAL\DAO\JsonItemSet.cs" />
     <Compile Include="DAL\Gateway\FileInputDatabaseHelper.cs" />

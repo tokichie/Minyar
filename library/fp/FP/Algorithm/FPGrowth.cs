@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using FP.DAL.Gateway.Interface;
 using FP.DAL.DAO;
+using FP.DAO;
 
 namespace FP.Algorithm {
 	public class FPGrowth {
@@ -26,10 +27,10 @@ namespace FP.Algorithm {
 		}
 
 		public int GenerateFrequentItemSets() {
-			List<Item> frequentItems = fpTree.FrequentItems;
+			var frequentItems = fpTree.FrequentItems;
 			int totalFrequentItemSets = frequentItems.Count;
-			foreach (Item anItem in frequentItems) {
-				ItemSet anItemSet = new ItemSet();
+			foreach (var anItem in frequentItems) {
+				var anItemSet = new ItemSet();
 				anItemSet.AddItem(anItem);
 				anItemSet.SupportCount = anItem.SupportCount;
                 MinedItemSets.Add(anItemSet);
@@ -42,8 +43,8 @@ namespace FP.Algorithm {
 			int minedItemSets = 0;
 			FPTree projectedTree = fpTree.Project(anItemSet.GetLastItem());
 			minedItemSets = projectedTree.FrequentItems.Count;
-			foreach (Item anItem in projectedTree.FrequentItems) {
-				ItemSet nextItemSet = anItemSet.Clone();
+			foreach (var anItem in projectedTree.FrequentItems) {
+				var nextItemSet = anItemSet.Clone();
 				nextItemSet.AddItem(anItem);
 				nextItemSet.SupportCount = anItem.SupportCount;
                 MinedItemSets.Add(nextItemSet);

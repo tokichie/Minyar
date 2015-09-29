@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using FP.DAO;
 
 namespace FP.DAL.DAO {
 	public class ItemSet {
@@ -75,15 +76,31 @@ namespace FP.DAL.DAO {
 		}
 
 		public override string ToString() {
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
+            var dic = new Dictionary<string, List<JsonItem>>();
 			if (items.Count > 0) {
 				sb.Append("<");
 				foreach (var item in items) {
-					sb.Append(item.Symbol).Append("|").Append(item.AstItems[0]).Append(", ");
+					sb.Append(item.Symbol).Append(", ");
+				    foreach (var jsonItem in item.JsonItems) {
+				        if (! dic.ContainsKey(jsonItem.GithubUrl)) {
+				            dic[jsonItem.GithubUrl] = new List<JsonItem>();
+				        }
+                        dic[jsonItem.GithubUrl].Add(jsonItem);
+				    }
 				}
 				sb.Remove(sb.Length - 2, 2).Append(">");
 			}
-			return string.Format("[ItemSet: {0} SupportCount={1}]", sb, SupportCount);
+            var metaData = new StringBuilder();
+		    foreach (var dicItem in dic) {
+		        metaData.Append("  ").Append(dicItem.Key).Append(" ");
+                dicItem.Value.Sort((x, y) => y.OriginalPath.CompareTo(x.OriginalPath));
+		        foreach (var jsonItem in dicItem.Value) {
+		            metaData.Append(jsonItem).Append(" ");
+		        }
+		        metaData.AppendLine();
+		    }
+			return string.Format("[SupportCount={0} {1}]\n{2}", SupportCount, sb, metaData);
 		}
 	}
 }

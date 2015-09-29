@@ -6,8 +6,6 @@ using System.Web.Script.Serialization;
 namespace FP.DAO {
 	public class JsonItem {
 		public int SupportCount;
-        [DataMember(Name = "Symbol")]
-	    public string Symbol;
         [DataMember(Name = "Opration")]
         public string Operation;
         [DataMember(Name = "NodeType")]
@@ -21,16 +19,27 @@ namespace FP.DAO {
         [DataMember(Name = "ChangedPosition")]
         public string ChangedPosition;
 
+        public string OriginalPath;
+        public string ChangedPath;
+	    public string GithubUrl;
+
+	    public string Symbol {
+	        get {
+                var sb = new StringBuilder();
+	            sb.Append(Operation).Append(":").Append(NodeType);
+	            return sb.ToString();
+	        }
+	    }
+
 		public JsonItem() {
 		    SupportCount = -1;
 		}
 
-	    public JsonItem(string symbol, int supportCount) {
-	        Symbol = symbol;
+	    public JsonItem(int supportCount) {
 	        SupportCount = supportCount;
 	    }
 
-	    public JsonItem Deserialize(string json) {
+	    public static JsonItem Deserialize(string json) {
 	        var serializer = new JavaScriptSerializer();
 	        return serializer.Deserialize<JsonItem>(json);
 	    }
@@ -38,7 +47,6 @@ namespace FP.DAO {
 	    public JsonItem Clone() {
 	        JsonItem item = new JsonItem();
 	        item.SupportCount = SupportCount;
-	        item.Symbol = Symbol;
 	        item.Operation = Operation;
 	        item.NodeType = NodeType;
 	        item.OriginalToken = OriginalToken;
@@ -54,19 +62,19 @@ namespace FP.DAO {
 	        var tokenChange = new StringBuilder();
 	        var positionChange = new StringBuilder();
 	        if (Operation == "Insert") {
-	            tokenChange.Append(" ").Append(ChangedToken);
+	            tokenChange.Append("|").Append(ChangedToken);
                 positionChange.Append(" ").Append(ChangedPosition);
 	        } else if (Operation == "Update") {
-	            tokenChange.Append(" ").Append(OriginalToken).Append(" -> ").Append(ChangedToken);
-                positionChange.Append(" ").Append(OriginalPosition).Append(" -> ").Append(ChangedPosition);
+	            tokenChange.Append("|").Append(OriginalToken).Append(" -> ").Append(ChangedToken);
+                positionChange.Append("|").Append(OriginalPosition).Append(" -> ").Append(ChangedPosition);
             } else if (Operation == "Move") {
-                tokenChange.Append(" ").Append(OriginalToken);
-                positionChange.Append(" ").Append(OriginalPosition).Append(" -> ").Append(ChangedPosition);
+                tokenChange.Append("|").Append(OriginalToken);
+                positionChange.Append("|").Append(OriginalPosition).Append(" -> ").Append(ChangedPosition);
             } else if (Operation == "Delete") {
-                tokenChange.Append(" ").Append(OriginalToken);
-                positionChange.Append(" ").Append(ChangedPosition);
+                tokenChange.Append("|").Append(OriginalToken);
+                positionChange.Append("|").Append(ChangedPosition);
             }
-            sb.Append(tokenChange.ToString().Trim())
+            sb.Append("|").Append(OriginalPath).Append(tokenChange.ToString().Trim())
                 .Append(positionChange.ToString().Trim()).Append(">");
 	        return sb.ToString();
 	    }

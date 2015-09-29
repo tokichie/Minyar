@@ -199,6 +199,7 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="TestData\FrequentItemset1.dat" />
+    <None Include="TestData\FrequentItemset3.dat" />
     <None Include="TestData\FrequentItemset2.dat" />
   </ItemGroup>
   <ItemGroup>

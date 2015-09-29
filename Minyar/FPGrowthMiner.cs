@@ -31,7 +31,8 @@ namespace Minyar {
 	        var res = fpGrowth.MinedItemSets;
             res.Sort((set1, set2) => set2.GetLength().CompareTo(set1.GetLength()));
             res.Sort((set1, set2) => set2.SupportCount.CompareTo(set1.SupportCount));
-	        return res.Where((x) => x.GetLength() >= 3).ToList();
+	        //return res.Where((x) => x.GetLength() >= 3).ToList();
+	        return res.ToList();
 	    }
 	}
 }
