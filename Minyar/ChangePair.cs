@@ -1,17 +1,31 @@
 ﻿using System;
 using Code2Xml.Core.SyntaxTree;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Minyar {
 	public struct ChangePair {
-		public CstChangeOperation Operation;
-		public string NodeType;
-		public string OriginalToken;
-		public string ChangedToken;
-		public string OriginalPath;
-		public string ChangedPath;
-		public string OriginalPosition;
-		public string ChangedPosition;
+        public CstChangeOperation Operation;
+
+	    [DataMember(Name = "Opration")]
+	    public string OperationString {
+	        get { return Operation.ToString(); }
+	    }
+        [DataMember(Name = "NodeType")]
+        public string NodeType;
+        [DataMember(Name = "OriginalToken")]
+        public string OriginalToken;
+        [DataMember(Name = "ChangedToken")]
+        public string ChangedToken;
+        [DataMember(Name = "OriginalPosition")]
+        public string OriginalPosition;
+        [DataMember(Name = "ChangedPosition")]
+        public string ChangedPosition;
+
+        [DataMember(Name = "OriginalPath")]
+        public string OriginalPath;
+        [DataMember(Name = "ChangedPath")]
+        public string ChangedPath;
 
 		public ChangePair(CstChangeOperation op, string filePath, AstNode orgNode = null, AstNode cmpNode = null) {
 			this.Operation = op;

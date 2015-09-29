@@ -114,8 +114,6 @@ namespace FP.DAL.Gateway
 				while ((line = file.ReadLine()) != null) {
 				    var itemWrapper = ItemWrapper.Deserialize(line.Trim());
 					foreach(JsonItem item in itemWrapper.Items) {
-					    item.OriginalPath = itemWrapper.OriginalPath;
-					    item.ChangedPath = itemWrapper.ChangedPath;
 					    item.GithubUrl = itemWrapper.GithubUrl;
                         jsonItems.Add(item);
 					    if (dictionary.ContainsKey(item.Symbol)) {

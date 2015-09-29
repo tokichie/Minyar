@@ -19,7 +19,9 @@ namespace FP.DAO {
         [DataMember(Name = "ChangedPosition")]
         public string ChangedPosition;
 
+        [DataMember(Name = "OriginalPath")]
         public string OriginalPath;
+        [DataMember(Name = "ChangedPath")]
         public string ChangedPath;
 	    public string GithubUrl;
 

@@ -51,10 +51,10 @@ namespace Minyar {
 							var githubDiff = new GithubDiff();
 							githubDiff.ParseDiff(diff);
 							var changeSet = CreateAstAndTakeDiff(githubRepo, githubDiff.FileDiffList, sha);
+                            var astChange = new AstChange(GithubUrl(repoId, pull.Number), changeSet);
 							if (changeSet != null) {
-                                WriteOut(writer, changeSet);
-								WriteOut(allResultFileWriter, changeSet);
-								WriteOut(allResultFileWriterWithPR, changeSet, GithubUrl(repoId, pull.Number));
+                                WriteOut(writer, astChange);
+								//WriteOut(allResultFileWriter, astChange);
 							}
 						}
 					}
@@ -89,28 +89,29 @@ namespace Minyar {
 	        return sb.ToString();
 	    }
 
-		public static void WriteOut(StreamWriter writer, HashSet<ChangePair> changeSet, string githubUrl = null) {
+		public static void WriteOut(StreamWriter writer, AstChange astChange, string githubUrl = null) {
 			var builder = new StringBuilder();
-			if (changeSet.Count == 0)
+			if (astChange.ChangeSet.Count == 0)
 				return;
-		    if (githubUrl != null)
-		        builder.Append(githubUrl).Append(" ");
-			foreach (var item in changeSet) {
-                //builder.Append("<").Append(item.Operation).Append(":").Append(item.NodeType).Append("> ");
-			    builder.Append(item);
-			    if (githubUrl == null) {
-			        builder.Append("$&$");
-			    } else {
-			        builder.Append(" ");
-			    }
-			}
-			builder.Remove(builder.Length - 3, 3);
-			writer.WriteLine(builder.ToString());
+		 //   if (githubUrl != null)
+		 //       builder.Append(githubUrl).Append(" ");
+			//foreach (var item in changeSet) {
+   //             //builder.Append("<").Append(item.Operation).Append(":").Append(item.NodeType).Append("> ");
+			//    builder.Append(item);
+			//    if (githubUrl == null) {
+			//        builder.Append("$&$");
+			//    } else {
+			//        builder.Append(" ");
+			//    }
+			//}
+			//builder.Remove(builder.Length - 3, 3);
+			//writer.WriteLine(builder.ToString());
+            Console.WriteLine(astChange);
 		}
 
 		private HashSet<ChangePair> CreateAstAndTakeDiff
             (GithubRepository githubRepo, List<FileDiff> fileDiffs, string sha) {
-			HashSet<ChangePair> changeSet = null;
+			var changeSet = new HashSet<ChangePair>();
 			var changedCodes = GitRepository.GetChangedCodes(githubRepo, fileDiffs, sha);
 			foreach (var fileDiff in fileDiffs) {
 				var filePath = fileDiff.NewFilePath;
@@ -124,7 +125,7 @@ namespace Minyar {
 				foreach (var lineChange in fileDiff.ChangedLineList) {
 					var mapper = new TreeMapping(orgCst, cmpCst, filePath, lineChange.ChangedLine, lineChange.NewLine);
 					mapper.Map();
-					changeSet = mapper.ChangeSet;
+					changeSet.UnionWith(mapper.ChangeSet);
 				}
 			}
 			return changeSet;
