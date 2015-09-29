@@ -656,8 +656,8 @@ pledge:n:1
 pleasure:n:1
 pleasurable:a:1
 pleased:a:1
-please:v:1
-please:r:1
+please:v:-0.4
+please:r:-0.4
 pleasantry:n:1
 pleasant:a:1
 plaything:n:1
@@ -31443,7 +31443,7 @@ choirmaster:n:0.00308209
 preceptor:n:0.00308145
 mesophyte:n:0.00307904
 screenplay:n:0.00307882
-already:r:0.00307866
+already:r:-0.1
 counterblast:n:0.00307778
 replant:v:0.0030777
 sedum:n:0.00307615
@@ -77441,7 +77441,7 @@ writhen:a:-0.064492
 writhed:a:-0.064492
 deaf-mute:a:-0.0644921
 deaf-and-dumb:a:-0.0644921
-use:v:-0.0645034
+use:v:-0.1
 ungetatable:a:-0.0645104
 un-get-at-able:a:-0.0645104
 un-come-at-able:a:-0.0645104
