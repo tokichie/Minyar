@@ -35,6 +35,14 @@ namespace FP.DAO {
 
 		public JsonItem() {
 		    SupportCount = -1;
+		    Operation = "";
+		    NodeType = "";
+		    OriginalToken = "";
+		    ChangedToken = "";
+		    OriginalPosition = "";
+		    ChangedPosition = "";
+		    OriginalPath = "";
+		    ChangedPath = "";
 		}
 
 	    public JsonItem(int supportCount) {

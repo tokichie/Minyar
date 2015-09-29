@@ -25,10 +25,9 @@ namespace Minyar {
 
 		public async Task StartMining() {
 			GitRepository.DownloadRepositories(Repositories);
-			var allResultFilePath = Path.Combine("..", "..", "..", "20150929-2.txt");
+		    var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+			var allResultFilePath = Path.Combine("..", "..", "..", timestamp + ".txt");
 			var allResultFileWriter = new StreamWriter(new FileStream(allResultFilePath, FileMode.Append));
-		    var allResultFilePathWithPR = allResultFilePath.Replace(".txt", "(PR).txt");
-			var allResultFileWriterWithPR = new StreamWriter(new FileStream(allResultFilePathWithPR, FileMode.Append));
 			foreach (var repoId in Repositories) {
 				var owner = repoId[0];
 				var name = repoId[1];
@@ -43,7 +42,7 @@ namespace Minyar {
 				if (!Directory.Exists(path)) {
 					Directory.CreateDirectory(path);
 				}
-				using (var writer = new StreamWriter(new FileStream(Path.Combine(path, name + ".txt"), FileMode.Append))) {
+				using (var writer = new StreamWriter(new FileStream(Path.Combine(path, name + timestamp + ".txt"), FileMode.Append))) {
 					foreach (var pull in githubRepo.Pulls) {
 						Console.WriteLine("[Trace] Extracting Pull #{0}", pull.Number);
 						foreach (var sha in pull.Commits) {
@@ -91,7 +90,7 @@ namespace Minyar {
 
 		public static void WriteOut(StreamWriter writer, AstChange astChange, string githubUrl = null) {
 			var builder = new StringBuilder();
-			if (astChange.ChangeSet.Count == 0)
+			if (astChange.Items.Count == 0)
 				return;
 		 //   if (githubUrl != null)
 		 //       builder.Append(githubUrl).Append(" ");
@@ -106,7 +105,7 @@ namespace Minyar {
 			//}
 			//builder.Remove(builder.Length - 3, 3);
 			//writer.WriteLine(builder.ToString());
-            Console.WriteLine(astChange);
+            writer.WriteLine(astChange);
 		}
 
 		private HashSet<ChangePair> CreateAstAndTakeDiff
@@ -125,7 +124,8 @@ namespace Minyar {
 				foreach (var lineChange in fileDiff.ChangedLineList) {
 					var mapper = new TreeMapping(orgCst, cmpCst, filePath, lineChange.ChangedLine, lineChange.NewLine);
 					mapper.Map();
-					changeSet.UnionWith(mapper.ChangeSet);
+					//changeSet.UnionWith(mapper.ChangeSet);
+				    changeSet = mapper.ChangeSet;
 				}
 			}
 			return changeSet;

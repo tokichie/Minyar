@@ -105,21 +105,28 @@ namespace FP.DAL.Gateway
 		public List<Item> CalculateFrequencyAllItems()
 		{
 			var items = new List<Item>();
-		    var jsonItems = new List<JsonItem>();
-			var dictionary = new Dictionary<string, int>(); // temporary associative array for counting frequency of items
+			var dictionary = new Dictionary<string, int>();
+            var jsonItemsDic = new Dictionary<string, List<JsonItem>>();
 			string line;
 			StreamReader file ;
             try {
                 file = new StreamReader(Path);//open file for streaming
 				while ((line = file.ReadLine()) != null) {
 				    var itemWrapper = ItemWrapper.Deserialize(line.Trim());
+                    var isAdded = new HashSet<string>();
 					foreach(JsonItem item in itemWrapper.Items) {
 					    item.GithubUrl = itemWrapper.GithubUrl;
-                        jsonItems.Add(item);
-					    if (dictionary.ContainsKey(item.Symbol)) {
-					        dictionary[item.Symbol]++; // increase frequency of item
-					    } else {
-					        dictionary[item.Symbol] = 1; //set initial frequency
+					    if (!jsonItemsDic.ContainsKey(item.Symbol)) {
+					        jsonItemsDic[item.Symbol] = new List<JsonItem>();
+					    }
+                        jsonItemsDic[item.Symbol].Add(item);
+					    if (!isAdded.Contains(item.Symbol)) {
+					        isAdded.Add(item.Symbol);
+					        if (dictionary.ContainsKey(item.Symbol)) {
+					            dictionary[item.Symbol]++; // increase frequency of item
+					        } else {
+					            dictionary[item.Symbol] = 1; //set initial frequency
+					        }
 					    }
 					}
 				}
@@ -132,7 +139,7 @@ namespace FP.DAL.Gateway
 
 		    foreach (var dicItem in dictionary) {
 		        var item = new Item(dicItem.Key, dicItem.Value);
-		        item.JsonItems = jsonItems;
+		        item.JsonItems = jsonItemsDic[dicItem.Key];
                 items.Add(item);
 		    }
 

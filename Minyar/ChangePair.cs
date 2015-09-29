@@ -5,12 +5,8 @@ using System.Runtime.Serialization;
 
 namespace Minyar {
 	public struct ChangePair {
-        public CstChangeOperation Operation;
+	    [DataMember(Name = "Opration")] public CstChangeOperation Operation;
 
-	    [DataMember(Name = "Opration")]
-	    public string OperationString {
-	        get { return Operation.ToString(); }
-	    }
         [DataMember(Name = "NodeType")]
         public string NodeType;
         [DataMember(Name = "OriginalToken")]

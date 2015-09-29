@@ -25,7 +25,7 @@ namespace Minyar.Tests {
 			var miner = new FPGrowthMiner(
 				            Path.Combine("..", "..", "TestData", "FrequentItemset3.dat"),
 				            Path.Combine("..", "..", "TestData", "FrequentItemset3.out"),
-				            2);
+				            1);
 
 			var res = miner.GenerateFrequentItemsets();
 		    var items = miner.GetMinedItemSets();
@@ -35,9 +35,9 @@ namespace Minyar.Tests {
 	    [Test]
 	    public void ExecuteMining() {
 			var miner = new FPGrowthMiner(
-				            Path.Combine("..", "..", "TestData", "20150929-5repos.txt"),
-				            Path.Combine("..", "..", "TestData", "20150929-5repos.out"),
-				            20);
+				            Path.Combine("..", "..", "TestData", "antlr420150929202358.txt"),
+				            Path.Combine("..", "..", "TestData", "antlr420150929202358.out"),
+				            4);
 	        
 			var res = miner.GenerateFrequentItemsets();
 		    var items = miner.GetMinedItemSets();
