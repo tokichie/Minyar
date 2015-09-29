@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using FP.DAO;
 
 namespace FP.DAL.DAO {
-    class JsonItemSet {
+    public class JsonItemSet {
         private List<JsonItem> items;
 
-        public int SupportCount { get; private set; }
+        public int SupportCount;
         public string OriginalPath { get; private set; }
         public string ChangedPath { get; private set; }
 

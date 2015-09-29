@@ -25,6 +25,11 @@ namespace FP.DAO {
 		    SupportCount = -1;
 		}
 
+	    public JsonItem(string symbol, int supportCount) {
+	        Symbol = symbol;
+	        SupportCount = supportCount;
+	    }
+
 	    public JsonItem Deserialize(string json) {
 	        var serializer = new JavaScriptSerializer();
 	        return serializer.Deserialize<JsonItem>(json);

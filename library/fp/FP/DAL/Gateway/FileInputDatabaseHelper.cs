@@ -6,6 +6,8 @@ using System.Configuration;
 using FP.DAL.DAO;
 using FP.DAL.Gateway.Interface;
 using System.IO;
+using FP.DAO;
+
 namespace FP.DAL.Gateway
 {
 	public class FileInputDatabaseHelper : IInputDatabaseHelper
@@ -99,9 +101,9 @@ namespace FP.DAL.Gateway
 		}
 
 		//get support count of all items
-		public List<Item> CalculateFrequencyAllItems()
+		public List<JsonItem> CalculateFrequencyAllItems()
 		{
-			List<Item> items = new List<Item>();
+			List<JsonItem> items = new List<JsonItem>();
 			IDictionary<string, List<string>> astItems = new Dictionary<string, List<string>>();
 			IDictionary<string, int> dictionary = new Dictionary<string, int>(); // temporary associative array for counting frequency of items
 			string line;
@@ -139,7 +141,7 @@ namespace FP.DAL.Gateway
 			//insert all the item, frequency pair in items list
 			foreach (KeyValuePair<string, int> pair in dictionary)
 			{
-				Item anItem = new Item(pair.Key, pair.Value, astItems[pair.Key]);
+				JsonItem anItem = new JsonItem(pair.Key, pair.Value);
 				items.Add(anItem);
 			}
 
@@ -147,7 +149,7 @@ namespace FP.DAL.Gateway
 		}
 
 		//get frequency of an item set
-		public int GetFrequency(ItemSet itemSet)
+		public int GetFrequency(JsonItemSet itemSet)
 		{
 			int frequency = 0;
 			IDictionary<string, int> dictionary = new Dictionary<string, int>(); // temporary associative array for counting frequency of items
@@ -169,7 +171,7 @@ namespace FP.DAL.Gateway
 					bool itemSetExist = true; //indicates if this transaction contains itemset 
 					for(int i=0; i<itemSet.GetLength(); ++i)
 					{
-						Item item = itemSet.GetItem(i);
+						JsonItem item = itemSet.GetItem(i);
 						if(!dictionary.ContainsKey(item.Symbol))
 						{
 							itemSetExist = false;
