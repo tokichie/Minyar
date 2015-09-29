@@ -81,8 +81,6 @@ namespace FP.DAL.Gateway
 			Path = path;
 			TotalTransactionNumber = 0;
 			ConnectionStringSettings settings = ConfigurationManager.ConnectionStrings["FileDB"]; // get connection settings for File Type Database
-			List<Item> items = new List<Item>();
-			IDictionary<string, int> dictionary = new Dictionary<string, int>(); // temporary associative array for counting frequency of items
 			string line;
 			System.IO.StreamReader file;
 			try
