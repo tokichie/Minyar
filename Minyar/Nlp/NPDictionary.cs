@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Minyar.Nlp {
     public static class NPDictionary {
-        private static readonly string dicPath = Path.Combine("..", "..", "Resources", "pn_en.dic");
+        private static readonly string dicPath = Path.Combine("..", "..", "Resources", "pn_en_rev.dic");
         public static Dictionary<char, Dictionary<string, double>> English { get; private set; }
 
         static NPDictionary() {
@@ -20,7 +20,7 @@ namespace Minyar.Nlp {
             int count = 0;
             double score = 0;
             foreach (var word in words) {
-                if (word.POSChar == 'x')
+                if (word.POSChar == 'x' || word.Text == null)
                     continue;
                 var dic = English[word.POSChar];
                 if (dic.ContainsKey(word.Text)) {

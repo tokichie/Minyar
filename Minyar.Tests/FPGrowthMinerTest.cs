@@ -35,8 +35,8 @@ namespace Minyar.Tests {
 	    [Test]
 	    public void ExecuteMining() {
 			var miner = new FPGrowthMiner(
-				            Path.Combine("..", "..", "TestData", "antlr420150929202358.txt"),
-				            Path.Combine("..", "..", "TestData", "antlr420150929202358.out"),
+				            Path.Combine("..", "..", "TestData", "antlr420150930020412.txt"),
+				            Path.Combine("..", "..", "TestData", "antlr420150930020412.out"),
 				            4);
 	        
 			var res = miner.GenerateFrequentItemsets();
@@ -85,16 +85,16 @@ namespace Minyar.Tests {
             var sb = new StringBuilder();
 	        int i = 1;
             foreach (var item in items) {
-                Console.WriteLine(item);
+                //Console.WriteLine(item);
                 sb.Append(item).AppendLine();
                 if (i % 1000 == 0) Console.WriteLine("{0}/{1}", i, items.Count);
                 i++;
             }
-	        //var itemFilePath = Path.Combine("..", "..", "TestData", "20150929_items_20.txt");
-	        //using (var file = new StreamWriter(new FileStream(itemFilePath, FileMode.Create))) {
-         //       file.Write(sb.ToString());
-	        //}
-	    }
+            var itemFilePath = Path.Combine("..", "..", "TestData", "mining_results.txt");
+            using (var file = new StreamWriter(new FileStream(itemFilePath, FileMode.Create))) {
+                file.Write(sb.ToString());
+            }
+        }
 	}
 }
 

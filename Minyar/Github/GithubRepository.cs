@@ -60,8 +60,7 @@ namespace Minyar.Github {
                         var comments = item.Value;
                         double score = CalculateNpScore(comments);
                         Console.WriteLine("[Trace] Score for {0} is {1}", commitSha, score);
-                        if (score <= 0)
-                            pr.AddCommit(commitSha);
+                        pr.AddCommit(commitSha, score);
                     }
                     Pulls.Add(pr);
                 }

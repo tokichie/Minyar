@@ -203,6 +203,7 @@
     <Compile Include="CodeRange.cs" />
     <Compile Include="Github\FileDiff.cs" />
     <Compile Include="Github\GithubComment.cs" />
+    <Compile Include="Github\GithubCommit.cs" />
     <Compile Include="Github\GithubDiff.cs" />
     <Compile Include="Github\GithubPullRequest.cs" />
     <Compile Include="Github\GithubRepository.cs" />
@@ -233,6 +234,7 @@
     <None Include="Resources\java.csv" />
     <None Include="Resources\java2.csv" />
     <None Include="Resources\java3.csv" />
+    <None Include="Resources\pn_en_rev.dic" />
     <None Include="Resources\pn_en.dic" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

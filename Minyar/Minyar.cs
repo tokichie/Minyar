@@ -45,11 +45,11 @@ namespace Minyar {
 				using (var writer = new StreamWriter(new FileStream(Path.Combine(path, name + timestamp + ".txt"), FileMode.Append))) {
 					foreach (var pull in githubRepo.Pulls) {
 						Console.WriteLine("[Trace] Extracting Pull #{0}", pull.Number);
-						foreach (var sha in pull.Commits) {
-							var diff = GitRepository.GetDiff(githubRepo.RepositoryDirectory, sha);
+						foreach (var commit in pull.Commits) {
+							var diff = GitRepository.GetDiff(githubRepo.RepositoryDirectory, commit.Sha);
 							var githubDiff = new GithubDiff();
 							githubDiff.ParseDiff(diff);
-							var changeSet = CreateAstAndTakeDiff(githubRepo, githubDiff.FileDiffList, sha);
+							var changeSet = CreateAstAndTakeDiff(githubRepo, githubDiff.FileDiffList, commit.Sha);
                             var astChange = new AstChange(GithubUrl(repoId, pull.Number), changeSet);
 							if (changeSet != null) {
                                 WriteOut(writer, astChange);
@@ -124,9 +124,8 @@ namespace Minyar {
 				foreach (var lineChange in fileDiff.ChangedLineList) {
 					var mapper = new TreeMapping(orgCst, cmpCst, filePath, lineChange.ChangedLine, lineChange.NewLine);
 					mapper.Map();
-					//changeSet.UnionWith(mapper.ChangeSet);
-				    changeSet = mapper.ChangeSet;
-				}
+                    changeSet.UnionWith(mapper.ChangeSet);
+                }
 			}
 			return changeSet;
 		}

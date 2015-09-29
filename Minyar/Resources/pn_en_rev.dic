@@ -73113,7 +73113,7 @@ silence:n:-0.0425651
 debilitation:n:-0.0425658
 bog:n:-0.0425659
 trifurcate:v:-0.0425684
-pumice:n:-0.0425693
+pumice:n:-0.0425693t
 ecballium:n:-0.0425717
 crosshatched:a:-0.0425795
 dampness:n:-0.042586
@@ -88013,6 +88013,6 @@ abate:v:-1
 abandonment:n:-1
 abandon:v:-1
 abandon:n:-1
-LGTM:1
-+1:1
-sushi:1
+LGTM:n:1
++1:n:1
+sushi:n:1
