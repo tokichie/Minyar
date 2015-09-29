@@ -48,12 +48,18 @@ namespace Minyar {
 		        new CodeLocation(orgRange[0], 0),
 		        new CodeLocation(orgRange[0] + orgRange[1], 0));
             Console.Write(filePath + " " + orgCodeRange + " ");
-		    orgOuterMostRoot = orgCodeRange.FindOutermostNode(orgTree);
-		    Console.WriteLine(orgOuterMostRoot == null);
+            //if (orgRange[0] == 302)
+            //    Console.WriteLine(orgTree);
+            orgOuterMostRoot = orgCodeRange.FindOutermostNode(orgTree);
+		    if (orgOuterMostRoot == null)
+		        orgOuterMostRoot = orgTree;
+
 		    cmpCodeRange = new Code2XmlDummy.CodeRange(
 		        new CodeLocation(cmpRange[0], 0),
 		        new CodeLocation(cmpRange[0] + cmpRange[1], 0));
 		    cmpOuterMostRoot = cmpCodeRange.FindOutermostNode(cmpTree);
+		    if (cmpOuterMostRoot == null)
+		        cmpOuterMostRoot = cmpTree;
 		}
 
 		/// <summary>
