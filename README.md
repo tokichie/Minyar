@@ -5,4 +5,4 @@ Github mining tools :cat2:
 This program needs Standard NLP model data.
 If required files are not found, test will download and extract data automatically.
 
-![zoi](https://dl.dropboxusercontent.com/u/60282301/shinchoku.jpg "zoi")
+![zoi](https://raw.github.com/wiki/tokichie/Minyar/shinchoku.jpg "zoi")
