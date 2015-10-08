@@ -14,5 +14,7 @@ namespace Minyar.Github {
             Sha = sha;
             NpScore = npScore;
         }
+
+        public GithubCommit() : this("", 0.0) { }
     }
 }

@@ -93,13 +93,13 @@ namespace Minyar.Tests {
 
 	    [Test]
 	    public void TestParserJava() {
-	        var oldFile = Path.Combine("..", "..", "TestData", "Parser_old.java");
-	        var newFile = Path.Combine("..", "..", "TestData", "Parser_new.java");
+	        var oldFile = Path.Combine("..", "..", "TestData", "CollisionJNI_old.java");
+	        var newFile = Path.Combine("..", "..", "TestData", "CollisionJNI_new.java");
             var code1 = new StreamReader(oldFile).ReadToEnd();
             var code2 = new StreamReader(newFile).ReadToEnd();
 			var cst1 = Program.GenerateCst(code1);
 			var cst2 = Program.GenerateCst(code2);
-			var mapper = new TreeMapping(cst1, cst2, "filepath", new []{ 190, 6 }, new []{ 190, 7 });
+			var mapper = new TreeMapping(cst1, cst2, "filepath", new []{ 1, 6 }, new []{ 1, 6 });
 			mapper.Map();            
 
 			Print(mapper.ChangeSet);

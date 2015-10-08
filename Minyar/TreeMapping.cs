@@ -138,6 +138,7 @@ namespace Minyar {
                 }
             }
 
+            Console.WriteLine("{0} {1}", orgTokenList.Count, cmpTokenList.Count);
 			return LcsDetector.Detect(orgTokenList, cmpTokenList);
 		}
 

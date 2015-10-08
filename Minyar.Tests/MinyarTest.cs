@@ -19,12 +19,12 @@ namespace Minyar.Tests {
             
 			var repos = new List<string[]> {
                 //new string[] { "clojure", "clojure" },
-				//new string[] { "spring-projects", "spring-boot" },
-    //            new string[] { "spring-projects", "spring-batch" },
-				//new string[] { "antlr", "antlr4" },
+                //new string[] { "spring-projects", "spring-boot" },
+                //new string[] { "spring-projects", "spring-batch" },
+                new string[] { "antlr", "antlr4" },
                 new string[] { "junit-team", "junit" },
-                //new string[] { "libgdx", "libgdx" },
-                //new string[] { "ReactiveX", "RxJava" },
+                new string[] { "libgdx", "libgdx" },
+                new string[] { "ReactiveX", "RxJava" },
 				//new string[] { "spring-projects", "spring-framework" },
 				//new string[] { "netty", "netty" },
 				//new string[] { "nathanmarz", "storm" }

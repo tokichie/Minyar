@@ -187,6 +187,7 @@
     <Compile Include="Github\GithubDiffTest.cs" />
     <Compile Include="Github\OctokitClientTest.cs" />
     <Compile Include="Git\GitRepositoryTest.cs" />
+    <Compile Include="LcsDetectorTest.cs" />
     <Compile Include="TestHelper.cs" />
     <Compile Include="MinyarTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -202,6 +203,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Resources\pn_en_rev.dic" />
     <None Include="TestData\FrequentItemset1.dat" />
     <None Include="TestData\FrequentItemset3.dat" />
     <None Include="TestData\FrequentItemset2.dat" />
@@ -232,9 +234,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>

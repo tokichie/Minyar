@@ -46,12 +46,18 @@ namespace Minyar {
 					foreach (var pull in githubRepo.Pulls) {
 						Console.WriteLine("[Trace] Extracting Pull #{0}", pull.Number);
 						foreach (var commit in pull.Commits) {
+                            Console.WriteLine("[Trace]  Commit {0}", commit.Sha);
 							var diff = GitRepository.GetDiff(githubRepo.RepositoryDirectory, commit.Sha);
+						    Console.WriteLine("[Trace]  # of Diff {0}", diff.Length);
 							var githubDiff = new GithubDiff();
 							githubDiff.ParseDiff(diff);
+						    Console.WriteLine("[Trace]  URL of GitHubDiff {0}", githubDiff.DiffUrl);
+                            Console.WriteLine("[Trace]  Before taking ast diff");
 							var changeSet = CreateAstAndTakeDiff(githubRepo, githubDiff.FileDiffList, commit.Sha);
                             var astChange = new AstChange(GithubUrl(repoId, pull.Number), changeSet);
-							if (changeSet != null) {
+                            Console.WriteLine("[Trace]  After taking ast diff");
+                            
+                            if (changeSet != null) {
                                 WriteOut(writer, astChange);
 								//WriteOut(allResultFileWriter, astChange);
 							}
