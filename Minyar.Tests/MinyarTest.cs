@@ -21,9 +21,9 @@ namespace Minyar.Tests {
                 //new string[] { "clojure", "clojure" },
                 //new string[] { "spring-projects", "spring-boot" },
                 //new string[] { "spring-projects", "spring-batch" },
-                new string[] { "antlr", "antlr4" },
-                new string[] { "junit-team", "junit" },
-                new string[] { "libgdx", "libgdx" },
+                //new string[] { "antlr", "antlr4" },
+                //new string[] { "junit-team", "junit" },
+                //new string[] { "libgdx", "libgdx" },
                 new string[] { "ReactiveX", "RxJava" },
 				//new string[] { "spring-projects", "spring-framework" },
 				//new string[] { "netty", "netty" },
@@ -67,8 +67,8 @@ namespace Minyar.Tests {
 							FileMode.Append))) {
 					var orgCst = Program.GenerateCst(codeChange[0]);
 					var cmpCst = Program.GenerateCst(codeChange[1]);
-					var mapper = new TreeMapping(orgCst, cmpCst, "filepath", new []{ 0, 1 }, new []{ 0, 1 });
-					mapper.Map();
+					//var mapper = new TreeMapping(orgCst, cmpCst, "filepath", new []{ 0, 1 }, new []{ 0, 1 });
+					//mapper.Map();
 					//Minyar.WriteOut(writer, mapper.ChangeSet);
 				}
 			}

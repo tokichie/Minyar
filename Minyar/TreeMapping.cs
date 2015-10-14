@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Code2Xml.Core.SyntaxTree;
 using System.Linq;
 using Code2Xml.Core.Location;
+using Minyar.Github;
 
 namespace Minyar {
 	public class TreeMapping {
@@ -11,8 +13,7 @@ namespace Minyar {
 		private AstNode cmpTree;
 	    private AstNode orgOuterMostRoot;
 	    private AstNode cmpOuterMostRoot;
-		private int[] orgRange;
-		private int[] cmpRange;
+	    private List<LineChange> lineChanges; 
 		private HashSet<AstNode> movedNodes;
         private HashSet<AstNode> targetNodes;
 	    private Code2XmlDummy.CodeRange orgCodeRange;
@@ -34,22 +35,23 @@ namespace Minyar {
 			AstNode orgTree, 
 			AstNode cmpTree, 
 			string filePath,
-			int[] orgRange = null,
-			int[] cmpRange = null) {
+			List<LineChange> lineChanges) {
 			this.orgTree = orgTree;
 			this.cmpTree = cmpTree;
-			this.orgRange = orgRange;
-			this.cmpRange = cmpRange;
+		    this.lineChanges = lineChanges;
 			this.movedNodes = new HashSet<AstNode>();
             this.targetNodes = new HashSet<AstNode>();
 			this.FilePath = filePath;
 
+		}
+
+	    private void Initialize(LineChange lineChange) {
+	        var orgRange = lineChange.ChangedLine;
+	        var cmpRange = lineChange.NewLine;
 		    orgCodeRange = new Code2XmlDummy.CodeRange(
 		        new CodeLocation(orgRange[0], 0),
 		        new CodeLocation(orgRange[0] + orgRange[1], 0));
-            Console.Write(filePath + " " + orgCodeRange + " ");
-            //if (orgRange[0] == 302)
-            //    Console.WriteLine(orgTree);
+            Console.Write(FilePath + " " + orgCodeRange + " ");
             orgOuterMostRoot = orgCodeRange.FindOutermostNode(orgTree);
 		    if (orgOuterMostRoot == null)
 		        orgOuterMostRoot = orgTree;
@@ -59,24 +61,36 @@ namespace Minyar {
 		        new CodeLocation(cmpRange[0] + cmpRange[1], 0));
 		    cmpOuterMostRoot = cmpCodeRange.FindOutermostNode(cmpTree);
 		    if (cmpOuterMostRoot == null)
-		        cmpOuterMostRoot = cmpTree;
-		}
+		        cmpOuterMostRoot = cmpTree; 
+	    }
 
 		/// <summary>
 		/// Gets the change sequence of <Operation, NodeType>.
 		/// </summary>
-		public Dictionary<AstNode, AstNode> Map() {
-			var tokenMap = this.InitialMapping();
-			var bottomUpNodeMap = this.BottomUpMapping(tokenMap);
+		public void Map(StreamWriter log) {
+			ChangeSet = new HashSet<ChangePair>();
+		    foreach (var lineChange in lineChanges) {
+		        log.WriteLine("[Trace] {0} LineChange {1}:{2}", DateTime.Now, lineChange.ChangedLine, lineChange.NewLine);
+                Initialize(lineChange);
+                log.WriteLine("[Trace] {0} Initial mapping started", DateTime.Now);
+		        var tokenMap = InitialMapping();
+                log.WriteLine("[Trace] {0} Bottomup mapping started", DateTime.Now);
+		        var bottomUpNodeMap = BottomUpMapping(tokenMap);
 
-			this.TopDownMapping(bottomUpNodeMap);
+                log.WriteLine("[Trace] {0} Topdown mapping started", DateTime.Now);
+		        TopDownMapping(bottomUpNodeMap);
 
-            //Debug(orgTree, 0, tokenMap, bottomUpNodeMap);
+		        //Debug(orgTree, 0, tokenMap, bottomUpNodeMap);
 
-			this.MergeNodeMap(tokenMap, bottomUpNodeMap);
-			this.GetChangeSet(tokenMap);
-			return tokenMap;
+                log.WriteLine("[Trace] {0} Mapping finished", DateTime.Now);
+		        MergeNodeMap(tokenMap, bottomUpNodeMap);
+		        GetChangeSet(tokenMap);
+		    }
 		}
+
+	    public void Map() {
+	        Map(null);
+	    }
 
 		private void MergeNodeMap(Dictionary<AstNode, AstNode> tokenMap, Dictionary<AstNode, AstNode> bottomUpNodeMap) {
 			foreach (var keyValue in bottomUpNodeMap) {
@@ -223,8 +237,8 @@ namespace Minyar {
 			//    Console.WriteLine("<" + children.Item1 + "> <" + children.Item2 + ">");
 
 			if (orgUnmappedChildren.Count != 0) {
-				this.MapUnalignedChildren(nodeMap, orgUnmappedChildren, cmpUnmappedChildren);
-				this.DetectMovedNode(nodeMap, orgNode);
+				//this.MapUnalignedChildren(nodeMap, orgUnmappedChildren, cmpUnmappedChildren);
+				//this.DetectMovedNode(nodeMap, orgNode);
 			}
 		}
 
@@ -292,7 +306,6 @@ namespace Minyar {
 		}
 
 		private void GetChangeSet(Dictionary<AstNode, AstNode> map) {
-			this.ChangeSet = new HashSet<ChangePair>();
 			var checkedFlag = new HashSet<AstNode>();
 			foreach (var orgNode in orgOuterMostRoot.DescendantsAndSelf()) {
 				if (!map.ContainsKey(orgNode))
