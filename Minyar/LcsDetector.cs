@@ -9,7 +9,7 @@ namespace Minyar {
 		private LcsDetector() {
 		}
 
-	    private static readonly int MaxLength = 5000;
+	    public static int MaxLength = 5000;
 	    private static int lastL = 0;
 	    private static int lastR = 0;
 
