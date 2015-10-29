@@ -44,6 +44,7 @@ namespace Minyar {
 			int[,] dp = new int[n + 1, m + 1];
             int l = 0;
             int r = 0;
+			//var mapping = new Dictionary<AstNode, AstNode>();
 
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < m; j++) {
@@ -51,6 +52,8 @@ namespace Minyar {
 					if (compareToken)
 						b &= left[i].Token.Text == right[j].Token.Text;
 					if (b) {
+                        //if (!mapping.ContainsKey(left[i]))
+                        //    mapping.Add(left[i], right[j]);
 						dp[i + 1, j + 1] = dp[i, j] + 1;
 					    l = i;
 					    r = j;

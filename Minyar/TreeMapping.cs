@@ -237,10 +237,10 @@ namespace Minyar {
 			//    Console.WriteLine("<" + children.Item1 + "> <" + children.Item2 + ">");
 
 			if (orgUnmappedChildren.Count != 0) {
-				//this.MapUnalignedChildren(nodeMap, orgUnmappedChildren, cmpUnmappedChildren);
-				//this.DetectMovedNode(nodeMap, orgNode);
-			}
-		}
+                this.MapUnalignedChildren(nodeMap, orgUnmappedChildren, cmpUnmappedChildren);
+                this.DetectMovedNode(nodeMap, orgNode);
+            }
+        }
 
 		private void MapUnalignedChildren(Dictionary<AstNode, AstNode> nodeMap,
 		                                  List<AstNode> orgList,

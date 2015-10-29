@@ -97,7 +97,7 @@ namespace Minyar.Git {
             var changedCodes = new Dictionary<string, List<string>>();
             using (var repo = new Repository(githubRepo.RepositoryDirectory)) {
                 var commit = repo.Lookup<Commit>(targetSha);
-                if (commit == null) {
+                if (commit == null || commit.Parents.Count() == 0) {
                     Console.WriteLine("[Skipped] Sha {0} is not found.", targetSha);
                     return changedCodes;
                     //throw new ArgumentException("Invalid sha");
@@ -164,6 +164,8 @@ namespace Minyar.Git {
                     Console.WriteLine("[Skipped] Commit {0} is not found.", sha);
                     return res;
                 }
+                if (commit.Parents.Count() == 0)
+                    return res;
                 var parentCommit = commit.Parents.First();
                 var patch = repo.Diff.Compare<Patch>(parentCommit.Tree, commit.Tree);
                 res = patch.Content;
