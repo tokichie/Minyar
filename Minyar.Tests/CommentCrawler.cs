@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Minyar.Git;
 using Minyar.Github;
 using Minyar.Nlp;
 using Newtonsoft.Json;
@@ -18,16 +19,12 @@ namespace Minyar.Tests {
         [Test]
         public void TestCrawl() {
             var json = new StreamReader(Path.Combine("..", "..", "TestData", "JavaRepositories.json")).ReadToEnd();
-            var repos = JsonConvert.DeserializeObject<List<Object>>(json);
+            var repos = JsonConvert.DeserializeObject<List<JObject>>(json);
             foreach (var repo in repos) {
-                foreach (var keyvalue in (IList)repo) {
-                    if (((JProperty) keyvalue).Name == "FullName") {
-                        var repoName = ((JProperty) keyvalue).Value.ToString();
-                        Console.WriteLine(repoName);
-                        var task = Crawl(repoName);
-                        task.Wait();
-                    }
-                }
+                var repoName = repo.GetValue("FullName").ToString();
+                Console.WriteLine(repoName);
+                var task = Crawl(repoName);
+                task.Wait();
             }
         }
 
@@ -52,15 +49,15 @@ namespace Minyar.Tests {
             ApiRateLimit.CheckLimit();
             foreach (var pull in pulls) {
                 if (pull.MergedAt != null) {
-                    var dic = new Dictionary<string, IssueComment>();
-                    //var pullComments = await client.PullRequest.Comment.GetAll(Owner, Name, pull.Number);
-                    var issueComments = await client.Issue.Comment.GetAllForIssue(Owner, Name, pull.Number);
-                    foreach (var item in issueComments) {
+                    var dic = new Dictionary<string, PullRequestReviewComment>();
+                    var pullComments = await client.PullRequest.Comment.GetAll(Owner, Name, pull.Number);
+                    //var issueComments = await client.Issue.Comment.GetAllForIssue(Owner, Name, pull.Number);
+                    foreach (var item in pullComments) {
                         double score = CalculateNpScore(item.Body);
                         dic.Add(string.Format("{0}-{1}", item.Id, score), item);
                         Console.WriteLine("[Trace] Score for {0} is {1}", item.Id, score);
                     }
-                    using (var writer = new StreamWriter(Path.Combine("..", "..", "TestData", "Comments", Owner, Name, pull.Number + ".json"))) {
+                    using (var writer = new StreamWriter(Path.Combine("..", "..", "TestData", "Comments", Owner, Name, pull.Number + "-PullComments.json"))) {
                         writer.WriteLine(JsonConvert.SerializeObject(dic));
                     }
                 }
@@ -100,23 +97,31 @@ namespace Minyar.Tests {
         public void ListUpComments() {
             var commentDirPath = Path.Combine("..", "..", "TestData", "Comments");
             var dic = new Dictionary<string, double>();
+            hashSet = new HashSet<string>();
             searchCommentRecursive(commentDirPath, dic);
-            using (var writer = new StreamWriter(Path.Combine(commentDirPath, "comments2.csv"))) {
-                foreach (var item in dic.OrderBy(key => key.Value)) {
-                    writer.WriteLine("{0} {1}", item.Value, item.Key);
-                }
-            }
+            Console.WriteLine(hashSet.Count);
+            //using (var writer = new StreamWriter(Path.Combine(commentDirPath, "pullcomments-java.csv"))) {
+            //    foreach (var item in dic.OrderBy(key => key.Value)) {
+            //        writer.WriteLine("{0} {1}", item.Value, item.Key);
+            //    }
+            //}
         }
+
+        private HashSet<string> hashSet;
 
         private void searchCommentRecursive(string path, IDictionary<string, double> dic) {
             var files = Directory.GetFileSystemEntries(path);
             foreach (var filePath in files) {
                 if (Directory.Exists(filePath)) {
                     searchCommentRecursive(filePath, dic);
-                } else if (File.Exists(filePath) && filePath.EndsWith(".json")) {
+                } else if (File.Exists(filePath) && filePath.EndsWith("PullComments.json")) {
                     var json = new StreamReader(filePath).ReadToEnd();
                     var comments = JsonConvert.DeserializeObject<Dictionary<string, Object>>(json);
                     foreach (var comment in comments) {
+                        if (!((JObject) comment.Value).Property("Path").Value.ToString().EndsWith(".java"))
+                            continue;
+                        var diffHunk = ((JObject) comment.Value).Property("DiffHunk").Value.ToString();
+                        if (!hashSet.Contains(diffHunk)) hashSet.Add(diffHunk);
                         var score = double.Parse(comment.Key.Substring(comment.Key.IndexOf('-') + 1));
                         var apiurl = ((JObject) comment.Value).Property("Url").Value.ToString();
                         var htmlurl = ((JObject) comment.Value).Property("HtmlUrl").Value.ToString();
@@ -125,6 +130,11 @@ namespace Minyar.Tests {
                     }
                 }
             }
+        }
+
+        [Test]
+        public void TestUpdateRepositories() {
+            GitRepository.UpdateRepositories(null);
         }
     }
 }

@@ -187,11 +187,13 @@ FakesAssemblies/
 *.swp
 *~
 Minyar/Resources/AuthInfo.txt
+Minyar/Resources/GitHubCredentials.json
 json/*
 repos/*
 diffs/*
 items/*
 StanfordNLP/
+.vs/
 
 # MonoDevelop
 Minyar.userprefs
