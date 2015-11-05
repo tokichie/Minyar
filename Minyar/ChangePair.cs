@@ -1,44 +1,81 @@
 ﻿using System;
 using Code2Xml.Core.SyntaxTree;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Minyar {
 	public struct ChangePair {
-		public CstChangeOperation Operation;
-		public string NodeType;
-		public string OriginalToken;
-		public string ChangedToken;
+	    [DataMember(Name = "Opration")] public CstChangeOperation Operation;
 
-		public ChangePair(CstChangeOperation op, AstNode orgNode = null, AstNode cmpNode = null) {
+        [DataMember(Name = "NodeType")]
+        public string NodeType;
+        [DataMember(Name = "OriginalToken")]
+        public string OriginalToken;
+        [DataMember(Name = "ChangedToken")]
+        public string ChangedToken;
+        [DataMember(Name = "OriginalPosition")]
+        public string OriginalPosition;
+        [DataMember(Name = "ChangedPosition")]
+        public string ChangedPosition;
+
+        [DataMember(Name = "OriginalPath")]
+        public string OriginalPath;
+        [DataMember(Name = "ChangedPath")]
+        public string ChangedPath;
+
+		public ChangePair(CstChangeOperation op, string filePath, AstNode orgNode = null, AstNode cmpNode = null) {
 			this.Operation = op;
 			this.NodeType = "";
 			this.OriginalToken = "";
 			this.ChangedToken = "";
+			this.OriginalPath = "";
+			this.ChangedPath = filePath;
+			this.OriginalPosition = "";
+			this.ChangedPosition = "";
 			if (orgNode != null) {
-				this.NodeType = orgNode.Name;
-				this.OriginalToken = orgNode.Token.Text;
+				if (orgNode.HasToken) {
+					this.OriginalToken = orgNode.Token.Text;
+					this.OriginalPosition = orgNode.Token.Range.ToString().Replace(" ", "");
+				}
+				if (op != CstChangeOperation.Insert)
+					this.NodeType = orgNode.Name;
 			}
 			if (cmpNode != null) {
-				this.ChangedToken = cmpNode.Token.Text;
+				if (cmpNode.HasToken) {
+					this.ChangedToken = cmpNode.Token.Text;
+					this.ChangedPosition = cmpNode.Token.Range.ToString().Replace(" ", "");
+				}
 				if (op == CstChangeOperation.Insert)
 					this.NodeType = cmpNode.Name;
 			}
 		}
 
-		public ChangePair(CstChangeOperation op, string nodeType, string orgToken, string cmpToken) {
+		public ChangePair(CstChangeOperation op, string filePath, string orgToken, string cmpToken) {
 			this.Operation = op;
-			this.NodeType = nodeType;
+			this.NodeType = "";
+			this.OriginalPath = "";
+			this.OriginalPosition = "";
+			this.ChangedPosition = "";
+			this.ChangedPath = filePath;
 			this.OriginalToken = orgToken;
 			this.ChangedToken = cmpToken;
 		}
 
 		public override string ToString() {
-			var res = "";
-			if (NodeType == "TOKEN")
-				res = string.Format("<{0}:TOKEN:{1}:{2}>", Operation.ToString(), OriginalToken, ChangedToken);
-			else
-				res = string.Format("<{0}:{1}>", Operation.ToString(), NodeType);
-			return res;
+            //var res = string.Format(
+            //        "<{0}:{1}|{2}:{3}:{4}:{5}:{6}>",
+            //        Operation,
+            //        NodeType,
+            //        OriginalToken,
+            //        ChangedToken,
+            //        ChangedPath,
+            //        OriginalPosition,
+            //        ChangedPosition);
+            var res = string.Format(
+                "<{0}:{1}>",
+                Operation,
+                NodeType);
+            return res;
 		}
 	}
 }

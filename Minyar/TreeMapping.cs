@@ -1,19 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Code2Xml.Core.SyntaxTree;
-using Code2Xml.Core.Location;
 using System.Linq;
+using Code2Xml.Core.Location;
+using Minyar.Github;
 
 namespace Minyar {
 	public class TreeMapping {
 		private const double SimThreshold = 0;
 		private AstNode orgTree;
 		private AstNode cmpTree;
-		private int[] orgRange;
-		private int[] cmpRange;
+	    private AstNode orgOuterMostRoot;
+	    private AstNode cmpOuterMostRoot;
+	    private List<LineChange> lineChanges; 
 		private HashSet<AstNode> movedNodes;
+        private HashSet<AstNode> targetNodes;
+	    private Code2XmlDummy.CodeRange orgCodeRange;
+	    private Code2XmlDummy.CodeRange cmpCodeRange;
 
 		public HashSet<ChangePair> ChangeSet { get; private set; }
+
+		public string FilePath;
 
 
 		/// <summary>
@@ -26,30 +34,63 @@ namespace Minyar {
 		public TreeMapping(
 			AstNode orgTree, 
 			AstNode cmpTree, 
-			int[] orgRange = null,
-			int[] cmpRange = null) {
+			string filePath,
+			List<LineChange> lineChanges) {
 			this.orgTree = orgTree;
 			this.cmpTree = cmpTree;
-			this.orgRange = orgRange;
-			this.cmpRange = cmpRange;
+		    this.lineChanges = lineChanges;
 			this.movedNodes = new HashSet<AstNode>();
+            this.targetNodes = new HashSet<AstNode>();
+			this.FilePath = filePath;
+
 		}
+
+	    private void Initialize(LineChange lineChange) {
+	        var orgRange = lineChange.ChangedLine;
+	        var cmpRange = lineChange.NewLine;
+		    orgCodeRange = new Code2XmlDummy.CodeRange(
+		        new CodeLocation(orgRange[0], 0),
+		        new CodeLocation(orgRange[0] + orgRange[1], 0));
+            Console.Write(FilePath + " " + orgCodeRange + " ");
+            orgOuterMostRoot = orgCodeRange.FindOutermostNode(orgTree);
+		    if (orgOuterMostRoot == null)
+		        orgOuterMostRoot = orgTree;
+
+		    cmpCodeRange = new Code2XmlDummy.CodeRange(
+		        new CodeLocation(cmpRange[0], 0),
+		        new CodeLocation(cmpRange[0] + cmpRange[1], 0));
+		    cmpOuterMostRoot = cmpCodeRange.FindOutermostNode(cmpTree);
+		    if (cmpOuterMostRoot == null)
+		        cmpOuterMostRoot = cmpTree; 
+	    }
 
 		/// <summary>
 		/// Gets the change sequence of <Operation, NodeType>.
 		/// </summary>
-		public Dictionary<AstNode, AstNode> Map() {
-			var tokenMap = this.InitialMapping();
-			var bottomUpNodeMap = this.BottomUpMapping(tokenMap);
+		public void Map(StreamWriter log) {
+			ChangeSet = new HashSet<ChangePair>();
+		    foreach (var lineChange in lineChanges) {
+		        log.WriteLine("[Trace] {0} LineChange {1}:{2}", DateTime.Now, lineChange.ChangedLine, lineChange.NewLine);
+                Initialize(lineChange);
+                log.WriteLine("[Trace] {0} Initial mapping started", DateTime.Now);
+		        var tokenMap = InitialMapping();
+                log.WriteLine("[Trace] {0} Bottomup mapping started", DateTime.Now);
+		        var bottomUpNodeMap = BottomUpMapping(tokenMap);
 
-			this.TopDownMapping(bottomUpNodeMap);
+                log.WriteLine("[Trace] {0} Topdown mapping started", DateTime.Now);
+		        TopDownMapping(bottomUpNodeMap);
 
-			//Debug(orgTree, 0, tokenMap, bottomUpNodeMap);
+		        //Debug(orgTree, 0, tokenMap, bottomUpNodeMap);
 
-			this.MergeNodeMap(tokenMap, bottomUpNodeMap);
-			this.GetChangeSet(tokenMap);
-			return tokenMap;
+                log.WriteLine("[Trace] {0} Mapping finished", DateTime.Now);
+		        MergeNodeMap(tokenMap, bottomUpNodeMap);
+		        GetChangeSet(tokenMap);
+		    }
 		}
+
+	    public void Map() {
+	        Map(null);
+	    }
 
 		private void MergeNodeMap(Dictionary<AstNode, AstNode> tokenMap, Dictionary<AstNode, AstNode> bottomUpNodeMap) {
 			foreach (var keyValue in bottomUpNodeMap) {
@@ -68,16 +109,23 @@ namespace Minyar {
 			foreach (var node in root.Children()) {
 				for (int i = 0; i < depth; i++)
 					Console.Write("| ");
-				Console.Write(node.Name + ": " + node.Token.Text);
-				if (tokenMap.ContainsKey(node))
-					Console.Write("  ->  " + tokenMap[node].Name + ": " + tokenMap[node].Token.Text);
-				if (bottomUpNodeMap.ContainsKey(node)) {
+			    Console.Write(node.Name);
+			    if (node.HasToken)
+                    Console.Write(": " + node.Token.Text);
+			    if (tokenMap.ContainsKey(node)) {
+			        Console.Write("  ->  " + tokenMap[node].Name);
+			        if (tokenMap[node].HasToken)
+                        Console.Write(": " + tokenMap[node].Token.Text);
+			    }
+			    if (bottomUpNodeMap.ContainsKey(node)) {
 					if (bottomUpNodeMap[node] == null)
 						Console.Write("  ->  Unmapped");
 					else {
 						if (bottomUpNodeMap[node].Name.IndexOf("Identifier") != -1)
 							Console.ForegroundColor = ConsoleColor.Red;
-						Console.Write("  ->  " + bottomUpNodeMap[node].Name + ": " + bottomUpNodeMap[node].Token.Text);
+					    Console.Write("  ->  " + bottomUpNodeMap[node].Name);
+                        if (bottomUpNodeMap[node].HasToken)
+                            Console.Write(": " + bottomUpNodeMap[node].Token.Text);
 						Console.ResetColor();
 					}
 				}
@@ -91,22 +139,20 @@ namespace Minyar {
 			var orgTokenList = new List<AstNode>();
 			var cmpTokenList = new List<AstNode>();
 
-			foreach (var node in this.orgTree.AllTokenNodes()) {
-				if (this.orgRange != null && node.Token.StartLine >= this.orgRange[0] && node.Token.StartLine <= this.orgRange[1]) {
-					if (node.Name != "EOF") {
-						orgTokenList.Add(node);
-					}
-				}
+            foreach (var node in orgOuterMostRoot.AllTokenNodes()) {
+                if (node.Name != "EOF") {
+                    orgTokenList.Add(node);
+                    targetNodes.Add(node);
+                }
 			}
 
-			foreach (var node in cmpTree.AllTokenNodes()) {
-				if (this.cmpRange != null && node.Token.StartLine >= this.cmpRange[0] && node.Token.StartLine <= this.cmpRange[1]) {
-					if (node.Name != "EOF") {
-						cmpTokenList.Add(node);
-					}
-				}
-			}
+			foreach (var node in cmpOuterMostRoot.AllTokenNodes()) {
+                if (node.Name != "EOF") {
+                    cmpTokenList.Add(node);
+                }
+            }
 
+            Console.WriteLine("{0} {1}", orgTokenList.Count, cmpTokenList.Count);
 			return LcsDetector.Detect(orgTokenList, cmpTokenList);
 		}
 
@@ -119,6 +165,7 @@ namespace Minyar {
 					if (bottomUpNodeMap.ContainsKey(ancestor))
 						continue;
 
+				    targetNodes.Add(ancestor);
 					bool isMapped = false;
 					double maxScore = TreeMapping.SimThreshold;
 					var cmpAncestors = cmpTokenNode.Ancestors().Where(x => x.Name == ancestor.Name);
@@ -136,33 +183,45 @@ namespace Minyar {
 							isMapped = true;
 							maxScore = Math.Max(maxScore, sim);
 						}
+
+                        if (cmpAncestor == cmpOuterMostRoot)
+                            break;
 					}
 
 					if (!isMapped) {
 						bottomUpNodeMap[ancestor] = null;
 					}
+
+				    if (ancestor == orgOuterMostRoot)
+				        break;
 				}
 			}
 			return bottomUpNodeMap;
 		}
 
 		private void TopDownMapping(Dictionary<AstNode, AstNode> nodeMap) {
-			foreach (var item in nodeMap.OrderBy(kv => kv.Key.Ancestors().Count())) {
-				var orgNode = item.Key;
-				MapRecursively(nodeMap, orgNode);
-			}
+            //foreach (var item in nodeMap.OrderBy(kv => kv.Key.Ancestors().Count())) {
+            //    var orgNode = item.Key;
+            //    MapRecursively(nodeMap, orgNode);
+            //}
+            MapRecursively(nodeMap, orgOuterMostRoot);
 		}
 
 		private void MapRecursively(Dictionary<AstNode, AstNode> nodeMap, AstNode node) {
 			this.DetectUnmappedChildren(nodeMap, node);
-			foreach (var child in node.Children())
-				MapRecursively(nodeMap, child);
+		    foreach (var child in node.Children()) {
+		        if (targetNodes.Contains(child)) {
+		            MapRecursively(nodeMap, child);
+		        }
+		    }
 		}
 
 		private void DetectUnmappedChildren(Dictionary<AstNode, AstNode> nodeMap, AstNode orgNode) {
-			if (!nodeMap.ContainsKey(orgNode) || nodeMap[orgNode] == null)
-				return;
-			var cmpNode = nodeMap[orgNode];
+		    if (!nodeMap.ContainsKey(orgNode) || nodeMap[orgNode] == null) {
+		        nodeMap[orgNode] = null;
+		        return;
+		    }
+		    var cmpNode = nodeMap[orgNode];
 			var orgUnmappedChildren = new List<AstNode>();
 			var cmpUnmappedChildren = new List<AstNode>();
 
@@ -178,10 +237,10 @@ namespace Minyar {
 			//    Console.WriteLine("<" + children.Item1 + "> <" + children.Item2 + ">");
 
 			if (orgUnmappedChildren.Count != 0) {
-				this.MapUnalignedChildren(nodeMap, orgUnmappedChildren, cmpUnmappedChildren);
-				this.DetectMovedNode(nodeMap, orgNode);
-			}
-		}
+                this.MapUnalignedChildren(nodeMap, orgUnmappedChildren, cmpUnmappedChildren);
+                this.DetectMovedNode(nodeMap, orgNode);
+            }
+        }
 
 		private void MapUnalignedChildren(Dictionary<AstNode, AstNode> nodeMap,
 		                                  List<AstNode> orgList,
@@ -203,13 +262,15 @@ namespace Minyar {
 					foreach (var descendant in cmpNode.DescendantsAndSelf()) {
 						double sim = ExasTreeSimilarity.Calculate(orgNode, descendant);
 						if (sim >= maxSim) {
-							var dist = LevenshteinDistance.Calculate(orgNode.Token.Text, descendant.Token.Text);
-							if (dist <= minDist) {
-								minDist = dist;
-								nodeMap[orgNode] = descendant;
-								isMapped[i] = true;
-							}
-							maxSim = sim;
+						    maxSim = sim;
+						    if (orgNode.HasToken && descendant.HasToken) {
+						        var dist = LevenshteinDistance.Calculate(orgNode.Token.Text, descendant.Token.Text);
+						        if (dist <= minDist) {
+						            minDist = dist;
+						            nodeMap[orgNode] = descendant;
+						            isMapped[i] = true;
+						        }
+						    }
 						}
 					}
 				}
@@ -245,31 +306,31 @@ namespace Minyar {
 		}
 
 		private void GetChangeSet(Dictionary<AstNode, AstNode> map) {
-			this.ChangeSet = new HashSet<ChangePair>();
 			var checkedFlag = new HashSet<AstNode>();
-			foreach (var orgNode in this.orgTree.DescendantsAndSelf()) {
+			foreach (var orgNode in orgOuterMostRoot.DescendantsAndSelf()) {
 				if (!map.ContainsKey(orgNode))
 					continue;
 
 				var cmpNode = map[orgNode];
 				if (cmpNode == null) {
-					this.ChangeSet.Add(new ChangePair(CstChangeOperation.Delete, orgNode));
+					this.ChangeSet.Add(new ChangePair(CstChangeOperation.Delete, FilePath, orgNode));
 				} else {
 					checkedFlag.Add(cmpNode);
-					if (orgNode.Token.Text == cmpNode.Token.Text) {
-						if (this.movedNodes.Contains(orgNode))
-							this.ChangeSet.Add(new ChangePair(CstChangeOperation.Move, orgNode, cmpNode));
-					} else {
-						if (orgNode.Name == "TOKEN" && cmpNode.Name == "TOKEN")
-							this.ChangeSet.Add(new ChangePair(CstChangeOperation.Update, orgNode, cmpNode));
-					} 
+					if (orgNode.HasToken && cmpNode.HasToken && orgNode.Token.Text != cmpNode.Token.Text) {
+						this.ChangeSet.Add(new ChangePair(CstChangeOperation.Update, FilePath, orgNode, cmpNode));
+					}
+					if (orgNode.Name == cmpNode.Name) {
+						if (this.movedNodes.Contains(orgNode)) {
+							this.ChangeSet.Add(new ChangePair(CstChangeOperation.Move, FilePath, orgNode, cmpNode));
+						}
+					}
 				}
 			}
 
-			foreach (var cmpNode in this.cmpTree.DescendantsAndSelf()) {
+			foreach (var cmpNode in cmpOuterMostRoot.DescendantsAndSelf()) {
 				if (checkedFlag.Contains(cmpNode))
 					continue;
-				this.ChangeSet.Add(new ChangePair(CstChangeOperation.Insert, null, cmpNode));
+				this.ChangeSet.Add(new ChangePair(CstChangeOperation.Insert, FilePath, null, cmpNode));
 			}
 		}
 	}

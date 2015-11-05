@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using FP.DAO;
 
 namespace FP.DAL.DAO {
 	public class Item {
 		public int SupportCount { get; set; }
 
 		public string Symbol { get; private set; }
+
+	    public List<JsonItem> JsonItems;
 
 		//constructors
 		public Item() : this(null, -1) {
@@ -19,11 +22,17 @@ namespace FP.DAL.DAO {
 		public Item(string _symbol, int _supportCount) {
 			Symbol = _symbol;
 			SupportCount = _supportCount;
+		    JsonItems = new List<JsonItem>();
 		}
 
 		public Item Clone() {
-			Item item = new Item(Symbol, SupportCount);
-			return item;
+		    var item = new Item(Symbol, SupportCount);
+		    item.JsonItems = JsonItems;
+		    return item;
 		}
+
+	    public override string ToString() {
+	        return Symbol;
+	    }
 	}
 }

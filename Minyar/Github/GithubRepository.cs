@@ -54,14 +54,16 @@ namespace Minyar.Github {
                     //var pullComments = await client.PullRequest.Comment.GetAll(Owner, Name, pull.Number);
                     var issueComments = await client.Issue.Comment.GetAllForIssue(Owner, Name, pull.Number);
                     var pullCommits = await client.PullRequest.Commits(Owner, Name, pull.Number);
-                    var commentsWithCommit = AssociateCommentsToCommit(issueComments, pullCommits, commitDetails);
-                    foreach (var item in commentsWithCommit) {
-                        var commitSha = item.Key;
-                        var comments = item.Value;
-                        double score = CalculateNpScore(comments);
-                        Console.WriteLine("[Trace] Score for {0} is {1}", commitSha, score);
-                        if (score <= 0)
-                            pr.AddCommit(commitSha);
+                    //var commentsWithCommit = AssociateCommentsToCommit(issueComments, pullCommits, commitDetails);
+                    //foreach (var item in commentsWithCommit) {
+                    //    var commitSha = item.Key;
+                    //    var comments = item.Value;
+                    //    double score = CalculateNpScore(comments);
+                    //    Console.WriteLine("[Trace] Score for {0} is {1}", commitSha, score);
+                    //    pr.AddCommit(commitSha, score);
+                    //}
+                    foreach (var pullCommit in pullCommits) {
+                        pr.AddCommit(pullCommit.Sha, -1);
                     }
                     Pulls.Add(pr);
                 }

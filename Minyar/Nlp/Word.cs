@@ -32,8 +32,10 @@ namespace Minyar.Nlp {
             parsedData = parsedData.Trim().Trim('[', ']');
             var annotations = parsedData.Split(' ');
             foreach (string annotation in annotations) {
-                var key = annotation.Substring(0, annotation.IndexOf('='));
-                var value = annotation.Substring(annotation.IndexOf('=') + 1);
+                var index = annotation.IndexOf('=');
+                if (index < 0) continue;
+                var key = annotation.Substring(0, index);
+                var value = annotation.Substring(index + 1);
                 if (key == "Text") {
                     this.Text = value;
                 } else if (key == "PartOfSpeech") {

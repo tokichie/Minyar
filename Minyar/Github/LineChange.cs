@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Minyar.Github {
-    struct LineChange {
+    public struct LineChange {
         public int[] ChangedLine;
         public int[] NewLine;
 

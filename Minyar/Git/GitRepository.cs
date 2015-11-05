@@ -8,6 +8,8 @@ using System.IO;
 using Minyar.Github;
 using System.Diagnostics;
 using ICSharpCode.SharpZipLib.Tar;
+using LibGit2Sharp.Handlers;
+using Newtonsoft.Json;
 
 namespace Minyar.Git {
     class GitRepository {
@@ -45,11 +47,31 @@ namespace Minyar.Git {
             }
         }
 
-        public static void UpdateRepositories(List<string[]> repositories) {
-            using (var repo = new Repository(@"J:\repos\pattern-detection")) {
-                var commit = repo.Lookup<Commit>("de9529e7e5fe7dcd7b6f2e917cd4e81fcedd0fd3");
-                foreach (var c in commit.Parents) {
-                    Console.WriteLine(c.Sha);
+        public static void UpdateRepositories(List<string[]> repos) {
+			var path = Path.Combine("..", "..", "..", "Minyar", "Resources", "GitHubCredentials.json");
+            Dictionary<string, string> credentials;
+            using (var file = new StreamReader(path)) {
+                var json = file.ReadToEnd();
+                credentials = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+            }
+
+            foreach (var repoName in repos) {
+                Console.WriteLine("[Trace] Fetching {0}/{1}...", repoName[0], repoName[1]);
+                using (
+                    var repo =
+                        new Repository(Path.Combine("..", "..", "..", "Minyar", "repos", repoName[0], repoName[1]))) {
+                    var opts = new CheckoutOptions();
+                    opts.CheckoutModifiers = CheckoutModifiers.Force;
+                    var branch = repo.Branches.First(b => !b.Name.Contains("/"));
+                    repo.Checkout(branch, opts);
+                    var pullOpts = new PullOptions();
+                    pullOpts.FetchOptions = new FetchOptions();
+                    pullOpts.FetchOptions.CredentialsProvider =
+                        (url, username, types) => new UsernamePasswordCredentials() {
+                            Username = credentials["UserName"],
+                            Password = credentials["Password"]
+                        };
+                    repo.Network.Pull(new Signature("Minyar", "minyar@gmail.com", DateTimeOffset.Now), pullOpts);
                 }
             }
         }
@@ -97,7 +119,7 @@ namespace Minyar.Git {
             var changedCodes = new Dictionary<string, List<string>>();
             using (var repo = new Repository(githubRepo.RepositoryDirectory)) {
                 var commit = repo.Lookup<Commit>(targetSha);
-                if (commit == null) {
+                if (commit == null || commit.Parents.Count() == 0) {
                     Console.WriteLine("[Skipped] Sha {0} is not found.", targetSha);
                     return changedCodes;
                     //throw new ArgumentException("Invalid sha");
@@ -164,6 +186,8 @@ namespace Minyar.Git {
                     Console.WriteLine("[Skipped] Commit {0} is not found.", sha);
                     return res;
                 }
+                if (commit.Parents.Count() == 0)
+                    return res;
                 var parentCommit = commit.Parents.First();
                 var patch = repo.Diff.Compare<Patch>(parentCommit.Tree, commit.Tree);
                 res = patch.Content;

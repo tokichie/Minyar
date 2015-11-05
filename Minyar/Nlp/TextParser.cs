@@ -47,7 +47,7 @@ namespace Minyar.Nlp {
         private Sentence[] SplitIntoSentences(string nlpres) {
             var lines = nlpres.Trim().Split('\n').ToList();
             var sentences = new List<Sentence>();
-            for (int i = 0; i < lines.Count; i += 3) {
+            for (int i = lines.Count % 3; i < lines.Count; i += 3) {
                 sentences.Add(new Sentence(lines.GetRange(i, 3).ToArray()));
             }
             return sentences.ToArray();

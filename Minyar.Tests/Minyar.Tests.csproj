@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\LibGit2Sharp.0.21.0.176\build\net40\LibGit2Sharp.props" Condition="Exists('..\packages\LibGit2Sharp.0.21.0.176\build\net40\LibGit2Sharp.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -10,11 +10,12 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Minyar.Tests</RootNamespace>
     <AssemblyName>Minyar.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <NuGetPackageImportStamp>917a1276</NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,15 +41,23 @@
     <Reference Include="Antlr4.Runtime.net45">
       <HintPath>..\packages\Antlr4.Runtime.4.3.0\lib\net45\Antlr4.Runtime.net45.dll</HintPath>
     </Reference>
-    <Reference Include="Code2Xml.Core, Version=3.3.2.98, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Code2Xml.Core, Version=3.3.7.103, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Code2Xml.3.3.2.98\lib\Code2Xml.Core.dll</HintPath>
+      <HintPath>..\packages\Code2Xml.3.3.7.103\lib\Code2Xml.Core.dll</HintPath>
     </Reference>
     <Reference Include="LibGit2Sharp">
       <HintPath>..\packages\LibGit2Sharp.0.21.0.176\lib\net40\LibGit2Sharp.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Octokit, Version=0.16.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Octokit.0.16.0\lib\net45\Octokit.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -175,9 +184,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiRateLimitTest.cs" />
+    <Compile Include="CommentCrawler.cs" />
     <Compile Include="Github\GithubDiffTest.cs" />
     <Compile Include="Github\OctokitClientTest.cs" />
     <Compile Include="Git\GitRepositoryTest.cs" />
+    <Compile Include="LcsDetectorTest.cs" />
     <Compile Include="TestHelper.cs" />
     <Compile Include="MinyarTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -193,17 +204,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Resources\pn_en_rev.dic" />
     <None Include="TestData\FrequentItemset1.dat" />
+    <None Include="TestData\FrequentItemset3.dat" />
     <None Include="TestData\FrequentItemset2.dat" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Minyar\Minyar.csproj">
-      <Project>{6F9A8CDB-2ACB-4F4B-BA26-DACBC54C69AC}</Project>
-      <Name>Minyar</Name>
-    </ProjectReference>
     <ProjectReference Include="..\library\fp\FP\FP.csproj">
       <Project>{0FD86AB4-576C-42D6-8012-EFD82CC470A7}</Project>
       <Name>FP</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Minyar\Minyar.csproj">
+      <Project>{6f9a8cdb-2acb-4f4b-ba26-dacbc54c69ac}</Project>
+      <Name>Minyar</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -222,9 +235,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>

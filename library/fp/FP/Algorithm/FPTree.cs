@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using FP.DAL.Gateway.Interface;
 using FP.DAL.DAO;
+using FP.DAO;
 
 namespace FP.Algorithm {
 	public class FPTree {
@@ -33,7 +34,7 @@ namespace FP.Algorithm {
 			FrequentItems = FrequentItems.OrderByDescending(x => x.SupportCount).ToList();
 
 			inputDatabaseHelper.OpenDatabaseConnection();
-			List<string> aTransaction = new List<string>();
+			var aTransaction = new List<Item>();
 			do {
 				aTransaction = inputDatabaseHelper.GetNextTransaction();
 				InsertTransaction(aTransaction);
@@ -41,13 +42,14 @@ namespace FP.Algorithm {
 			inputDatabaseHelper.CloseDatabaseConnection();
 		}
 
-		private void InsertTransaction(List<string> aTransaction) {
+		private void InsertTransaction(List<Item> aTransaction) {
 			//filter transactions to get frequent items in sorted order of frequentItems
-			List<Item> items = FrequentItems.FindAll(
-				                   (Item anItem) => aTransaction.Exists(x => x == anItem.Symbol));
+			var items = FrequentItems.FindAll(
+				                   item => aTransaction.Exists(
+                                       x => x.Symbol == item.Symbol));
 			Node tempRoot = root;
 			Node tempNode;
-			foreach (Item anItem in items) {
+			foreach (var anItem in items) {
 				Node aNode = new Node(anItem.Symbol);
 				aNode.FpCount = 1;
 				if ((tempNode = tempRoot.Children.Find(c => c.Symbol == aNode.Symbol)) != null) {
@@ -67,9 +69,9 @@ namespace FP.Algorithm {
 		}
 
 		private void CalculateFrequentItems() {
-			List<Item> items = inputDatabaseHelper.CalculateFrequencyAllItems();
+			var items = inputDatabaseHelper.CalculateFrequencyAllItems();
 
-			foreach (Item anItem in items) {
+			foreach (var anItem in items) {
 				if (anItem.SupportCount >= minimumSupportCount) {
 					FrequentItems.Add(anItem.Clone());
 				}
@@ -115,22 +117,22 @@ namespace FP.Algorithm {
 		}
 
 		public FPTree Project(Item anItem) {
-			FPTree tree = new FPTree();
+			var tree = new FPTree();
 			tree.minimumSupport = minimumSupport;
 			tree.minimumSupportCount = minimumSupportCount;
 
-			Node startNode = headerTable[anItem.Symbol];
+			var startNode = headerTable[anItem.Symbol];
 
 			while (startNode != null) {
 				int projectedFPCount = startNode.FpCount;
-				Node tempNode = startNode;
-				List<Node> aBranch = new List<Node>();
+				var tempNode = startNode;
+				var aBranch = new List<Node>();
 				while (null != tempNode.Parent) {
-					Node parentNode = tempNode.Parent;
+					var parentNode = tempNode.Parent;
 					if (parentNode.IsNull()) {
 						break;
 					}
-					Node newNode = new Node(parentNode.Symbol);
+					var newNode = new Node(parentNode.Symbol);
 					//newNode.Parent = parentNode.Parent;
 					newNode.FpCount = projectedFPCount;
 					aBranch.Add(newNode);
@@ -168,13 +170,12 @@ namespace FP.Algorithm {
 			}
 
 			tree.FrequentItems = FrequentItems.FindAll(
-				delegate(Item item) {
-					if (tree.headerTable.ContainsKey(item.Symbol)) {
-						item.SupportCount = tree.headerTable[item.Symbol].FpCount;
-					}
-					return tree.headerTable.ContainsKey(item.Symbol);
-				}
-			);
+			    (item) => {
+			        if (tree.headerTable.ContainsKey(item.Symbol)) {
+			            item.SupportCount = tree.headerTable[item.Symbol].FpCount;
+			        }
+			        return tree.headerTable.ContainsKey(item.Symbol);
+			    });
 			return tree;
 		}
 

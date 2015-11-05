@@ -27,8 +27,8 @@ namespace Minyar {
 			var orgTree = GenerateCst(org);
 			var cmpTree = GenerateCst(cmp);
 
-			var mapper = new TreeMapping(orgTree, cmpTree, new int[] { 3, 10 }, new int[] { 3, 12 });
-			mapper.Map();
+			//var mapper = new TreeMapping(orgTree, cmpTree, "FilePath", new int[] { 3, 10 }, new int[] { 3, 12 });
+			//mapper.Map();
 		}
 
 		public static AstNode GenerateCst(string code) {

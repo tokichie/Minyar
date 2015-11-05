@@ -6,6 +6,8 @@ using System.Configuration;
 using FP.DAL.DAO;
 using FP.DAL.Gateway.Interface;
 using System.IO;
+using FP.DAO;
+
 namespace FP.DAL.Gateway
 {
 	public class FileInputDatabaseHelper : IInputDatabaseHelper
@@ -28,7 +30,7 @@ namespace FP.DAL.Gateway
 		{
 			try
 			{
-				inputFilePointer = new System.IO.StreamReader(Path);//open file for streaming
+				inputFilePointer = new StreamReader(Path);//open file for streaming
 			}
 			catch(Exception ex)
 			{
@@ -48,16 +50,19 @@ namespace FP.DAL.Gateway
 				Console.WriteLine(ex.StackTrace);
 			}
 		}
-		public List<string> GetNextTransaction()
+		public List<Item> GetNextTransaction()
 		{
-			List<string> transaction = new List<string>();
+			var transaction = new List<Item>();
 			string line=""; 
 			try
 			{
-				if ((line = inputFilePointer.ReadLine()) != null)
-				{
-					transaction = new List<string>(line.Trim().Split(' '));
-					transaction = transaction.Select(s => s.Trim()).ToList();
+				if ((line = inputFilePointer.ReadLine()) != null) {
+				    var itemWrapper = ItemWrapper.Deserialize(line.Trim());
+				    foreach (var item in itemWrapper.Items) {
+				        transaction.Add(new Item(item.Symbol));
+				    }
+				    //transaction = new list<string>(line.trim().split(new []{"$&$"}, stringsplitoptions.removeemptyentries));
+				    //transaction = transaction.Select(s => s.Trim()).ToList();
 				}
 				else
 				{
@@ -79,8 +84,6 @@ namespace FP.DAL.Gateway
 			Path = path;
 			TotalTransactionNumber = 0;
 			ConnectionStringSettings settings = ConfigurationManager.ConnectionStrings["FileDB"]; // get connection settings for File Type Database
-			List<Item> items = new List<Item>();
-			IDictionary<string, int> dictionary = new Dictionary<string, int>(); // temporary associative array for counting frequency of items
 			string line;
 			System.IO.StreamReader file;
 			try
@@ -101,91 +104,95 @@ namespace FP.DAL.Gateway
 		//get support count of all items
 		public List<Item> CalculateFrequencyAllItems()
 		{
-			List<Item> items = new List<Item>();
-			IDictionary<string, int> dictionary = new Dictionary<string, int>(); // temporary associative array for counting frequency of items
+			var items = new List<Item>();
+			var dictionary = new Dictionary<string, int>();
+            var jsonItemsDic = new Dictionary<string, List<JsonItem>>();
 			string line;
-			System.IO.StreamReader file ;
-			try
-			{
-				file = new System.IO.StreamReader(Path);//open file for streaming
-				while ((line = file.ReadLine()) != null)
-				{
-					string[] tempItems = line.Split(' ');
-					foreach(string tempItem in tempItems)
-					{
-						string item = tempItem.Trim();
-						if (item.Length == 0) continue;
-						if (dictionary.ContainsKey(item))
-							dictionary[item]++; // increase frequency of item
-						else
-							dictionary[item] = 1; //set initial frequency
+			StreamReader file ;
+            try {
+                file = new StreamReader(Path);//open file for streaming
+				while ((line = file.ReadLine()) != null) {
+				    var itemWrapper = ItemWrapper.Deserialize(line.Trim());
+                    var isAdded = new HashSet<string>();
+					foreach(JsonItem item in itemWrapper.Items) {
+					    item.GithubUrl = itemWrapper.GithubUrl;
+					    if (!jsonItemsDic.ContainsKey(item.Symbol)) {
+					        jsonItemsDic[item.Symbol] = new List<JsonItem>();
+					    }
+                        jsonItemsDic[item.Symbol].Add(item);
+					    if (!isAdded.Contains(item.Symbol)) {
+					        isAdded.Add(item.Symbol);
+					        if (dictionary.ContainsKey(item.Symbol)) {
+					            dictionary[item.Symbol]++; // increase frequency of item
+					        } else {
+					            dictionary[item.Symbol] = 1; //set initial frequency
+					        }
+					    }
 					}
 				}
 
 				file.Close(); // close file
-			}
-			catch(Exception e)
-			{
-				Console.WriteLine(e.Message);
-				Console.WriteLine(e.StackTrace);
-			}
-			//insert all the item, frequency pair in items list
-			foreach (KeyValuePair<string, int> pair in dictionary)
-			{
-				Item anItem = new Item(pair.Key, pair.Value);
-				items.Add(anItem);
-			}
+            } catch (Exception e) {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+
+		    foreach (var dicItem in dictionary) {
+		        var item = new Item(dicItem.Key, dicItem.Value);
+		        item.JsonItems = jsonItemsDic[dicItem.Key];
+                items.Add(item);
+		    }
 
 			return items;
 		}
 
 		//get frequency of an item set
-		public int GetFrequency(ItemSet itemSet)
-		{
-			int frequency = 0;
-			IDictionary<string, int> dictionary = new Dictionary<string, int>(); // temporary associative array for counting frequency of items
-			string line;
-			System.IO.StreamReader file;
-			try
-			{
-				file = new System.IO.StreamReader(Path);//open file for streaming
-				while ((line = file.ReadLine()) != null)
-				{
-					string[] tempItems = line.Split(' ');
-					dictionary.Clear();
-					foreach (string tempItem in tempItems)
-					{
-						string item = tempItem.Trim();
-						dictionary[item] = 1; //set dictionary for this item
-					}
+		//public int GetFrequency(JsonItemSet itemSet)
+		//{
+		//	int frequency = 0;
+		//	IDictionary<string, int> dictionary = new Dictionary<string, int>(); // temporary associative array for counting frequency of items
+		//	string line;
+		//	System.IO.StreamReader file;
+		//	try
+		//	{
+		//		file = new System.IO.StreamReader(Path);//open file for streaming
+		//		while ((line = file.ReadLine()) != null)
+		//		{
+		//			string[] tempItems = line.Split(' ');
+		//			dictionary.Clear();
+		//			foreach (string tempItem in tempItems)
+		//			{
+		//				string item = tempItem.Trim();
+		//				dictionary[item] = 1; //set dictionary for this item
+		//			}
 
-					bool itemSetExist = true; //indicates if this transaction contains itemset 
-					for(int i=0; i<itemSet.GetLength(); ++i)
-					{
-						Item item = itemSet.GetItem(i);
-						if(!dictionary.ContainsKey(item.Symbol))
-						{
-							itemSetExist = false;
-							break;
-						}
-					}
-					if(itemSetExist)
-					{
-						frequency++;
-					}
-				}
+		//			bool itemSetExist = true; //indicates if this transaction contains itemset 
+		//			for(int i=0; i<itemSet.GetLength(); ++i)
+		//			{
+		//				JsonItem item = itemSet.GetItem(i);
+		//				if(!dictionary.ContainsKey(item.Symbol))
+		//				{
+		//					itemSetExist = false;
+		//					break;
+		//				}
+		//			}
+		//			if(itemSetExist)
+		//			{
+		//				frequency++;
+		//			}
+		//		}
 
-				file.Close(); // close file
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e.Message);
-				Console.WriteLine(e.StackTrace);
-			}
+		//		file.Close(); // close file
+		//	}
+		//	catch (Exception e)
+		//	{
+		//		Console.WriteLine(e.Message);
+		//		Console.WriteLine(e.StackTrace);
+		//	}
 
-			itemSet.SupportCount = frequency;
-			return frequency;
-		}
+		//	itemSet.SupportCount = frequency;
+		//	return frequency;
+		//}
 
 	}
 }
