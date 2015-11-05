@@ -36,7 +36,15 @@ namespace Minyar.Tests {
 			task.Wait();
 		}
 
-		[Test]
+	    [Test]
+	    public void TestWhole() {
+            var repositories = Minyar.ReadFromJson<List<Repository>>(
+                Path.Combine("..", "..", "TestData", "JavaRepositories.json"));
+	        var task = Minyar.Start(repositories);
+	        task.Wait();
+	    }
+
+        [Test]
 		public void TestGithubRepo() {
 			var githubRepo = GithubRepository.Load("libgdx", "libgdx");
 			var pulls = githubRepo.Pulls.Where((pull) => pull.Commits.Count > 0);

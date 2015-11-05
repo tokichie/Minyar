@@ -9,7 +9,9 @@ using Minyar.Git;
 using Minyar.Github;
 using Minyar.Nlp;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
 using Octokit;
 
@@ -19,11 +21,12 @@ namespace Minyar.Tests {
         [Test]
         public void TestCrawl() {
             var json = new StreamReader(Path.Combine("..", "..", "TestData", "JavaRepositories.json")).ReadToEnd();
-            var repos = JsonConvert.DeserializeObject<List<JObject>>(json);
+            var resolver = new PrivateSetterContractResolver();
+            var repos = JsonConvert.DeserializeObject<List<Repository>>(json,
+                new JsonSerializerSettings {ContractResolver = resolver});
             foreach (var repo in repos) {
-                var repoName = repo.GetValue("FullName").ToString();
-                Console.WriteLine(repoName);
-                var task = Crawl(repoName);
+                Console.WriteLine(repo.Name);
+                var task = Crawl(repo.Name);
                 task.Wait();
             }
         }
@@ -130,11 +133,6 @@ namespace Minyar.Tests {
                     }
                 }
             }
-        }
-
-        [Test]
-        public void TestUpdateRepositories() {
-            GitRepository.UpdateRepositories(null);
         }
     }
 }

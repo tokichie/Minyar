@@ -56,5 +56,17 @@ namespace Minyar.Github {
             }
         }
 
+        public static int[] ParseDiffHunk(string hunk) {
+            var lines = Regex.Matches(hunk, diffChangedLinePattern);
+            var res = new int[4];
+            foreach (Match line in lines) {
+                res[0] = int.Parse(line.Groups[1].Value);
+                res[1] = int.Parse(line.Groups[2].Value);
+                res[2] = int.Parse(line.Groups[3].Value);
+                res[3] = int.Parse(line.Groups[4].Value);
+            }
+            return res;
+        }
+
     }
 }
