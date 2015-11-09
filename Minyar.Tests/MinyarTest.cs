@@ -35,13 +35,14 @@ namespace Minyar.Tests {
 			var minyar = new Minyar(repos);
 			var task = minyar.StartMining();
 			task.Wait();
+	        File.Create("J:\\Dropbox\\ifttt\\" + DateTime.Now.ToString("yyyyMMddHHmmss"));
 		}
 
 	    [Test]
 	    public void TestWhole() {
             var repositories = Minyar.ReadFromJson<List<Repository>>(
                 Path.Combine("..", "..", "TestData", "JavaRepositories.json"));
-	        var task = Minyar.Start(repositories.GetRange(0, 1));
+	        var task = new Minyar().Start(repositories.GetRange(0, 1));
 	        task.Wait();
 	    }
 

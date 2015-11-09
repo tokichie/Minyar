@@ -30,11 +30,11 @@ namespace Minyar {
 		}
 
 
-	    private static HashSet<string> parsedDiffs;
+	    private HashSet<string> parsedDiffs;
          
-	    public static async Task Start(List<Repository> repositories) {
-			//GitRepository.DownloadRepositories(repositories);
-            //GitRepository.UpdateRepositories(repositories);
+	    public async Task Start(List<Repository> repositories) {
+			GitRepository.DownloadRepositories(repositories);
+            GitRepository.UpdateRepositories(repositories);
             parsedDiffs = new HashSet<string>();
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
             var logFilePath = Path.Combine("..", "..", "..", timestamp + ".log.txt");
@@ -59,6 +59,7 @@ namespace Minyar {
                 using (
                     var writer =
                         new StreamWriter(new FileStream(Path.Combine(basePath, name + timestamp + ".txt"), FileMode.Append))) {
+                    writer.AutoFlush = true;
                     foreach (var filePath in filePaths) {
                         var fileName = filePath.Split('\\').Last();
                         var pullNumber = int.Parse(fileName.Substring(0, fileName.IndexOf('-')));
@@ -96,7 +97,7 @@ namespace Minyar {
                             set.UnionWith(changeSet);
                         }
 
-                        var astChange = new AstChange(GithubUrl(new[] {repo.Owner.Login, repo.Name}, pullNumber), set);
+                        var astChange = new AstChange(GithubUrl(new[] {owner, name}, pullNumber), set);
                         if (set != null) {
                             WriteOut(writer, astChange);
                         }
@@ -206,7 +207,7 @@ namespace Minyar {
             writer.WriteLine(astChange);
 		}
 
-	    private static HashSet<ChangePair> CreateAstAndTakeDiff
+	    private HashSet<ChangePair> CreateAstAndTakeDiff
 	        (List<string> codes, int[] diffPos, string filePath) {
             if (codes.Count < 2) {
                 log.WriteLine("[Skipped] {0}", filePath);
