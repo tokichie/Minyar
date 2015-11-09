@@ -78,7 +78,7 @@ namespace Minyar.Git {
             Console.WriteLine("[Trace] Fetching {0}/{1}...", owner, name);
             using (
                 var repo =
-                    new Repository(Path.Combine("..", "..", "..", "Minyar", "repos", owner, name))) {
+                    new Repository(Path.Combine("..", "..", "..", "repos", owner, name))) {
                 var opts = new CheckoutOptions();
                 opts.CheckoutModifiers = CheckoutModifiers.Force;
                 var branch = repo.Branches.First(b => !b.Name.Contains("/"));
@@ -136,7 +136,6 @@ namespace Minyar.Git {
 
         public static List<string> GetChangedCodes(
             Octokit.Repository repository, string filePath, string cmpSha, string orgSha) {
-
             var codes = new List<string>();
             var repoPath = Path.Combine("..", "..", "..", "repos", repository.Owner.Login, repository.Name);
             using (var repo = new Repository(repoPath)) {
@@ -149,7 +148,8 @@ namespace Minyar.Git {
                     } catch (Exception e) {
                         //repo.Reset(ResetMode.Hard);
                         //repo.Checkout(sha, checkoutOpts);
-                        //Console.WriteLine(e);
+                        Console.WriteLine("[Trace] Checkout to {0} failed", sha);
+                        Console.WriteLine(e);
                         continue;
                     }
                     string code = "";
@@ -160,6 +160,7 @@ namespace Minyar.Git {
                         }
                         codes.Add(code);
                     } catch (Exception e) {
+                        Console.Write("[Trace] Reading code from {0} failed", filePath);
                         Console.WriteLine(e.Message);
                         Console.WriteLine(e.StackTrace);
                     }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Code2Xml.Core.SyntaxTree;
@@ -14,7 +15,7 @@ using FileMode = System.IO.FileMode;
 namespace Minyar {
 	class Minyar {
 		public List<string[]> Repositories;
-	    private StreamWriter log;
+	    private static StreamWriter log;
 
 		public Minyar() {
 			Repositories = new List<string[]>();
@@ -32,28 +33,36 @@ namespace Minyar {
 	    private static HashSet<string> parsedDiffs;
          
 	    public static async Task Start(List<Repository> repositories) {
-			GitRepository.DownloadRepositories(repositories);
-            GitRepository.UpdateRepositories(repositories);
+			//GitRepository.DownloadRepositories(repositories);
+            //GitRepository.UpdateRepositories(repositories);
             parsedDiffs = new HashSet<string>();
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+            var logFilePath = Path.Combine("..", "..", "..", timestamp + ".log.txt");
+            log = new StreamWriter(logFilePath);
+            log.AutoFlush = true;
+	        var changeSetCount = 0;
             foreach (var repo in repositories) {
-                var basePath = Path.Combine("..", "..", "..", "..", "..", "Dropbox", "private", "items", repo.Owner.Login);
+                var owner = repo.Owner.Login;
+                var name = repo.Name;
+                //var basePath = Path.Combine("..", "..", "..", "..", "..", "Dropbox", "private", "items", repo.Owner.Login);
+                var basePath = Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "items", owner);
                 if (!Directory.Exists(basePath)) {
                     Directory.CreateDirectory(basePath);
                 }
-                Console.WriteLine("[Trace] Repository {0}", repo.FullName);
+                log.WriteLine("[Trace] Repository {0}", repo.FullName);
                 var set = new HashSet<ChangePair>();
                 var filePaths = Directory.GetFiles(
-                    Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "Comments", repo.Owner.Login, repo.Name),
+                    Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "Comments", owner, name),
                     "*-PullComments.json"
                     );
+                var webClient = new WebClient();
                 using (
                     var writer =
-                        new StreamWriter(new FileStream(Path.Combine(basePath, repo.Name + timestamp + ".txt"), FileMode.Append))) {
+                        new StreamWriter(new FileStream(Path.Combine(basePath, name + timestamp + ".txt"), FileMode.Append))) {
                     foreach (var filePath in filePaths) {
-                        var fileName = filePath.Split(Path.PathSeparator).Last();
+                        var fileName = filePath.Split('\\').Last();
                         var pullNumber = int.Parse(fileName.Substring(0, fileName.IndexOf('-')));
-                        Console.WriteLine("[Trace] Pull #{0}", pullNumber);
+                        log.WriteLine("[Trace] Pull #{0}", pullNumber);
                         var reviewComments =
                             ReadFromJson<Dictionary<string, PullRequestReviewComment>>(filePath);
                         foreach (var item in reviewComments) {
@@ -64,11 +73,26 @@ namespace Minyar {
                             parsedDiffs.Add(reviewComment.DiffHunk);
                             var path = reviewComment.Path;
                             var diffPos = GithubDiff.ParseDiffHunk(reviewComment.DiffHunk);
+                            if (diffPos[1] > 10 || diffPos[3] > 10) continue;
                             var orgSha = reviewComment.OriginalCommitId;
                             var cmpSha = reviewComment.CommitId;
-                            var codes = GitRepository.GetChangedCodes(
-                                repo, path, orgSha, cmpSha);
-                            var changeSet = CreateAstAndTakeDiff(codes, diffPos, path, orgSha, cmpSha);
+                            //var codes = GitRepository.GetChangedCodes(
+                            //    repo, path, orgSha, cmpSha);
+                            var codes = new List<string>();
+                            foreach (var sha in new[] {orgSha, cmpSha}) {
+                                var file = new GitHubCommitFile();
+                                try {
+                                    var commit = await OctokitClient.Client.Repository.Commits.Get(owner, name, sha);
+                                    //log.WriteLine(string.Join(" ", commit.Files.Select(x => x.Filename)));
+                                    file = commit.Files.First(f => f.Filename == path);
+                                } catch (Exception e) {
+                                    log.WriteLine("[Skipped] {0}", sha);
+                                    break;
+                                }
+                                codes.Add(webClient.DownloadString(file.RawUrl));
+                            }
+                            var changeSet = CreateAstAndTakeDiff(codes, diffPos, path);
+                            changeSetCount += changeSet.Count;
                             set.UnionWith(changeSet);
                         }
 
@@ -80,7 +104,8 @@ namespace Minyar {
                 }
 
             }
-        }
+	        log.WriteLine("ChangeSetCount: {0}", changeSetCount);
+	    }
 
         public async Task StartMining() {
 			GitRepository.DownloadRepositories(Repositories);
@@ -182,12 +207,16 @@ namespace Minyar {
 		}
 
 	    private static HashSet<ChangePair> CreateAstAndTakeDiff
-	        (List<string> codes, int[] diffPos, string filePath, string orgSha, string cmpSha) {
+	        (List<string> codes, int[] diffPos, string filePath) {
+            if (codes.Count < 2) {
+                log.WriteLine("[Skipped] {0}", filePath);
+                return new HashSet<ChangePair>();
+            }
 	        var orgCst = Program.GenerateCst(codes[0]);
 	        var cmpCst = Program.GenerateCst(codes[1]);
             var lineChange = new LineChange(new []{diffPos[0], diffPos[1]}, new []{diffPos[2], diffPos[3]});
             var mapper = new TreeMapping(orgCst, cmpCst, filePath, new List<LineChange> {lineChange});
-            mapper.Map();
+            mapper.Map(log);
 	        return mapper.ChangeSet;
 	    }
 

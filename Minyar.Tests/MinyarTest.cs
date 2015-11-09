@@ -4,6 +4,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using java.security.acl;
 using Minyar;
@@ -40,11 +41,23 @@ namespace Minyar.Tests {
 	    public void TestWhole() {
             var repositories = Minyar.ReadFromJson<List<Repository>>(
                 Path.Combine("..", "..", "TestData", "JavaRepositories.json"));
-	        var task = Minyar.Start(repositories);
+	        var task = Minyar.Start(repositories.GetRange(0, 1));
 	        task.Wait();
 	    }
 
-        [Test]
+	    [Test]
+	    public async Task TestBlobDownload() {
+	        var sha = "795023f32ed2cb6cd081d7c5f6c44f2f2bcde552";
+	        var client = OctokitClient.Client;
+            ApiRateLimit.CheckLimit();
+	        //var data = await client.Repository.Commits.Get("elastic", "elasticsearch", sha);
+	        var data =
+	            new WebClient().DownloadString(
+	                "https://raw.githubusercontent.com/elastic/elasticsearch/795023f32ed2cb6cd081d7c5f6c44f2f2bcde552/src/main/java/org/elasticsearch/gateway/GatewayMetaState.java");
+            ApiRateLimit.CheckLimit();
+	    }
+
+	    [Test]
 		public void TestGithubRepo() {
 			var githubRepo = GithubRepository.Load("libgdx", "libgdx");
 			var pulls = githubRepo.Pulls.Where((pull) => pull.Commits.Count > 0);
