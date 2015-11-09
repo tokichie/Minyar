@@ -16,8 +16,8 @@ namespace Minyar {
 	    private List<LineChange> lineChanges; 
 		private HashSet<AstNode> movedNodes;
         private HashSet<AstNode> targetNodes;
-	    private Code2XmlDummy.CodeRange orgCodeRange;
-	    private Code2XmlDummy.CodeRange cmpCodeRange;
+	    private CodeRange orgCodeRange;
+	    private CodeRange cmpCodeRange;
 
 		public HashSet<ChangePair> ChangeSet { get; private set; }
 
@@ -48,7 +48,7 @@ namespace Minyar {
 	    private void Initialize(LineChange lineChange) {
 	        var orgRange = lineChange.ChangedLine;
 	        var cmpRange = lineChange.NewLine;
-		    orgCodeRange = new Code2XmlDummy.CodeRange(
+		    orgCodeRange = new CodeRange(
 		        new CodeLocation(orgRange[0], 0),
 		        new CodeLocation(orgRange[0] + orgRange[1], 0));
             Console.Write(FilePath + " " + orgCodeRange + " ");
@@ -56,7 +56,7 @@ namespace Minyar {
 		    if (orgOuterMostRoot == null)
 		        orgOuterMostRoot = orgTree;
 
-		    cmpCodeRange = new Code2XmlDummy.CodeRange(
+		    cmpCodeRange = new CodeRange(
 		        new CodeLocation(cmpRange[0], 0),
 		        new CodeLocation(cmpRange[0] + cmpRange[1], 0));
 		    cmpOuterMostRoot = cmpCodeRange.FindOutermostNode(cmpTree);
