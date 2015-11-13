@@ -201,4 +201,5 @@ Minyar.userprefs
 repositories.config
 *.txt
 Minyar.Tests/TestData/**/*
+codes/
 

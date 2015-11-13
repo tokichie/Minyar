@@ -33,8 +33,6 @@ namespace Minyar {
 	    private HashSet<string> parsedDiffs;
          
 	    public async Task Start(List<Repository> repositories) {
-			GitRepository.DownloadRepositories(repositories);
-            GitRepository.UpdateRepositories(repositories);
             parsedDiffs = new HashSet<string>();
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
             var logFilePath = Path.Combine("..", "..", "..", timestamp + ".log.txt");
@@ -46,11 +44,8 @@ namespace Minyar {
                 var name = repo.Name;
                 //var basePath = Path.Combine("..", "..", "..", "..", "..", "Dropbox", "private", "items", repo.Owner.Login);
                 var basePath = Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "items", owner);
-                if (!Directory.Exists(basePath)) {
-                    Directory.CreateDirectory(basePath);
-                }
+                Directory.CreateDirectory(basePath);
                 log.WriteLine("[Trace] Repository {0}", repo.FullName);
-                var set = new HashSet<ChangePair>();
                 var filePaths = Directory.GetFiles(
                     Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "Comments", owner, name),
                     "*-PullComments.json"
@@ -61,6 +56,7 @@ namespace Minyar {
                         new StreamWriter(new FileStream(Path.Combine(basePath, name + timestamp + ".txt"), FileMode.Append))) {
                     writer.AutoFlush = true;
                     foreach (var filePath in filePaths) {
+                        var set = new HashSet<ChangePair>();
                         var fileName = filePath.Split('\\').Last();
                         var pullNumber = int.Parse(fileName.Substring(0, fileName.IndexOf('-')));
                         log.WriteLine("[Trace] Pull #{0}", pullNumber);
@@ -73,24 +69,35 @@ namespace Minyar {
                             }
                             parsedDiffs.Add(reviewComment.DiffHunk);
                             var path = reviewComment.Path;
+                            if (!path.EndsWith(".java")) continue;
                             var diffPos = GithubDiff.ParseDiffHunk(reviewComment.DiffHunk);
                             if (diffPos[1] > 10 || diffPos[3] > 10) continue;
                             var orgSha = reviewComment.OriginalCommitId;
                             var cmpSha = reviewComment.CommitId;
-                            //var codes = GitRepository.GetChangedCodes(
-                            //    repo, path, orgSha, cmpSha);
                             var codes = new List<string>();
                             foreach (var sha in new[] {orgSha, cmpSha}) {
                                 var file = new GitHubCommitFile();
+                                var dir = Path.Combine("..", "..", "..", "codes", owner, name, path);
+                                Directory.CreateDirectory(dir);
+                                var cache = Path.Combine(dir, sha);
+                                if (File.Exists(cache))
+                                {
+                                    codes.Add(new StreamReader(cache).ReadToEnd());
+                                    continue;
+                                }
                                 try {
                                     var commit = await OctokitClient.Client.Repository.Commits.Get(owner, name, sha);
-                                    //log.WriteLine(string.Join(" ", commit.Files.Select(x => x.Filename)));
                                     file = commit.Files.First(f => f.Filename == path);
                                 } catch (Exception e) {
                                     log.WriteLine("[Skipped] {0}", sha);
                                     break;
                                 }
-                                codes.Add(webClient.DownloadString(file.RawUrl));
+                                var fileContent = webClient.DownloadString(file.RawUrl);
+                                using (var fileWriter = new StreamWriter(cache))
+                                {
+                                    fileWriter.Write(fileContent);
+                                }
+                                codes.Add(fileContent);
                             }
                             var changeSet = CreateAstAndTakeDiff(codes, diffPos, path);
                             changeSetCount += changeSet.Count;
@@ -180,15 +187,15 @@ namespace Minyar {
             return JsonConvert.DeserializeObject<T>(json, serializeSettings);
         }
 
-        private static string GithubUrl(string[] repoId, int pullId) {
+        private string GithubUrl(string[] repoId, int pullId) {
 	        var sb = new StringBuilder();
 	        sb.Append("https://github.com/").Append(repoId[0]).Append("/")
                 .Append(repoId[1]).Append("/pull/").Append(pullId);
 	        return sb.ToString();
 	    }
 
-		public static void WriteOut(StreamWriter writer, AstChange astChange, string githubUrl = null) {
-			var builder = new StringBuilder();
+		public void WriteOut(StreamWriter writer, AstChange astChange, string githubUrl = null) {
+			//var builder = new StringBuilder();
 			if (astChange.Items.Count == 0)
 				return;
 		 //   if (githubUrl != null)

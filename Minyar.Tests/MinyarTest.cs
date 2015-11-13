@@ -35,15 +35,40 @@ namespace Minyar.Tests {
 			var minyar = new Minyar(repos);
 			var task = minyar.StartMining();
 			task.Wait();
-	        File.Create("J:\\Dropbox\\ifttt\\" + DateTime.Now.ToString("yyyyMMddHHmmss"));
+
 		}
 
 	    [Test]
 	    public void TestWhole() {
+            var minyar = new Minyar();
             var repositories = Minyar.ReadFromJson<List<Repository>>(
                 Path.Combine("..", "..", "TestData", "JavaRepositories.json"));
-	        var task = new Minyar().Start(repositories.GetRange(0, 1));
+	        var task = minyar.Start(repositories.GetRange(1, 99));
 	        task.Wait();
+            File.Create(@"C:\Users\Yuta\Dropbox\ifttt\" + DateTime.Now.ToString("yyyyMMddHHmmss"));
+        }
+
+	    [Test]
+	    public void TestItems()
+	    {
+            var repositories = Minyar.ReadFromJson<List<Repository>>(
+               Path.Combine("..", "..", "TestData", "JavaRepositories.json"));
+	        var c = 0;
+            var writer = new StreamWriter(Path.Combine("..", "..", "TestData", "all-20151111.txt"), false);
+
+            foreach (var repo in repositories)
+	        {
+	            var filePaths = Directory.GetFiles(Path.Combine("..", "..", "TestData", "items", repo.Owner.Login));
+	            foreach (var filePath in filePaths)
+	            {
+	                var list = new StreamReader(filePath).ReadToEnd();
+	                c += list.Split('\n').Length - 1;
+                    writer.Write(list);
+	            }
+	        }
+            writer.Close();
+
+            Console.WriteLine(c);
 	    }
 
 	    [Test]
@@ -59,14 +84,16 @@ namespace Minyar.Tests {
 	    }
 
 	    [Test]
-		public void TestGithubRepo() {
-			var githubRepo = GithubRepository.Load("libgdx", "libgdx");
-			var pulls = githubRepo.Pulls.Where((pull) => pull.Commits.Count > 0);
-			Console.WriteLine("# of pulls: {0}", pulls.Count());
-			Console.WriteLine("# of commits: {0}", pulls.Sum((commit) => commit.Commits.Count));
-		}
+		public void TestGithubRepo()
+	    {
+	        new StreamWriter(Path.Combine("..", "..", "..", "codes", "hoge/piyo/a.txt")).Write("hogepiyo\n");
+	        //var githubRepo = GithubRepository.Load("libgdx", "libgdx");
+	        //var pulls = githubRepo.Pulls.Where((pull) => pull.Commits.Count > 0);
+	        //Console.WriteLine("# of pulls: {0}", pulls.Count());
+	        //Console.WriteLine("# of commits: {0}", pulls.Sum((commit) => commit.Commits.Count));
+	    }
 
-		[Test]
+        [Test]
 		public void TestSmallRepo() {
 			var codeChanges = new List<string[]>() {
 				new [] {
