@@ -19,7 +19,6 @@ namespace Minyar.Tests {
                 left.Add(new AstNode(leftTokens[i]));
                 right.Add(new AstNode(rightTokens[i]));
             }
-            LcsDetector.MaxLength = 3;
             var res = LcsDetector.Detect(left, right, false);
             Assert.That(res.Count == 4);
             Assert.That(res[left[0]] == right[0]);
@@ -58,6 +57,7 @@ namespace Minyar.Tests {
             var left = ast1.AllTokenNodes().ToList();
             var right = ast2.AllTokenNodes().ToList();
             var res = LcsDetector.Detect(left, right, false);
+            Console.WriteLine(res.Count);
 
             PrintResult(res, left, right);
             Assert.That(res.Count == 10);

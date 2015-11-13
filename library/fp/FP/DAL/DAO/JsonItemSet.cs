@@ -69,13 +69,16 @@ namespace FP.DAL.DAO {
 
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
+            StringBuilder sbitem = new StringBuilder();
             if (items.Count > 0) {
+                sbitem.Append(items[0].GithubUrl).Append(" ").Append(items[0].ChangedPath).Append(" ");
                 foreach (var item in items) {
                     sb.Append(item).Append(", ");
+                    sbitem.Append(item.ChangedToken).Append(" ");
                 }
                 sb.Remove(sb.Length - 2, 2);
             }
-            return string.Format("[SupportCount={0} {1}]", SupportCount, sb);
+            return string.Format("[SupportCount={0} {1}]\n{2}", SupportCount, sb, sbitem);
         }
     }
 }
