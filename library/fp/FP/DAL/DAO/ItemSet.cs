@@ -77,12 +77,16 @@ namespace FP.DAL.DAO {
 
 		public override string ToString() {
 			var sb = new StringBuilder();
+            var metaData = new StringBuilder();
+		    metaData.AppendLine();
 			if (items.Count > 0) {
-                var metaData = new StringBuilder();
 				sb.Append("<");
+			    metaData.Append(items[0].JsonItems[0].GithubUrl).Append(" ")
+			        .Append(items[0].JsonItems[0].ChangedPath).Append(" ");
 				foreach (var item in items) {
 					sb.Append(item.Symbol).Append(", ");
-        //            var dic = new Dictionary<string, List<JsonItem>>();
+                    metaData.Append(item.JsonItems[0]).Append(" ");
+				    //            var dic = new Dictionary<string, List<JsonItem>>();
 				    //foreach (var jsonItem in item.JsonItems) {
 				    //    if (! dic.ContainsKey(jsonItem.GithubUrl)) {
 				    //        dic[jsonItem.GithubUrl] = new List<JsonItem>();
@@ -100,7 +104,7 @@ namespace FP.DAL.DAO {
                 }
 			    sb.Remove(sb.Length - 2, 2).Append(">");
 			}
-            return string.Format("[SupportCount={0} {1}]", SupportCount, sb);
+            return string.Format("[SupportCount={0} {1}]{2}", SupportCount, sb, metaData);
 		}
 	}
 }

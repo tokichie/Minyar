@@ -33,8 +33,6 @@ namespace Minyar {
 	    private HashSet<string> parsedDiffs;
          
 	    public async Task Start(List<Repository> repositories) {
-			GitRepository.DownloadRepositories(repositories);
-            GitRepository.UpdateRepositories(repositories);
             parsedDiffs = new HashSet<string>();
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
             var logFilePath = Path.Combine("..", "..", "..", timestamp + ".log.txt");
