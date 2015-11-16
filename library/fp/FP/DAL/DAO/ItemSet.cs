@@ -81,11 +81,14 @@ namespace FP.DAL.DAO {
 		    metaData.AppendLine();
 			if (items.Count > 0) {
 				sb.Append("<");
-			    metaData.Append(items[0].JsonItems[0].GithubUrl).Append(" ")
-			        .Append(items[0].JsonItems[0].ChangedPath).Append(" ");
+			    var c = items[0].JsonItems.Count;
+                var i = new Random().Next(c - 1);
+			    var url = items[0].JsonItems[i].GithubUrl;
+			    var path = items[0].JsonItems[i].ChangedPath;
+			    metaData.Append(url).Append(" ").Append(path).Append(" ");
 				foreach (var item in items) {
 					sb.Append(item.Symbol).Append(", ");
-                    metaData.Append(item.JsonItems[0]).Append(" ");
+                    metaData.Append(item.JsonItems.First(x => x.GithubUrl == url && x.ChangedPath == path)).Append(" ");
 				    //            var dic = new Dictionary<string, List<JsonItem>>();
 				    //foreach (var jsonItem in item.JsonItems) {
 				    //    if (! dic.ContainsKey(jsonItem.GithubUrl)) {

@@ -119,9 +119,9 @@ namespace FP.DAL.Gateway
 					    if (!jsonItemsDic.ContainsKey(item.Symbol)) {
 					        jsonItemsDic[item.Symbol] = new List<JsonItem>();
 					    }
-                        jsonItemsDic[item.Symbol].Add(item);
 					    if (!isAdded.Contains(item.Symbol)) {
 					        isAdded.Add(item.Symbol);
+                            jsonItemsDic[item.Symbol].Add(item);
 					        if (dictionary.ContainsKey(item.Symbol)) {
 					            dictionary[item.Symbol]++; // increase frequency of item
 					        } else {

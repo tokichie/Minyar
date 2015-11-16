@@ -29,11 +29,17 @@ namespace Minyar {
 
 	    public List<ItemSet> GetMinedItemSets() {
 	        var res = fpGrowth.MinedItemSets;
-            res.Sort((set1, set2) => set2.GetLength().CompareTo(set1.GetLength()));
             res.Sort((set1, set2) => set2.SupportCount.CompareTo(set1.SupportCount));
-            //return res.Where((x) => x.GetLength() >= 3).ToList();
-            return res;
-        }
+            res.Sort((set1, set2) => set2.GetLength().CompareTo(set1.GetLength()));
+	        var max = res.Max(x => x.GetLength());
+	        Console.WriteLine("Max: {0}", max);
+            var counts = res.Select(x => x.GetLength()).ToList();
+            counts.Reverse();
+	        Console.WriteLine("Threshold: {0}", counts[99]);
+            //return res.Where((x) => x.GetLength() >= counts[99]).ToList().GetRange(0, 100);
+	        return res.GetRange(0, 100);
+	        //return res;
+	    }
 	}
 }
 

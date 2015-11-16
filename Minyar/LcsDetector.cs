@@ -21,11 +21,17 @@ namespace Minyar {
             for (int i = 0; i < n; i++) {
 				for (int j = 0; j < m; j++) {
 					bool b = left[i].Name == right[j].Name;
-					if (compareToken)
-						b &= left[i].Token.Text == right[j].Token.Text;
-						b &= left[i].Parent.Name == right[j].Parent.Name;
-						b &= left[i].Parent.Parent.Name == right[j].Parent.Parent.Name;
-					if (b) {
+				    if (compareToken)
+				    {
+				        b &= left[i].Token.Text == right[j].Token.Text;
+				        if (left[i].Parent != null && right[j].Parent != null)
+				        {
+				            b &= left[i].Parent.Name == right[j].Parent.Name;
+                            if (left[i].Parent.Parent != null && right[j].Parent.Parent != null)
+                                b &= left[i].Parent.Parent.Name == right[j].Parent.Parent.Name;
+				        }
+				    }
+				    if (b) {
                         curRow[j + 1] = prevRow[j] + 1;
                         if (!mapping.ContainsKey(left[i]) && prevRowMax == prevRow[j])
                             mapping.Add(left[i], right[j]);
@@ -34,7 +40,6 @@ namespace Minyar {
 					}
 				    prevRowMax = Math.Max(prevRowMax, curRow[j + 1]);
 				}
-                Console.WriteLine(prevRowMax);
                 curRow.CopyTo(prevRow, 0);
                 Array.Clear(curRow, 0, m + 1);
             }

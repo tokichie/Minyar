@@ -71,7 +71,7 @@ namespace Minyar {
                             var path = reviewComment.Path;
                             if (!path.EndsWith(".java")) continue;
                             var diffPos = GithubDiff.ParseDiffHunk(reviewComment.DiffHunk);
-                            if (diffPos[1] > 10 || diffPos[3] > 10) continue;
+                            if (diffPos[1] > 50 || diffPos[3] > 50) continue;
                             var orgSha = reviewComment.OriginalCommitId;
                             var cmpSha = reviewComment.CommitId;
                             var codes = new List<string>();
