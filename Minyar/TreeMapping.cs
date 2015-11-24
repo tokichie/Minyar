@@ -140,6 +140,9 @@ namespace Minyar {
 			var cmpTokenList = new List<AstNode>();
 
             foreach (var node in orgOuterMostRoot.AllTokenNodes()) {
+                if (!orgCodeRange.Overlaps(node)) {
+                    continue;
+                }
                 if (node.Name != "EOF") {
                     orgTokenList.Add(node);
                     targetNodes.Add(node);
@@ -147,6 +150,9 @@ namespace Minyar {
 			}
 
 			foreach (var node in cmpOuterMostRoot.AllTokenNodes()) {
+                if (!cmpCodeRange.Overlaps(node)) {
+                    continue;
+                }
                 if (node.Name != "EOF") {
                     cmpTokenList.Add(node);
                 }

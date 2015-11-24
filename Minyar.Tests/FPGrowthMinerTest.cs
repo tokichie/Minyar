@@ -38,8 +38,8 @@ namespace Minyar.Tests {
 			var miner = new FPGrowthMiner(
                             //Path.Combine("..", "..", "TestData", "items", "elastic" , "elasticsearch20151115023903.txt"),
                             //Path.Combine("..", "..", "TestData", "items", "elastic" , "elasticsearch20151115023903.out"),
-                            Path.Combine("..", "..", "TestData", "all-20151115.txt"),
-                            Path.Combine("..", "..", "TestData", "all-20151115.out"),
+                            Path.Combine("..", "..", "TestData", "all-20151123.txt"),
+                            Path.Combine("..", "..", "TestData", "all-20151123.out"),
                             200);
 	        
 			var res = miner.GenerateFrequentItemsets();
@@ -50,7 +50,7 @@ namespace Minyar.Tests {
 	    [Test]
         public void ConcatResultFiles() {
             var dirPath = Path.Combine("..", "..", "TestData", "items");
-	        using (var writer = new StreamWriter(Path.Combine("..", "..", "TestData", "all-20151115.txt"))) {
+	        using (var writer = new StreamWriter(Path.Combine("..", "..", "TestData", "all-20151123.txt"))) {
 	            TraverseDirectory(dirPath, writer);
 	        }
 	    }
