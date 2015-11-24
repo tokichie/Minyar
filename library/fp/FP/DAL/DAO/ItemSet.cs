@@ -81,10 +81,30 @@ namespace FP.DAL.DAO {
 		    metaData.AppendLine();
 			if (items.Count > 0) {
 				sb.Append("<");
+                items.Sort((i1, i2) => i1.JsonItems.Count.CompareTo(i2.JsonItems.Count));
+			    var url = "";
+			    var path = "";
+			    foreach (var jsonItem in items[0].JsonItems) {
+			        url = jsonItem.GithubUrl;
+			        path = jsonItem.ChangedPath;
+                    if (url.StartsWith("https://github.com/chrisjenx/Calligraphy")) continue;
+                    if (url.StartsWith("https://github.com/dropwizard/metrics")) continue;
+                    var f = true;
+                    var ff = false;
+                    foreach (var item in items) {
+                        var j = item.JsonItems.Where(i => i.GithubUrl == url && i.ChangedPath == path);
+                        f &= item.JsonItems.Any(i => i.GithubUrl == url && i.ChangedPath == path);
+                        if (!f) {
+                            ff = true;
+                            break;
+                        }
+                        Console.WriteLine("{0} {1} {2}: {3}", url, path, item, j.First());
+                    }
+			        if (ff) continue;
+			        if (f) break;
+			    }
 			    var c = items[0].JsonItems.Count;
-                var i = new Random().Next(c - 1);
-			    var url = items[0].JsonItems[i].GithubUrl;
-			    var path = items[0].JsonItems[i].ChangedPath;
+                //var i = new Random().Next(c - 1);
 			    metaData.Append(url).Append(" ").Append(path).Append(" ");
 				foreach (var item in items) {
 					sb.Append(item.Symbol).Append(", ");

@@ -211,6 +211,7 @@
     <Compile Include="Git\GitRepository.cs" />
     <Compile Include="Minyar.cs" />
     <Compile Include="OutputWriter.cs" />
+    <Compile Include="PatternMatcher.cs" />
     <Compile Include="PrivateSetterContractResolver.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
