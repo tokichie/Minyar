@@ -7,7 +7,13 @@ using Octokit;
 
 namespace Minyar.Github {
     class DiffPatcher {
+        private PullRequestReviewComment comment;
+
         public DiffPatcher(PullRequestReviewComment prComment) {
+            comment = prComment;
+        }
+
+        public void Patch() {
             
         }
     }
