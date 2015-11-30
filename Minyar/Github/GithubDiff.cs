@@ -24,6 +24,10 @@ namespace Minyar.Github {
             DiffHunkList = new List<DiffHunk>();
         }
 
+        public GithubDiff(string rawHunk) {
+            DiffHunkList = ParseAllDiffHunks(rawHunk);
+        }
+
         public async Task<List<FileDiff>> LoadDiff() {
             RawDiff = await new System.Net.WebClient().DownloadStringTaskAsync(DiffUrl);
             ParseDiff(RawDiff);
@@ -71,8 +75,9 @@ namespace Minyar.Github {
             return res;
         }
 
-        public List<DiffHunk> ParseAllDiffHunks(string hunk) {
+        public static List<DiffHunk> ParseAllDiffHunks(string hunk) {
             var lines = Regex.Matches(hunk, diffChangedLinePattern);
+            var res = new List<DiffHunk>();
             for (var i = 0; i < lines.Count; i++) {
                 var line = lines[i];
                 var patch = "";
@@ -87,16 +92,39 @@ namespace Minyar.Github {
                     int.Parse(line.Groups[3].Value),
                     int.Parse(line.Groups[4].Value),
                     patch);
-                DiffHunkList.Add(item);
+                res.Add(item);
             }
-            return DiffHunkList;
+            return res;
         }
 
-        public DiffHunk WithinRangeHunk(DiffHunk other) {
+        public DiffHunk GetInRangeHunk(DiffHunk other) {
             foreach (var hunk in DiffHunkList) {
-                
+                if (IsWithinRange(other, hunk)) return hunk;
             }
+            return null;
         }
 
+        private bool IsWithinRange(DiffHunk left, DiffHunk right) {
+            var leftOldEndline = left.OldRange.StartLine + left.OldRange.ChunkSize - 1;
+            var rightOldEndline = right.OldRange.StartLine + right.OldRange.ChunkSize - 1;
+            var leftNewEndline = left.NewRange.StartLine + left.NewRange.ChunkSize - 1;
+            var rightNewEndline = right.NewRange.StartLine + right.NewRange.ChunkSize - 1;
+            var oldList = new List<int> {
+                left.OldRange.StartLine,
+                leftOldEndline,
+                right.OldRange.StartLine,
+                rightOldEndline
+            };
+            var newList = new List<int> {
+                left.NewRange.StartLine,
+                leftNewEndline,
+                right.NewRange.StartLine,
+                rightNewEndline
+            };
+            oldList.Sort();
+            newList.Sort();
+            return oldList[1] == right.OldRange.StartLine || oldList[2] == rightOldEndline
+                   || newList[1] == right.NewRange.StartLine || newList[2] == rightNewEndline;
+        }
     }
 }
