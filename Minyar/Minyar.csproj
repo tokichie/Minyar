@@ -201,6 +201,7 @@
   <ItemGroup>
     <Compile Include="ApiRateLimit.cs" />
     <Compile Include="AstChange.cs" />
+    <Compile Include="Github\DiffHunk.cs" />
     <Compile Include="Github\DiffPatcher.cs" />
     <Compile Include="Github\FileDiff.cs" />
     <Compile Include="Github\GithubComment.cs" />
