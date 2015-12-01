@@ -202,4 +202,6 @@ repositories.config
 *.txt
 Minyar.Tests/TestData/**/*
 codes/
+cache/
+commits/
 

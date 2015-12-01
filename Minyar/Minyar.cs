@@ -187,6 +187,14 @@ namespace Minyar {
             return JsonConvert.DeserializeObject<T>(json, serializeSettings);
         }
 
+	    public static void WriteOutJson(object obj, string path) {
+	        var json = JsonConvert.SerializeObject(obj);
+	        Directory.CreateDirectory(Path.Combine(path, ".."));
+            using (var writer = new StreamWriter(path)) {
+                writer.Write(json);
+            }
+	    }
+
         private string GithubUrl(string[] repoId, int pullId) {
 	        var sb = new StringBuilder();
 	        sb.Append("https://github.com/").Append(repoId[0]).Append("/")
