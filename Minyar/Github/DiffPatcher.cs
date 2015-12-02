@@ -60,6 +60,7 @@ namespace Minyar.Github {
                 return new[] { oldFileContent, newFileContent };
             } catch (Exception e) {
                 Console.WriteLine(e);
+                Logger.Error(e.ToString());
             }
             return new[] { "", "" };
         }
