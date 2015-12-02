@@ -213,6 +213,7 @@
     <Compile Include="Github\GithubRepository.cs" />
     <Compile Include="Github\LineChange.cs" />
     <Compile Include="Git\GitRepository.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Minyar.cs" />
     <Compile Include="OutputWriter.cs" />
     <Compile Include="PatternMatcher.cs" />

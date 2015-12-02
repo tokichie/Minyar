@@ -35,22 +35,17 @@ namespace Minyar {
 	    public async Task Start(List<Repository> repositories) {
             parsedDiffs = new HashSet<string>();
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-            var logFilePath = Path.Combine("..", "..", "..", timestamp + ".log.txt");
-            log = new StreamWriter(logFilePath);
-            log.AutoFlush = true;
 	        var changeSetCount = 0;
             foreach (var repo in repositories) {
                 var owner = repo.Owner.Login;
                 var name = repo.Name;
-                //var basePath = Path.Combine("..", "..", "..", "..", "..", "Dropbox", "private", "items", repo.Owner.Login);
                 var basePath = Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "items", owner);
                 Directory.CreateDirectory(basePath);
-                log.WriteLine("[Trace] Repository {0}", repo.FullName);
+                Logger.Info("[Trace] Repository {0}", repo.FullName);
                 var filePaths = Directory.GetFiles(
                     Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "Comments", owner, name),
                     "*-PullComments.json"
                     );
-                var webClient = new WebClient();
                 using (
                     var writer =
                         new StreamWriter(new FileStream(Path.Combine(basePath, name + timestamp + ".txt"), FileMode.Append))) {
@@ -59,7 +54,7 @@ namespace Minyar {
                         var set = new HashSet<ChangePair>();
                         var fileName = filePath.Split('\\').Last();
                         var pullNumber = int.Parse(fileName.Substring(0, fileName.IndexOf('-')));
-                        log.WriteLine("[Trace] Pull #{0}", pullNumber);
+                        Logger.Info("[Trace] Pull #{0}", pullNumber);
                         var reviewComments =
                             ReadFromJson<Dictionary<string, PullRequestReviewComment>>(filePath);
                         foreach (var item in reviewComments) {
@@ -70,38 +65,13 @@ namespace Minyar {
                             parsedDiffs.Add(reviewComment.DiffHunk);
                             var path = reviewComment.Path;
                             if (!path.EndsWith(".java")) continue;
-                            var diffPos = GithubDiff.ParseDiffHunk(reviewComment.DiffHunk);
-                            if (diffPos[1] > 50 || diffPos[3] > 50) continue;
-                            var orgSha = reviewComment.OriginalCommitId;
-                            var cmpSha = reviewComment.CommitId;
-                            var codes = new List<string>();
-                            foreach (var sha in new[] {orgSha, cmpSha}) {
-                                var file = new GitHubCommitFile();
-                                var dir = Path.Combine("..", "..", "..", "codes", owner, name, path);
-                                Directory.CreateDirectory(dir);
-                                var cache = Path.Combine(dir, sha);
-                                if (File.Exists(cache))
-                                {
-                                    codes.Add(new StreamReader(cache).ReadToEnd());
-                                    continue;
-                                }
-                                try {
-                                    var commit = await OctokitClient.Client.Repository.Commits.Get(owner, name, sha);
-                                    file = commit.Files.First(f => f.Filename == path);
-                                } catch (Exception e) {
-                                    log.WriteLine("[Skipped] {0}", sha);
-                                    break;
-                                }
-                                var fileContent = webClient.DownloadString(file.RawUrl);
-                                using (var fileWriter = new StreamWriter(cache))
-                                {
-                                    fileWriter.Write(fileContent);
-                                }
-                                codes.Add(fileContent);
-                            }
-                            var changeSet = CreateAstAndTakeDiff(codes, diffPos, path);
-                            changeSetCount += changeSet.Count;
-                            set.UnionWith(changeSet);
+
+
+                            var diffPatcher = new DiffPatcher(reviewComment);
+                            var codes = await diffPatcher.GetBothOldAndNewFiles();
+                            //var changeSet = CreateAstAndTakeDiff(codes, diffPos, path);
+                            //changeSetCount += changeSet.Count;
+                            //set.UnionWith(changeSet);
                         }
 
                         var astChange = new AstChange(GithubUrl(new[] {owner, name}, pullNumber), set);
@@ -112,7 +82,7 @@ namespace Minyar {
                 }
 
             }
-	        log.WriteLine("ChangeSetCount: {0}", changeSetCount);
+	        Logger.Info("ChangeSetCount: {0}", changeSetCount);
 	    }
 
         public async Task StartMining() {

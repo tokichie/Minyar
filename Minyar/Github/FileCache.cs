@@ -9,6 +9,10 @@ namespace Minyar.Github {
     static class FileCache {
         private static readonly string cacheDir = Path.Combine("..", "..", "..", "cache");
 
+        public static string FilePath(string owner, string name, string sha, string path) {
+            return Path.Combine(cacheDir, owner, name, sha, path);
+        }
+
         public static bool FileExists(string owner, string name, string sha, string path) {
             var filepath = Path.Combine(cacheDir, owner, name, sha, path);
             return File.Exists(filepath);

@@ -10,6 +10,18 @@ using Octokit;
 
 namespace Minyar.Github {
     class DiffPatcher {
+        public struct Result {
+            public string OldCode;
+            public string NewCode;
+            public DiffHunk DiffHunk;
+
+            public Result(string oldCode, string newCode, DiffHunk diffHunk) {
+                OldCode = oldCode;
+                NewCode = newCode;
+                DiffHunk = diffHunk;
+            }
+        }
+
         private PullRequestReviewComment comment;
         private string repoOwner;
         private string repoName;
@@ -25,7 +37,7 @@ namespace Minyar.Github {
 
         public DiffPatcher() { }
 
-        public async Task<string[]> GetBothOldAndNewFiles() {
+        public async Task<Result> GetBothOldAndNewFiles() {
             try {
                 var commitId = comment.OriginalCommitId;
                 var diffHunk = comment.DiffHunk;
@@ -35,34 +47,71 @@ namespace Minyar.Github {
                 var parent = await CommitCache.LoadCommit(repoOwner, repoName, parentId);
                 var newFile = commit.Files.First(f => f.Filename == path);
                 var oldFile = parent.Files.First(f => f.Filename == path);
-                var oldFileContent = "";
-                if (FileCache.FileExists(repoOwner, repoName, parentId, path)) {
-                    oldFileContent = FileCache.LoadFile(repoOwner, repoName, parentId, path);
-                } else {
-                    var client = new WebClient();
-                    oldFileContent = client.DownloadString(oldFile.RawUrl);
-                    FileCache.SaveFile(repoOwner, repoName, parentId, path, oldFileContent);
-                }
-                var diff = new GithubDiff(newFile.Patch);
-                var patch = diff.GetInRangeHunk(GithubDiff.ParseAllDiffHunks(diffHunk)[0]);
-                var newFileContent = "";
-                if (FileCache.FileExists(repoOwner, repoName, commitId, path)) {
-                    newFileContent = FileCache.LoadFile(repoOwner, repoName, commitId, path);
-                } else {
-                    if (diff.DiffHunkList.Count == 1) {
-                        var client = new WebClient();
-                        newFileContent = client.DownloadString(newFile.RawUrl);
-                    } else {
-                        newFileContent = Patch(oldFileContent, patch.Patch);
-                    }
-                    FileCache.SaveFile(repoOwner, repoName, commitId, path, newFileContent);
-                }
-                return new[] { oldFileContent, newFileContent };
+                var oldFileContent = LoadOldFileContent(parentId, path, oldFile);
+                var newFileContent = LoadNewFileContent(commitId, path, diffHunk, oldFileContent, newFile);
+                var newHunk = GetNewDiffHunk(parentId, commitId, path);
+                return new Result(oldFileContent, newFileContent, newHunk);
             } catch (Exception e) {
                 Console.WriteLine(e);
                 Logger.Error(e.ToString());
             }
-            return new[] { "", "" };
+            return new Result();
+        }
+
+        private string LoadOldFileContent(string parentId, string path, GitHubCommitFile oldFile) {
+            var oldFileContent = "";
+            if (FileCache.FileExists(repoOwner, repoName, parentId, path)) {
+                oldFileContent = FileCache.LoadFile(repoOwner, repoName, parentId, path);
+            } else {
+                var client = new WebClient();
+                oldFileContent = client.DownloadString(oldFile.RawUrl);
+                FileCache.SaveFile(repoOwner, repoName, parentId, path, oldFileContent);
+            }
+            return oldFileContent;
+        }
+
+        private string LoadNewFileContent(string commitId, string path, string diffHunk, string oldFileContent, GitHubCommitFile newFile) {
+            var newFileContent = "";
+            var diff = new GithubDiff(newFile.Patch);
+            var patch = diff.GetInRangeHunk(GithubDiff.ParseAllDiffHunks(diffHunk)[0]);
+            if (FileCache.FileExists(repoOwner, repoName, commitId, path)) {
+                newFileContent = FileCache.LoadFile(repoOwner, repoName, commitId, path);
+            } else {
+                if (diff.DiffHunkList.Count == 1) {
+                    var client = new WebClient();
+                    newFileContent = client.DownloadString(newFile.RawUrl);
+                } else {
+                    newFileContent = Patch(oldFileContent, patch.Patch);
+                }
+                FileCache.SaveFile(repoOwner, repoName, commitId, path, newFileContent);
+            }
+            return newFileContent;
+        }
+
+        private DiffHunk GetNewDiffHunk(string parentId, string commitId, string path) {
+            var oldFilePath = Path.GetFullPath(FileCache.FilePath(repoOwner, repoName, parentId, path));
+            var newFilePath = Path.GetFullPath(FileCache.FilePath(repoOwner, repoName, commitId, path));
+            var process = new Process {
+                StartInfo = new ProcessStartInfo {
+                    FileName = "diff",
+                    Arguments = string.Format("-u {0} {1}", oldFilePath, newFilePath),
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                }
+            };
+            process.Start();
+            var stdout = new StringBuilder();
+            var stderr = new StringBuilder();
+            while (!process.StandardOutput.EndOfStream) {
+                stdout.AppendLine(process.StandardOutput.ReadToEnd());
+            }
+            while (!process.StandardError.EndOfStream) {
+                stderr.AppendLine(process.StandardError.ReadToEnd());
+            }
+            if (stderr.Length > 0) Logger.Error(stderr.ToString());
+            return GithubDiff.ParseDiffHunk(stdout.ToString());
         }
 
         public string Patch(string content, string patch) {
@@ -81,9 +130,11 @@ namespace Minyar.Github {
                 }
             };
             process.Start();
+            var stderr = new StringBuilder();
             while (!process.StandardError.EndOfStream) {
-                Console.WriteLine(process.StandardError.ReadLine());
+                stderr.AppendLine(process.StandardError.ReadToEnd());
             }
+            if (stderr.Length > 0) Logger.Error(stderr.ToString());
             Directory.SetCurrentDirectory("../");
             return new StreamReader(Path.Combine("tmp", "content.dat")).ReadToEnd();
         }

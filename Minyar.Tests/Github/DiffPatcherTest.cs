@@ -26,8 +26,8 @@ namespace Minyar.Tests.Github {
                 46083950);
             var diffPatcher = new DiffPatcher(prComment);
             var res = await diffPatcher.GetBothOldAndNewFiles();
-            Assert.That(res[0] == "HOGEPIYO\n\nKORILAKKUMA\n\nNICEBOAT\n\nHOGEPIYO\n\nRILAKKUMA\n\nKIIROITORI\n");
-            Assert.That(res[1] == "HOGEPIYO\n\nKORILAKKUMA\n\nNICEBOAT\n\nHOGEPIYO\n\nRILAKKUMA\n\nKIIROITORI\n\nHATENA\n");
+            Assert.That(res.OldCode == "HOGEPIYO\n\nKORILAKKUMA\n\nNICEBOAT\n\nHOGEPIYO\n\nRILAKKUMA\n\nKIIROITORI\n");
+            Assert.That(res.NewCode == "HOGEPIYO\n\nKORILAKKUMA\n\nNICEBOAT\n\nHOGEPIYO\n\nRILAKKUMA\n\nKIIROITORI\n\nHATENA\n");
         }
 
         [Test]
@@ -36,10 +36,11 @@ namespace Minyar.Tests.Github {
                 21068083);
             var diffPatcher = new DiffPatcher(prComment);
             var res = await diffPatcher.GetBothOldAndNewFiles();
-            var set1 = res[0].Split('\n');
-            var set2 = res[1].Split('\n');
+            var set1 = res.OldCode.Split('\n');
+            var set2 = res.NewCode.Split('\n');
             var diff = set2.Except(set1);
             Assert.That(string.Join("", diff.Select(i => i.Trim())) == "String[] lines = diff.split(System.lineSeparator());String ref = lines[0];List<Double> scoreList = new ArrayList<>();for (int j = 1; j < lines.length; j++) {String line = lines[j];double score = LcsComparator.calculateSimilarity(ref, line);scoreList.add(score);System.out.println(scoreList.toString());");
+            Assert.That(res.DiffHunk.UnifiedRange == "-107,6 +107,17");
         }
     }
 }
