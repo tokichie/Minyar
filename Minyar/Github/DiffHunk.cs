@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Minyar.Github {
-    class DiffHunk {
+    public class DiffHunk {
         public struct DiffRange {
             public int StartLine;
             public int ChunkSize;

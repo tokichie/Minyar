@@ -68,10 +68,10 @@ namespace Minyar {
 
 
                             var diffPatcher = new DiffPatcher(reviewComment);
-                            var codes = await diffPatcher.GetBothOldAndNewFiles();
-                            //var changeSet = CreateAstAndTakeDiff(codes, diffPos, path);
-                            //changeSetCount += changeSet.Count;
-                            //set.UnionWith(changeSet);
+                            var result = await diffPatcher.GetBothOldAndNewFiles();
+                            var changeSet = CreateAstAndTakeDiff(result, path);
+                            changeSetCount += changeSet.Count;
+                            set.UnionWith(changeSet);
                         }
 
                         var astChange = new AstChange(GithubUrl(new[] {owner, name}, pullNumber), set);
@@ -80,7 +80,6 @@ namespace Minyar {
                         }
                     }
                 }
-
             }
 	        Logger.Info("ChangeSetCount: {0}", changeSetCount);
 	    }
@@ -192,15 +191,10 @@ namespace Minyar {
             writer.WriteLine(astChange);
 		}
 
-	    private HashSet<ChangePair> CreateAstAndTakeDiff
-	        (List<string> codes, int[] diffPos, string filePath) {
-            if (codes.Count < 2) {
-                log.WriteLine("[Skipped] {0}", filePath);
-                return new HashSet<ChangePair>();
-            }
-	        var orgCst = Program.GenerateCst(codes[0]);
-	        var cmpCst = Program.GenerateCst(codes[1]);
-            var lineChange = new LineChange(new []{diffPos[0], diffPos[1]}, new []{diffPos[2], diffPos[3]});
+	    private HashSet<ChangePair> CreateAstAndTakeDiff(DiffPatcher.Result diffResult, string filePath) {
+	        var orgCst = Program.GenerateCst(diffResult.OldCode);
+	        var cmpCst = Program.GenerateCst(diffResult.NewCode);
+	        var lineChange = new LineChange(diffResult.DiffHunk);
             var mapper = new TreeMapping(orgCst, cmpCst, filePath, new List<LineChange> {lineChange});
             mapper.Map(log);
 	        return mapper.ChangeSet;

@@ -13,5 +13,10 @@ namespace Minyar.Github {
             ChangedLine = changedLine;
             NewLine = newLine;
         }
+
+        public LineChange(DiffHunk hunk) {
+            ChangedLine = new[] { hunk.OldRange.StartLine, hunk.OldRange.ChunkSize };
+            NewLine = new[] { hunk.NewRange.StartLine, hunk.NewRange.ChunkSize };
+        }
     }
 }

@@ -50,7 +50,7 @@ namespace Minyar {
 	        var cmpRange = lineChange.NewLine;
 		    orgCodeRange = new CodeRange(
 		        new CodeLocation(orgRange[0], 0),
-		        new CodeLocation(orgRange[0] + orgRange[1], 0));
+		        new CodeLocation(orgRange[0] + orgRange[1] - 1, 0));
             Console.Write(FilePath + " " + orgCodeRange + " ");
             orgOuterMostRoot = orgCodeRange.FindOutermostNode(orgTree);
 		    if (orgOuterMostRoot == null)
@@ -58,7 +58,7 @@ namespace Minyar {
 
 		    cmpCodeRange = new CodeRange(
 		        new CodeLocation(cmpRange[0], 0),
-		        new CodeLocation(cmpRange[0] + cmpRange[1], 0));
+		        new CodeLocation(cmpRange[0] + cmpRange[1] - 1, 0));
 		    cmpOuterMostRoot = cmpCodeRange.FindOutermostNode(cmpTree);
 		    if (cmpOuterMostRoot == null)
 		        cmpOuterMostRoot = cmpTree; 
@@ -70,19 +70,19 @@ namespace Minyar {
 		public void Map(StreamWriter log) {
 			ChangeSet = new HashSet<ChangePair>();
 		    foreach (var lineChange in lineChanges) {
-                log.WriteLine("[Trace] {0} LineChange {1}:{2}", DateTime.Now, lineChange.ChangedLine, lineChange.NewLine);
+                Logger.Info("[Trace] {0} LineChange {1}:{2}", DateTime.Now, lineChange.ChangedLine, lineChange.NewLine);
                 Initialize(lineChange);
-                log.WriteLine("[Trace] {0} Initial mapping started", DateTime.Now);
+                Logger.Info("[Trace] {0} Initial mapping started", DateTime.Now);
                 var tokenMap = InitialMapping();
-                log.WriteLine("[Trace] {0} Bottomup mapping started", DateTime.Now);
+                Logger.Info("[Trace] {0} Bottomup mapping started", DateTime.Now);
                 var bottomUpNodeMap = BottomUpMapping(tokenMap);
 
-                log.WriteLine("[Trace] {0} Topdown mapping started", DateTime.Now);
+                Logger.Info("[Trace] {0} Topdown mapping started", DateTime.Now);
                 TopDownMapping(bottomUpNodeMap);
 
                 //Debug(orgTree, 0, tokenMap, bottomUpNodeMap);
 
-                log.WriteLine("[Trace] {0} Mapping finished", DateTime.Now);
+                Logger.Info("[Trace] {0} Mapping finished", DateTime.Now);
                 MergeNodeMap(tokenMap, bottomUpNodeMap);
 		        GetChangeSet(tokenMap);
 		    }
@@ -140,9 +140,9 @@ namespace Minyar {
 			var cmpTokenList = new List<AstNode>();
 
             foreach (var node in orgOuterMostRoot.AllTokenNodes()) {
-                if (!orgCodeRange.Overlaps(node)) {
-                    continue;
-                }
+                //if (!orgCodeRange.Overlaps(node)) {
+                //    continue;
+                //}
                 if (node.Name != "EOF") {
                     orgTokenList.Add(node);
                     targetNodes.Add(node);
@@ -150,9 +150,9 @@ namespace Minyar {
 			}
 
 			foreach (var node in cmpOuterMostRoot.AllTokenNodes()) {
-                if (!cmpCodeRange.Overlaps(node)) {
-                    continue;
-                }
+                //if (!cmpCodeRange.Overlaps(node)) {
+                //    continue;
+                //}
                 if (node.Name != "EOF") {
                     cmpTokenList.Add(node);
                 }
