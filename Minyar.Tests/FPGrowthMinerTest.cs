@@ -103,6 +103,13 @@ namespace Minyar.Tests {
 	        }
 	    }
 
+	    [Test]
+	    public void SerializeTest() {
+	        using (var reader = new StreamReader(Path.Combine("..", "..", "TestData", "elasticsearch20151203210710.txt"))) {
+	            var wrapper = ItemWrapper.Deserialize(reader.ReadToEnd());
+	        }
+	    }
+
         [Test]
 	    public void ReplaceItemByNumber() {
 	        var inputFilePath = Path.Combine("..", "..", "TestData", "20150923.txt");

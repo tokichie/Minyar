@@ -51,7 +51,6 @@ namespace Minyar {
                         new StreamWriter(new FileStream(Path.Combine(basePath, name + timestamp + ".txt"), FileMode.Append))) {
                     writer.AutoFlush = true;
                     foreach (var filePath in filePaths) {
-                        var set = new HashSet<ChangePair>();
                         var fileName = filePath.Split('\\').Last();
                         var pullNumber = int.Parse(fileName.Substring(0, fileName.IndexOf('-')));
                         Logger.Info("Pull #{0}", pullNumber);
@@ -75,14 +74,13 @@ namespace Minyar {
                             Logger.Deactivate();
                             var changeSet = CreateAstAndTakeDiff(result, path);
                             changeSetCount += changeSet.Count;
-                            set.UnionWith(changeSet);
                             Logger.Activate();
+                            var astChange = new AstChange(GithubUrl(new[] { owner, name }, pullNumber), changeSet, result.DiffHunk.Patch);
+                            if (changeSet.Count > 0) {
+                                WriteOut(writer, astChange);
+                            }
                         }
 
-                        var astChange = new AstChange(GithubUrl(new[] {owner, name}, pullNumber), set);
-                        if (set != null) {
-                            WriteOut(writer, astChange);
-                        }
                     }
                 }
             }
@@ -134,7 +132,7 @@ namespace Minyar {
                             //Console.WriteLine("[Trace]  Before taking ast diff");
                             //log.WriteLine("[Trace] {0} Before taking ast diff", DateTime.Now);
                             var changeSet = CreateAstAndTakeDiff(githubRepo, githubDiff.FileDiffList, commit.Sha);
-                            var astChange = new AstChange(GithubUrl(repoId, pull.Number), changeSet);
+                            var astChange = new AstChange(GithubUrl(repoId, pull.Number), changeSet, "");
                             //Console.WriteLine("[Trace]  After taking ast diff");
                             //log.WriteLine("[Trace] {0} After taking ast diff", DateTime.Now);
 

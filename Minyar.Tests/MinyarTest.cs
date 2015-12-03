@@ -43,9 +43,9 @@ namespace Minyar.Tests {
             var minyar = new Minyar();
             var repositories = Minyar.ReadFromJson<List<Repository>>(
                 Path.Combine("..", "..", "TestData", "JavaRepositories.json"));
-	        var task = minyar.Start(repositories);
+	        var task = minyar.Start(repositories.GetRange(0, 1));
 	        task.Wait();
-            File.Create(@"C:\Users\Yuta\Dropbox\ifttt\" + DateTime.Now.ToString("yyyyMMddHHmmss"));
+            //File.Create(@"C:\Users\Yuta\Dropbox\ifttt\" + DateTime.Now.ToString("yyyyMMddHHmmss"));
         }
 
 	    [Test]
