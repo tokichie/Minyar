@@ -38,9 +38,9 @@ namespace Minyar.Tests {
 			var miner = new FPGrowthMiner(
                             //Path.Combine("..", "..", "TestData", "items", "elastic" , "elasticsearch20151115023903.txt"),
                             //Path.Combine("..", "..", "TestData", "items", "elastic" , "elasticsearch20151115023903.out"),
-                            Path.Combine("..", "..", "TestData", "all-20151123.txt"),
-                            Path.Combine("..", "..", "TestData", "all-20151123.out"),
-                            200);
+                            Path.Combine("..", "..", "TestData", "all-20151203.txt"),
+                            Path.Combine("..", "..", "TestData", "all-20151203.out"),
+                            50);
 	        
 			var res = miner.GenerateFrequentItemsets();
 		    var items = miner.GetMinedItemSets();
@@ -50,20 +50,31 @@ namespace Minyar.Tests {
 	    [Test]
 	    public void TestPatternMatch() {
 	        var pattern = new HashSet<string>();
-            pattern.Add("Insert:VariableDeclarationStatement");
-            pattern.Add("Insert:StringLiteral");
-            pattern.Add("Insert:QualifiedName");
-            pattern.Add("Insert:VariableDeclarationFragment");
+            //pattern.Add("Insert:VariableDeclarationStatement");
+            //pattern.Add("Insert:StringLiteral");
+            //pattern.Add("Insert:QualifiedName");
+            //pattern.Add("Insert:VariableDeclarationFragment");
+            //pattern.Add("Insert:ExpressionStatement");
+            //pattern.Add("Insert:MethodInvocation");
+            //pattern.Add("Insert:SimpleType");
+            //pattern.Add("Insert:SimpleName");
+            //pattern.Add("Insert:Block");
+            //pattern.Add("Insert:escapedValue");
+            //pattern.Add("Insert:extraDimensions");
+            //pattern.Add("Insert:identifier");
+            pattern.Add("Insert:PrimitiveType");
+            pattern.Add("Insert:MethodDeclaration");
+            pattern.Add("Insert:Modifier");
             pattern.Add("Insert:ExpressionStatement");
             pattern.Add("Insert:MethodInvocation");
-            pattern.Add("Insert:SimpleType");
-            pattern.Add("Insert:SimpleName");
             pattern.Add("Insert:Block");
-            pattern.Add("Insert:escapedValue");
+            pattern.Add("Insert:primitiveTypeCode");
+            pattern.Add("Insert:SimpleName");
+            pattern.Add("Insert:constructor");
+            pattern.Add("Insert:keyword");
             pattern.Add("Insert:extraDimensions");
-            pattern.Add("Insert:identifier");
             var matcher = new PatternMatcher(
-                Path.Combine("..", "..", "TestData", "all-20151117.txt"),
+                            Path.Combine("..", "..", "TestData", "all-20151203.txt"),
                 pattern);
             matcher.Match();
 	        var part = matcher.MatchedItems.Where(x => x.Items.Count < 300).ToList();
@@ -73,7 +84,7 @@ namespace Minyar.Tests {
         [Test]
         public void ConcatResultFiles() {
             var dirPath = Path.Combine("..", "..", "TestData", "items");
-	        using (var writer = new StreamWriter(Path.Combine("..", "..", "TestData", "all-20151123.txt"))) {
+	        using (var writer = new StreamWriter(Path.Combine("..", "..", "TestData", "all-20151203.txt"))) {
 	            TraverseDirectory(dirPath, writer);
 	        }
 	    }
@@ -87,6 +98,7 @@ namespace Minyar.Tests {
             } else {
                 //var filenames = files.Select(f => f.Substring(f.LastIndexOf('\\') + 1, f.Length - f.LastIndexOf('\\') - 1));
 	            var filenames = files.Reverse();
+	            Console.WriteLine(filenames.ToArray()[0]);
                 writer.Write(new StreamReader(filenames.ToArray()[0]).ReadToEnd());
 	        }
 	    }

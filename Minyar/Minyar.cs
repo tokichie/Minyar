@@ -69,6 +69,10 @@ namespace Minyar {
 
                             var diffPatcher = new DiffPatcher(reviewComment);
                             var result = await diffPatcher.GetBothOldAndNewFiles();
+                            if (result.NewCode == null) {
+                                if (result.DiffHunk != null) Logger.Info("Skipped {0}", reviewComment.Url);
+                                continue;
+                            }
                             var changeSet = CreateAstAndTakeDiff(result, path);
                             changeSetCount += changeSet.Count;
                             set.UnionWith(changeSet);

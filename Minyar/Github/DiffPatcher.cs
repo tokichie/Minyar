@@ -39,10 +39,12 @@ namespace Minyar.Github {
 
         public async Task<Result> GetBothOldAndNewFiles() {
             try {
-                var commitId = comment.OriginalCommitId;
+                Console.WriteLine(comment.Url);
+                var commitId = comment.Position == null ? comment.OriginalCommitId : comment.CommitId;
                 var diffHunk = comment.DiffHunk;
                 var path = comment.Path;
                 var commit = await CommitCache.LoadCommit(repoOwner, repoName, commitId);
+                if (!commit.Files.Any(f => f.Filename == path)) commitId = comment.OriginalCommitId;
                 var parentId = commit.Parents[0].Sha;
                 var parent = await CommitCache.LoadCommit(repoOwner, repoName, parentId);
                 var newFile = commit.Files.First(f => f.Filename == path);
@@ -50,6 +52,8 @@ namespace Minyar.Github {
                 var oldFileContent = LoadOldFileContent(parentId, path, oldFile);
                 var newFileContent = LoadNewFileContent(commitId, path, diffHunk, oldFileContent, newFile);
                 var newHunk = GetNewDiffHunk(parentId, commitId, path);
+                if (newHunk.OldRange.StartLine == 0 && newHunk.OldRange.ChunkSize == 0 ||
+                    newHunk.NewRange.StartLine == 0 && newHunk.NewRange.ChunkSize == 0) return new Result(null, null, newHunk);
                 return new Result(oldFileContent, newFileContent, newHunk);
             } catch (Exception e) {
                 Console.WriteLine(e);
