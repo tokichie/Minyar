@@ -21,13 +21,13 @@ namespace Minyar.Github {
                 return Minyar.ReadFromJson<GitHubCommit>(filepath);
             }
             var commit = await OctokitClient.Client.Repository.Commits.Get(owner, name, sha);
-            SaveCommit(owner, name, sha, filepath, commit);
+            Save(owner, name, sha, filepath, commit);
             return commit;
         }
 
-        public static void SaveCommit(string owner, string name, string sha, string path, GitHubCommit commit) {
+        public static void Save(string owner, string name, string sha, string path, object content) {
             var filepath = Path.Combine(cacheDir, owner, name, sha + ".json");
-            Minyar.WriteOutJson(commit, filepath);
+            Minyar.WriteOutJson(content, filepath);
         }
     }
 }

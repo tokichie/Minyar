@@ -70,19 +70,19 @@ namespace Minyar {
 		public void Map(StreamWriter log) {
 			ChangeSet = new HashSet<ChangePair>();
 		    foreach (var lineChange in lineChanges) {
-                Logger.Info("[Trace] {0} LineChange {1}:{2}", DateTime.Now, lineChange.ChangedLine, lineChange.NewLine);
+                Logger.Info("LineChange {0}:{1}", lineChange.ChangedLine, lineChange.NewLine);
                 Initialize(lineChange);
-                Logger.Info("[Trace] {0} Initial mapping started", DateTime.Now);
+                Logger.Info("Initial mapping started");
                 var tokenMap = InitialMapping();
-                Logger.Info("[Trace] {0} Bottomup mapping started", DateTime.Now);
+                Logger.Info("Bottomup mapping started");
                 var bottomUpNodeMap = BottomUpMapping(tokenMap);
 
-                Logger.Info("[Trace] {0} Topdown mapping started", DateTime.Now);
+                Logger.Info("Topdown mapping started");
                 TopDownMapping(bottomUpNodeMap);
 
                 //Debug(orgTree, 0, tokenMap, bottomUpNodeMap);
 
-                Logger.Info("[Trace] {0} Mapping finished", DateTime.Now);
+                Logger.Info("Mapping finished");
                 MergeNodeMap(tokenMap, bottomUpNodeMap);
 		        GetChangeSet(tokenMap);
 		    }

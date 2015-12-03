@@ -8,29 +8,39 @@ using System.Threading.Tasks;
 namespace Minyar {
     static class Logger {
         private static string logDir;
-        private static StreamWriter err, info;
+        private static StreamWriter logger;
+        private static bool active;
 
         static Logger() {
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
             logDir = Path.Combine("..", "..", "..", "logs", timestamp);
             Directory.CreateDirectory(logDir);
-            err = new StreamWriter(Path.Combine(logDir, "error.log"));
-            info = new StreamWriter(Path.Combine(logDir, "info.log"));
-            err.AutoFlush = true;
-            info.AutoFlush = true;
+            logger = new StreamWriter(Path.Combine(logDir, "log.txt"));
+            logger.AutoFlush = true;
+            active = true;
+        }
+
+        public static void Activate() {
+            active = true;
+        }
+
+        public static void Deactivate() {
+            active = false;
         }
 
         public static void Error(string msg,
             [System.Runtime.CompilerServices.CallerFilePath] string filePath = "",
             [System.Runtime.CompilerServices.CallerLineNumber] int lineNumber = 0) {
+            if (!active) return;
             var timestamp = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ssZ");
-            err.WriteLine("{0} {1}:{2} {3}", timestamp, filePath, lineNumber, msg);
+            logger.WriteLine("{0} [ERROR] {1}:{2} {3}", timestamp, filePath, lineNumber, msg);
         }
 
         public static void Info(string msg, params object[] prms) {
+            if (!active) return;
             var timestamp = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ssZ");
             var formattedMsg = string.Format(msg, prms);
-            info.WriteLine("{0} {1}", timestamp, formattedMsg);
+            logger.WriteLine("{0} [INFO] {1}", timestamp, formattedMsg);
         }
     }
 }

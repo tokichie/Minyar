@@ -44,34 +44,24 @@ namespace Minyar.Github {
                 var diffHunk = comment.DiffHunk;
                 var path = comment.Path;
                 var commit = await CommitCache.LoadCommit(repoOwner, repoName, commitId);
-                if (!commit.Files.Any(f => f.Filename == path)) commitId = comment.OriginalCommitId;
+                if (!commit.Files.Any(f => f.Filename == path)) {
+                    Logger.Info("Deleted diffhunk");
+                    return new Result();
+                }
                 var parentId = commit.Parents[0].Sha;
-                var parent = await CommitCache.LoadCommit(repoOwner, repoName, parentId);
                 var newFile = commit.Files.First(f => f.Filename == path);
-                var oldFile = parent.Files.First(f => f.Filename == path);
-                var oldFileContent = LoadOldFileContent(parentId, path, oldFile);
+                var oldFileContent = await FileCache.LoadContent(repoOwner, repoName, parentId, path);
                 var newFileContent = LoadNewFileContent(commitId, path, diffHunk, oldFileContent, newFile);
                 var newHunk = GetNewDiffHunk(parentId, commitId, path);
                 if (newHunk.OldRange.StartLine == 0 && newHunk.OldRange.ChunkSize == 0 ||
-                    newHunk.NewRange.StartLine == 0 && newHunk.NewRange.ChunkSize == 0) return new Result(null, null, newHunk);
+                    newHunk.NewRange.StartLine == 0 && newHunk.NewRange.ChunkSize == 0)
+                    return new Result(null, null, newHunk);
                 return new Result(oldFileContent, newFileContent, newHunk);
             } catch (Exception e) {
                 Console.WriteLine(e);
                 Logger.Error(e.ToString());
             }
             return new Result();
-        }
-
-        private string LoadOldFileContent(string parentId, string path, GitHubCommitFile oldFile) {
-            var oldFileContent = "";
-            if (FileCache.FileExists(repoOwner, repoName, parentId, path)) {
-                oldFileContent = FileCache.LoadFile(repoOwner, repoName, parentId, path);
-            } else {
-                var client = new WebClient();
-                oldFileContent = client.DownloadString(oldFile.RawUrl);
-                FileCache.SaveFile(repoOwner, repoName, parentId, path, oldFileContent);
-            }
-            return oldFileContent;
         }
 
         private string LoadNewFileContent(string commitId, string path, string diffHunk, string oldFileContent, GitHubCommitFile newFile) {
@@ -140,7 +130,9 @@ namespace Minyar.Github {
             }
             if (stderr.Length > 0) Logger.Error(stderr.ToString());
             Directory.SetCurrentDirectory("../");
-            return new StreamReader(Path.Combine("tmp", "content.dat")).ReadToEnd();
+            using (var reader = new StreamReader(Path.Combine("tmp", "content.dat"))) {
+                return reader.ReadToEnd();
+            }
         }
     }
 }

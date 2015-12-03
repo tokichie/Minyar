@@ -41,7 +41,7 @@ namespace Minyar {
                 var name = repo.Name;
                 var basePath = Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "items", owner);
                 Directory.CreateDirectory(basePath);
-                Logger.Info("[Trace] Repository {0}", repo.FullName);
+                Logger.Info("Repository {0}", repo.FullName);
                 var filePaths = Directory.GetFiles(
                     Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "Comments", owner, name),
                     "*-PullComments.json"
@@ -54,11 +54,12 @@ namespace Minyar {
                         var set = new HashSet<ChangePair>();
                         var fileName = filePath.Split('\\').Last();
                         var pullNumber = int.Parse(fileName.Substring(0, fileName.IndexOf('-')));
-                        Logger.Info("[Trace] Pull #{0}", pullNumber);
+                        Logger.Info("Pull #{0}", pullNumber);
                         var reviewComments =
                             ReadFromJson<Dictionary<string, PullRequestReviewComment>>(filePath);
                         foreach (var item in reviewComments) {
                             var reviewComment = item.Value;
+                            Logger.Info("ReviewComment {0}", reviewComment.Url);
                             if (parsedDiffs.Contains(reviewComment.DiffHunk)) {
                                 continue;
                             }
@@ -73,9 +74,11 @@ namespace Minyar {
                                 if (result.DiffHunk != null) Logger.Info("Skipped {0}", reviewComment.Url);
                                 continue;
                             }
+                            Logger.Deactivate();
                             var changeSet = CreateAstAndTakeDiff(result, path);
                             changeSetCount += changeSet.Count;
                             set.UnionWith(changeSet);
+                            Logger.Activate();
                         }
 
                         var astChange = new AstChange(GithubUrl(new[] {owner, name}, pullNumber), set);
