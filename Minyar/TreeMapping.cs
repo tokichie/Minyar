@@ -51,7 +51,7 @@ namespace Minyar {
 		    orgCodeRange = new CodeRange(
 		        new CodeLocation(orgRange[0], 0),
 		        new CodeLocation(orgRange[0] + orgRange[1] - 1, 0));
-            Console.Write(FilePath + " " + orgCodeRange + " ");
+            //Console.Write(FilePath + " " + orgCodeRange + " ");
             orgOuterMostRoot = orgCodeRange.FindOutermostNode(orgTree);
 		    if (orgOuterMostRoot == null)
 		        orgOuterMostRoot = orgTree;
@@ -158,7 +158,7 @@ namespace Minyar {
                 }
             }
 
-            Console.WriteLine("{0} {1}", orgTokenList.Count, cmpTokenList.Count);
+            //Console.WriteLine("{0} {1}", orgTokenList.Count, cmpTokenList.Count);
 			return LcsDetector.Detect(orgTokenList, cmpTokenList);
 		}
 

@@ -66,8 +66,6 @@ namespace Minyar {
                             parsedDiffs.Add(reviewComment.DiffHunk);
                             var path = reviewComment.Path;
                             if (!path.EndsWith(".java")) continue;
-
-
                             var diffPatcher = new DiffPatcher(reviewComment);
                             var result = await diffPatcher.GetBothOldAndNewFiles();
                             if (result.NewCode == null) {

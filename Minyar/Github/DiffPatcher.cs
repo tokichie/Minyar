@@ -39,7 +39,6 @@ namespace Minyar.Github {
 
         public async Task<Result> GetBothOldAndNewFiles() {
             try {
-                Console.WriteLine(comment.Url);
                 var commitId = comment.Position == null ? comment.OriginalCommitId : comment.CommitId;
                 var diffHunk = comment.DiffHunk;
                 var path = comment.Path;
