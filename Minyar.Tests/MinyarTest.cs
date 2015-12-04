@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using java.security.acl;
 using Minyar;
@@ -47,6 +48,47 @@ namespace Minyar.Tests {
 	        task.Wait();
             //File.Create(@"C:\Users\Yuta\Dropbox\ifttt\" + DateTime.Now.ToString("yyyyMMddHHmmss"));
         }
+
+	    [Test]
+	    public void TestCreateComments() {
+	        var sb = new StringBuilder();
+	        sb.AppendLine("<body>").AppendLine("  <ul>");
+            var repositories = Minyar.ReadFromJson<List<Repository>>(
+                Path.Combine("..", "..", "TestData", "JavaRepositories.json"));
+	        foreach (var repo in repositories) {
+	            var owner = repo.Owner.Login;
+	            var name = repo.Name;
+                Console.WriteLine(repo.FullName);
+	            sb.Append("    <li>").AppendLine(repo.FullName);
+	            var filePaths = Directory.GetFiles(
+	                Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "Comments", owner, name),
+	                "*-PullComments.json"
+	                );
+	            foreach (var filePath in filePaths) {
+	                var fileName = filePath.Split('\\').Last();
+	                var pullNumber = int.Parse(fileName.Substring(0, fileName.IndexOf('-')));
+                    Console.WriteLine("Pull #{0}", pullNumber);
+	                sb.AppendLine("    <ul>").Append("      <li>pull #")
+                        .AppendLine(pullNumber.ToString()).AppendLine("      <ul>");
+	                var reviewComments =
+	                    Minyar.ReadFromJson<Dictionary<string, PullRequestReviewComment>>(filePath);
+	                foreach (var item in reviewComments) {
+	                    var comment = item.Value;
+	                    sb.Append("        <a href=\"").Append(comment.HtmlUrl).Append("\">")
+	                        .Append("<li>").Append(comment.Body.Replace('\n', ' ')).Append("</li>")
+	                        .AppendLine("</a>");
+	                }
+	                sb.AppendLine("      </ul>").AppendLine("      </li>").AppendLine("    </ul>");
+	            }
+	            sb.AppendLine("    </li>");
+	        }
+	        sb.AppendLine("  </ul>").AppendLine("</body>\n</html>");
+	        using (
+	            var writer =
+	                new StreamWriter(Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "gathered_comments.txt"))) {
+	            writer.WriteLine(sb.ToString());
+	        }
+	    }
 
 	    [Test]
 	    public void TestItems()
