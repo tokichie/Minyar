@@ -185,6 +185,7 @@
   <ItemGroup>
     <Compile Include="ApiRateLimitTest.cs" />
     <Compile Include="CommentCrawler.cs" />
+    <Compile Include="Github\CommentClassifierTest.cs" />
     <Compile Include="Github\DiffPatcherTest.cs" />
     <Compile Include="Github\GithubDiffTest.cs" />
     <Compile Include="Github\OctokitClientTest.cs" />

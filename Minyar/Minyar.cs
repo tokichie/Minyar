@@ -87,71 +87,10 @@ namespace Minyar {
 	        Logger.Info("ChangeSetCount: {0}", changeSetCount);
 	    }
 
-        public async Task StartMining() {
-			GitRepository.DownloadRepositories(Repositories);
-            GitRepository.UpdateRepositories(Repositories);
-            var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-            //var logFilePath = Path.Combine("..", "..", "..", timestamp + ".log.txt");
-            //         log = new StreamWriter(logFilePath);
-            //   log.AutoFlush = true;
-            foreach (var repoId in Repositories) {
-                var owner = repoId[0];
-                var name = repoId[1];
+	    public async Task StartMining() {
+	    }
 
-                //Console.WriteLine("[Trace] {0} {1}/{2} started",
-                //    DateTime.Now, owner, name);
-                //log.WriteLine("[Trace] {0} {1}/{2} started",
-                //    DateTime.Now, owner, name);
-
-                var githubRepo = GithubRepository.Load(owner, name);
-                if (githubRepo == null) {
-                    githubRepo = new GithubRepository(owner, name);
-                    //Console.WriteLine("[Trace] Fetching PullRequests of {0}/{1}", owner, name);
-                    //log.WriteLine("[Trace] Fetching PullRequests of {0}/{1}", owner, name);
-                    await githubRepo.GetPullRequests();
-                    githubRepo.Save();
-                }
-                var basePath = Path.Combine("..", "..", "..", "..", "..", "Dropbox", "private", "items", owner);
-                if (!Directory.Exists(basePath)) {
-                    Directory.CreateDirectory(basePath);
-                }
-                using (
-                    var writer =
-                        new StreamWriter(new FileStream(Path.Combine(basePath, name + timestamp + ".txt"), FileMode.Append))) {
-                    foreach (var pull in githubRepo.Pulls) {
-                        //Console.WriteLine("[Trace] Extracting Pull #{0}", pull.Number);
-                        //log.WriteLine("[Trace] {0} Extracting Pull #{1}", DateTime.Now, pull.Number);
-                        foreach (var commit in pull.Commits) {
-                            //Console.WriteLine("[Trace]  Commit {0}", commit.Sha);
-                            //log.WriteLine("[Trace] {0} Commit {1}", DateTime.Now, commit.Sha);
-                            var diff = GitRepository.GetDiff(githubRepo.RepositoryDirectory, commit.Sha);
-                            //Console.WriteLine("[Trace]  # of Diff {0}", diff.Length);
-                            //log.WriteLine("[Trace] {0} # of Diff {1}", DateTime.Now, diff.Length);
-                            var githubDiff = new GithubDiff();
-                            githubDiff.ParseDiff(diff);
-                            //Console.WriteLine("[Trace]  Before taking ast diff");
-                            //log.WriteLine("[Trace] {0} Before taking ast diff", DateTime.Now);
-                            var changeSet = CreateAstAndTakeDiff(githubRepo, githubDiff.FileDiffList, commit.Sha);
-                            var astChange = new AstChange(GithubUrl(repoId, pull.Number), changeSet, "");
-                            //Console.WriteLine("[Trace]  After taking ast diff");
-                            //log.WriteLine("[Trace] {0} After taking ast diff", DateTime.Now);
-
-                            if (changeSet != null) {
-                                WriteOut(writer, astChange);
-                                //WriteOut(allResultFileWriter, astChange);
-                            }
-                        }
-                    }
-                }
-                Console.WriteLine("[Trace] {0} {1}/{2} finished",
-                    DateTime.Now, owner, name);
-                log.WriteLine("[Trace] {0} {1}/{2} finished",
-                    DateTime.Now, owner, name);
-            }
-            log.Close();
-        }
-
-        public static T ReadFromJson<T>(string path)
+	    public static T ReadFromJson<T>(string path)
 	    {
             var resolver = new PrivateSetterContractResolver();
             var serializeSettings = new JsonSerializerSettings {ContractResolver = resolver};
