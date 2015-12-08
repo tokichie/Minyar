@@ -48,39 +48,47 @@ namespace Minyar {
                     );
                 using (
                     var writer =
-                        new StreamWriter(new FileStream(Path.Combine(basePath, name + timestamp + ".txt"), FileMode.Append))) {
+                        new StreamWriter(new FileStream(Path.Combine(basePath, name + timestamp + "-posi.txt"), FileMode.Append))) {
                     writer.AutoFlush = true;
-                    foreach (var filePath in filePaths) {
-                        var fileName = filePath.Split('\\').Last();
-                        var pullNumber = int.Parse(fileName.Substring(0, fileName.IndexOf('-')));
-                        Logger.Info("Pull #{0}", pullNumber);
-                        var reviewComments =
-                            ReadFromJson<Dictionary<string, PullRequestReviewComment>>(filePath);
-                        foreach (var item in reviewComments) {
-                            var reviewComment = item.Value;
-                            Logger.Info("ReviewComment {0}", reviewComment.Url);
-                            if (parsedDiffs.Contains(reviewComment.DiffHunk)) {
-                                continue;
-                            }
-                            parsedDiffs.Add(reviewComment.DiffHunk);
-                            var path = reviewComment.Path;
-                            if (!path.EndsWith(".java")) continue;
-                            var diffPatcher = new DiffPatcher(reviewComment);
-                            var result = await diffPatcher.GetBothOldAndNewFiles();
-                            if (result.NewCode == null) {
-                                if (result.DiffHunk != null) Logger.Info("Skipped {0}", reviewComment.Url);
-                                continue;
-                            }
-                            Logger.Deactivate();
-                            var changeSet = CreateAstAndTakeDiff(result, path);
-                            changeSetCount += changeSet.Count;
-                            Logger.Activate();
-                            var astChange = new AstChange(GithubUrl(new[] { owner, name }, pullNumber), changeSet, result.DiffHunk.Patch);
-                            if (changeSet.Count > 0) {
-                                WriteOut(writer, astChange);
+                    using (
+                        var negawriter =
+                            new StreamWriter(new FileStream(Path.Combine(basePath, name + timestamp + "-nega.txt"),
+                                FileMode.Append))) {
+                        negawriter.AutoFlush = true;
+                        foreach (var filePath in filePaths) {
+                            var fileName = filePath.Split('\\').Last();
+                            var pullNumber = int.Parse(fileName.Substring(0, fileName.IndexOf('-')));
+                            Logger.Info("Pull #{0}", pullNumber);
+                            var reviewComments =
+                                ReadFromJson<Dictionary<string, PullRequestReviewComment>>(filePath);
+                            foreach (var item in reviewComments) {
+                                var reviewComment = item.Value;
+                                var isQuestion = CommentClassifier.isQuestion(reviewComment);
+                                Logger.Info("ReviewComment {0} {1}", reviewComment.Url, isQuestion);
+                                if (parsedDiffs.Contains(reviewComment.DiffHunk)) {
+                                    continue;
+                                }
+                                parsedDiffs.Add(reviewComment.DiffHunk);
+                                var path = reviewComment.Path;
+                                if (!path.EndsWith(".java")) continue;
+                                var diffPatcher = new DiffPatcher(reviewComment);
+                                var result = await diffPatcher.GetBothOldAndNewFiles();
+                                if (result.NewCode == null) {
+                                    if (result.DiffHunk != null) Logger.Info("Skipped {0}", reviewComment.Url);
+                                    continue;
+                                }
+                                Logger.Deactivate();
+                                var changeSet = CreateAstAndTakeDiff(result, path);
+                                changeSetCount += changeSet.Count;
+                                Logger.Activate();
+                                var astChange = new AstChange(GithubUrl(new[] { owner, name }, pullNumber), changeSet,
+                                    result.DiffHunk.Patch);
+                                if (changeSet.Count > 0) {
+                                    var w = isQuestion ? negawriter : writer;
+                                    WriteOut(w, astChange);
+                                }
                             }
                         }
-
                     }
                 }
             }

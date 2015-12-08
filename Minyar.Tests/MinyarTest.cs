@@ -44,9 +44,9 @@ namespace Minyar.Tests {
             var minyar = new Minyar();
             var repositories = Minyar.ReadFromJson<List<Repository>>(
                 Path.Combine("..", "..", "TestData", "JavaRepositories.json"));
-	        var task = minyar.Start(repositories.GetRange(0, 1));
+	        var task = minyar.Start(repositories);
 	        task.Wait();
-            //File.Create(@"C:\Users\Yuta\Dropbox\ifttt\" + DateTime.Now.ToString("yyyyMMddHHmmss"));
+            File.Create(@"C:\Users\Yuta\Dropbox\ifttt\" + DateTime.Now.ToString("yyyyMMddHHmmss"));
         }
 
 	    [Test]
@@ -88,6 +88,15 @@ namespace Minyar.Tests {
 	                new StreamWriter(Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "gathered_comments.txt"))) {
 	            writer.WriteLine(sb.ToString());
 	        }
+	    }
+
+	    [Test]
+	    public void TestCreateAstFromInadequateCode() {
+	        var code = "public class K {\n" +
+	                   "    public void hoge(int i) {\n" +
+	                   "        int a = 0;\n" +
+	                   "}";
+	        var ast = Program.GenerateCst(code);
 	    }
 
 	    [Test]

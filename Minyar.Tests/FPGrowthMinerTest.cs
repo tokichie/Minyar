@@ -4,6 +4,7 @@ using NUnit.Framework;
 using System.IO;
 using System.Linq;
 using System.Text;
+using com.sun.tools.corba.se.idl.toJavaPortable;
 using FP.DAL.DAO;
 
 namespace Minyar.Tests {
@@ -38,9 +39,9 @@ namespace Minyar.Tests {
 			var miner = new FPGrowthMiner(
                             //Path.Combine("..", "..", "TestData", "items", "elastic" , "elasticsearch20151115023903.txt"),
                             //Path.Combine("..", "..", "TestData", "items", "elastic" , "elasticsearch20151115023903.out"),
-                            Path.Combine("..", "..", "TestData", "all-20151203.txt"),
-                            Path.Combine("..", "..", "TestData", "all-20151203.out"),
-                            50);
+                            Path.Combine("..", "..", "TestData", "all-posi-20151208.txt"),
+                            Path.Combine("..", "..", "TestData", "all-posi-20151208.out"),
+                            300);
 	        
 			var res = miner.GenerateFrequentItemsets();
 		    var items = miner.GetMinedItemSets();
@@ -51,30 +52,45 @@ namespace Minyar.Tests {
 	    public void TestPatternMatch() {
 	        var pattern = new HashSet<string>();
             //pattern.Add("Insert:VariableDeclarationStatement");
-            //pattern.Add("Insert:StringLiteral");
-            //pattern.Add("Insert:QualifiedName");
+            //pattern.Add("Insert:InfixExpression");
+            //pattern.Add("Insert:SingleVariableDeclaration");
+            //pattern.Add("Insert:PrimitiveType");
             //pattern.Add("Insert:VariableDeclarationFragment");
+            //pattern.Add("Insert:MethodDeclaration");
+            //pattern.Add("Insert:Modifier");
             //pattern.Add("Insert:ExpressionStatement");
             //pattern.Add("Insert:MethodInvocation");
             //pattern.Add("Insert:SimpleType");
             //pattern.Add("Insert:SimpleName");
             //pattern.Add("Insert:Block");
-            //pattern.Add("Insert:escapedValue");
+            //pattern.Add("Insert:primitiveTypeCode");
+            //pattern.Add("Insert:constructor");
+            //pattern.Add("Insert:varargs");
+            //pattern.Add("Insert:operator");
+            //pattern.Add("Insert:keyword");
             //pattern.Add("Insert:extraDimensions");
             //pattern.Add("Insert:identifier");
+            pattern.Add("Insert:ClassInstanceCreation");
+            pattern.Add("Insert:VariableDeclarationStatement");
+            pattern.Add("Insert:SingleVariableDeclaration");
             pattern.Add("Insert:PrimitiveType");
             pattern.Add("Insert:MethodDeclaration");
+            pattern.Add("Insert:VariableDeclarationFragment");
             pattern.Add("Insert:Modifier");
             pattern.Add("Insert:ExpressionStatement");
             pattern.Add("Insert:MethodInvocation");
+            pattern.Add("Insert:SimpleType");
             pattern.Add("Insert:Block");
-            pattern.Add("Insert:primitiveTypeCode");
             pattern.Add("Insert:SimpleName");
             pattern.Add("Insert:constructor");
+            pattern.Add("Insert:primitiveTypeCode");
+            pattern.Add("Insert:varargs");
             pattern.Add("Insert:keyword");
             pattern.Add("Insert:extraDimensions");
+            pattern.Add("Insert:identifier");
+
             var matcher = new PatternMatcher(
-                            Path.Combine("..", "..", "TestData", "all-20151203.txt"),
+                            Path.Combine("..", "..", "TestData", "all-posi-20151208.txt"),
                 pattern);
             matcher.Match();
 	        var part = matcher.MatchedItems.Where(x => x.Items.Count < 300).ToList();
@@ -84,7 +100,7 @@ namespace Minyar.Tests {
         [Test]
         public void ConcatResultFiles() {
             var dirPath = Path.Combine("..", "..", "TestData", "items");
-	        using (var writer = new StreamWriter(Path.Combine("..", "..", "TestData", "all-20151203.txt"))) {
+	        using (var writer = new StreamWriter(Path.Combine("..", "..", "TestData", "all-posi-20151208.txt"))) {
 	            TraverseDirectory(dirPath, writer);
 	        }
 	    }
@@ -97,6 +113,7 @@ namespace Minyar.Tests {
 	                TraverseDirectory(dir, writer);
             } else {
                 //var filenames = files.Select(f => f.Substring(f.LastIndexOf('\\') + 1, f.Length - f.LastIndexOf('\\') - 1));
+	            files = files.Where((f) => f.EndsWith("posi.txt")).ToArray();
 	            var filenames = files.Reverse();
 	            Console.WriteLine(filenames.ToArray()[0]);
                 writer.Write(new StreamReader(filenames.ToArray()[0]).ReadToEnd());
