@@ -15,7 +15,7 @@ namespace Minyar.Tests.Github {
             var content = "HOGEPIYO\n\nKORILAKKUMA\n\nNICEBOAT\n\nHOGEPIYO\n\nRILAKKUMA\n\nKIIROITORI\n";
             var patch = "@@ -9,3 +9,5 @@ HOGEPIYO\n RILAKKUMA\n \n KIIROITORI\n+\n+HATENA";
             var prComment = new PullRequestReviewComment();
-            var patcher = new DiffPatcher();
+            var patcher = new CoarseDiffPatcher();
             var res = patcher.Patch(content, patch);
             Assert.That(res == "HOGEPIYO\n\nKORILAKKUMA\n\nNICEBOAT\n\nHOGEPIYO\n\nRILAKKUMA\n\nKIIROITORI\n\nHATENA\n");
         }
@@ -24,7 +24,7 @@ namespace Minyar.Tests.Github {
         public async Task TestDiffPatcher() {
             var prComment = await OctokitClient.Client.Repository.PullRequest.Comment.GetComment("tokichie", "Hogepiyo",
                 46083950);
-            var diffPatcher = new DiffPatcher(prComment);
+            var diffPatcher = new CoarseDiffPatcher(prComment);
             var res = await diffPatcher.GetBothOldAndNewFiles();
             Assert.That(res.OldCode == "HOGEPIYO\n\nKORILAKKUMA\n\nNICEBOAT\n\nHOGEPIYO\n\nRILAKKUMA\n\nKIIROITORI\n");
             Assert.That(res.NewCode == "HOGEPIYO\n\nKORILAKKUMA\n\nNICEBOAT\n\nHOGEPIYO\n\nRILAKKUMA\n\nKIIROITORI\n\nHATENA\n");
@@ -34,7 +34,7 @@ namespace Minyar.Tests.Github {
         public async Task TestDiffPatcherWithMultipleDiffHunk() {
             var prComment = await OctokitClient.Client.Repository.PullRequest.Comment.GetComment("tokichie", "pattern-detection",
                 21068083);
-            var diffPatcher = new DiffPatcher(prComment);
+            var diffPatcher = new CoarseDiffPatcher(prComment);
             var res = await diffPatcher.GetBothOldAndNewFiles();
             var set1 = res.OldCode.Split('\n');
             var set2 = res.NewCode.Split('\n');

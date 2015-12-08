@@ -71,7 +71,7 @@ namespace Minyar {
                                 parsedDiffs.Add(reviewComment.DiffHunk);
                                 var path = reviewComment.Path;
                                 if (!path.EndsWith(".java")) continue;
-                                var diffPatcher = new DiffPatcher(reviewComment);
+                                var diffPatcher = new CoarseDiffPatcher(reviewComment);
                                 var result = await diffPatcher.GetBothOldAndNewFiles();
                                 if (result.NewCode == null) {
                                     if (result.DiffHunk != null) Logger.Info("Skipped {0}", reviewComment.Url);
@@ -141,7 +141,7 @@ namespace Minyar {
             writer.WriteLine(astChange);
 		}
 
-	    private HashSet<ChangePair> CreateAstAndTakeDiff(DiffPatcher.Result diffResult, string filePath) {
+	    private HashSet<ChangePair> CreateAstAndTakeDiff(PatchResult diffResult, string filePath) {
 	        var orgCst = Program.GenerateCst(diffResult.OldCode);
 	        var cmpCst = Program.GenerateCst(diffResult.NewCode);
 	        var lineChange = new LineChange(diffResult.DiffHunk);

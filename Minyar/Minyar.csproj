@@ -204,6 +204,7 @@
     <Compile Include="Github\CommentClassifier.cs" />
     <Compile Include="Github\CommitCache.cs" />
     <Compile Include="Github\DiffHunk.cs" />
+    <Compile Include="Github\CoarseDiffPatcher.cs" />
     <Compile Include="Github\DiffPatcher.cs" />
     <Compile Include="Github\FileCache.cs" />
     <Compile Include="Github\FileDiff.cs" />
@@ -213,6 +214,7 @@
     <Compile Include="Github\GithubPullRequest.cs" />
     <Compile Include="Github\GithubRepository.cs" />
     <Compile Include="Github\LineChange.cs" />
+    <Compile Include="Github\PatchResult.cs" />
     <Compile Include="Git\GitRepository.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Minyar.cs" />
