@@ -13,6 +13,7 @@ namespace FP.DAL.DAO {
         [DataMember(Name = "OriginalPath")] public string OriginalPath;
         [DataMember(Name = "ChangedPath")] public string ChangedPath;
         [DataMember(Name = "GithubUrl")] public string GithubUrl;
+        [DataMember(Name = "DiffHunk")] public string DiffHunk;
 
         public static ItemWrapper Deserialize(string json) {
 	        var serializer = new JavaScriptSerializer();

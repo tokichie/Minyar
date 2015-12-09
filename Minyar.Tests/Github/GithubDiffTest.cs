@@ -27,5 +27,24 @@ namespace Minyar.Tests.Github {
             Assert.That(fileDiffList[1].ChangedLineList[1].ChangedLine.SequenceEqual(new int[] {107, 6}));
             Assert.That(fileDiffList[1].ChangedLineList[1].NewLine.SequenceEqual(new int[] {108, 17}));
         }
+
+        [Test]
+        public void TestParseAllDiffHunk() {
+            var hunk =
+                "@@ -37,6 +37,7 @@\n \n import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_NUMBER_OF_REPLICAS;\n import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_NUMBER_OF_SHARDS;\n+import static org.elasticsearch.cluster.metadata.IndexMetaData.SETTING_VERSION_CREATED;\n import static org.elasticsearch.common.settings.ImmutableSettings.settingsBuilder;\n import static org.elasticsearch.test.hamcrest.ElasticsearchAssertions.assertAcked;\n import static org.hamcrest.Matchers.equalTo;\n@@ -148,5 +149,19 @@ public void testDeleteByQueryBWC() {\n             assertEquals(numDocs, searcher.reader().numDocs());\n         }\n     }\n-\n+    \n+    public void testMinimumCompatVersion() {\n+        Version versionCreated = randomVersion();\n+        assertAcked(client().admin().indices().prepareCreate(\"test\")\n+                .setSettings(SETTING_NUMBER_OF_SHARDS, 1, SETTING_NUMBER_OF_REPLICAS, 0, SETTING_VERSION_CREATED, versionCreated.id));\n+        client().prepareIndex(\"test\", \"test\").setSource(\"{}\").get();\n+        ensureGreen(\"test\");\n+        IndicesService indicesService = getInstanceFromNode(IndicesService.class);\n+        IndexShard test = indicesService.indexService(\"test\").shard(0);\n+        assertEquals(versionCreated.luceneVersion, test.minimumCompatibleVersion());\n+        client().prepareIndex(\"test\", \"test\").setSource(\"{}\").get();\n+        assertEquals(versionCreated.luceneVersion, test.minimumCompatibleVersion());\n+        test.engine().flush();\n+        assertEquals(Version.CURRENT.luceneVersion, test.minimumCompatibleVersion());\n+    }\n }";
+            GithubDiff.ParseAllDiffHunks(hunk);
+        }
+
+        [Test]
+        public void TestGetInRangeHunk() {
+            var hunk =
+                "@@ -9,3 +9,5 @@ HOGEPIYO\n RILAKKUMA\n \n KIIROITORI\n+\n+HATENA\n@@ -37,6 +37,7 @\n \n hogepiyo";
+            var githubDiff = new GithubDiff(hunk);
+            var prRawHunk =
+                "@@ -3,3 +3,11 @@ HOGEPIYO\n KORILAKKUMA\n \n NICEBOAT\n+\n+HOGEPIYO\n+\n+RILAKKUMA\n+\n+KIIROITORI";
+            var prHunk = GithubDiff.ParseAllDiffHunks(prRawHunk)[0];
+            var res = githubDiff.GetInRangeHunk(prHunk);
+            Assert.That(res.Patch.StartsWith("@@ -9,3 +9,5 @@"));
+        }
     }
 }

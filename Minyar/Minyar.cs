@@ -4,14 +4,18 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Code2Xml.Core.SyntaxTree;
+using Newtonsoft.Json;
+using Octokit;
+using FileMode = System.IO.FileMode;
 
 namespace Minyar {
 	class Minyar {
 		public List<string[]> Repositories;
-	    private StreamWriter log;
+	    private static StreamWriter log;
 
 		public Minyar() {
 			Repositories = new List<string[]>();
@@ -25,90 +29,90 @@ namespace Minyar {
 			Repositories.Add(repository);
 		}
 
-		public async Task StartMining() {
-			GitRepository.DownloadRepositories(Repositories);
-		    var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-			var allResultFilePath = Path.Combine("..", "..", "..", timestamp + ".txt");
-			var allResultFileWriter = new StreamWriter(new FileStream(allResultFilePath, FileMode.Append));
-			var logFilePath = Path.Combine("..", "..", "..", timestamp + ".log.txt");
-            log = new StreamWriter(logFilePath);
-		    log.AutoFlush = true;
-            foreach (var repoId in Repositories) {
-                var owner = repoId[0];
-                var name = repoId[1];
 
-                Console.WriteLine("[Trace] {0} {1}/{2} started",
-                    DateTime.Now, owner, name);
-                log.WriteLine("[Trace] {0} {1}/{2} started",
-                    DateTime.Now, owner, name);
-
-                var githubRepo = GithubRepository.Load(owner, name);
-                if (githubRepo == null) {
-                    githubRepo = new GithubRepository(owner, name);
-                    Console.WriteLine("[Trace] Fetching PullRequests of {0}/{1}", owner, name);
-                    log.WriteLine("[Trace] Fetching PullRequests of {0}/{1}", owner, name);
-                    await githubRepo.GetPullRequests();
-                    githubRepo.Save();
-                }
-                var path = Path.Combine("..", "..", "..", "..", "..", "Dropbox", "private", "items", owner);
-                if (!Directory.Exists(path)) {
-                    Directory.CreateDirectory(path);
-                }
+	    private HashSet<string> parsedDiffs;
+         
+	    public async Task Start(List<Repository> repositories) {
+            parsedDiffs = new HashSet<string>();
+            var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+	        var changeSetCount = 0;
+            foreach (var repo in repositories) {
+                var owner = repo.Owner.Login;
+                var name = repo.Name;
+                var basePath = Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "items", owner);
+                Directory.CreateDirectory(basePath);
+                Logger.Info("Repository {0}", repo.FullName);
+                var filePaths = Directory.GetFiles(
+                    Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "Comments", owner, name),
+                    "*-PullComments.json"
+                    );
                 using (
                     var writer =
-                        new StreamWriter(new FileStream(Path.Combine(path, name + timestamp + ".txt"), FileMode.Append))) {
-                    foreach (var pull in githubRepo.Pulls) {
-                        Console.WriteLine("[Trace] Extracting Pull #{0}", pull.Number);
-                        log.WriteLine("[Trace] {0} Extracting Pull #{1}", DateTime.Now, pull.Number);
-                        foreach (var commit in pull.Commits) {
-                            Console.WriteLine("[Trace]  Commit {0}", commit.Sha);
-                            log.WriteLine("[Trace] {0} Commit {1}", DateTime.Now, commit.Sha);
-                            var diff = GitRepository.GetDiff(githubRepo.RepositoryDirectory, commit.Sha);
-                            Console.WriteLine("[Trace]  # of Diff {0}", diff.Length);
-                            log.WriteLine("[Trace] {0} # of Diff {1}", DateTime.Now, diff.Length);
-                            var githubDiff = new GithubDiff();
-                            githubDiff.ParseDiff(diff);
-                            Console.WriteLine("[Trace]  Before taking ast diff");
-                            log.WriteLine("[Trace] {0} Before taking ast diff", DateTime.Now);
-                            var changeSet = CreateAstAndTakeDiff(githubRepo, githubDiff.FileDiffList, commit.Sha);
-                            var astChange = new AstChange(GithubUrl(repoId, pull.Number), changeSet);
-                            Console.WriteLine("[Trace]  After taking ast diff");
-                            log.WriteLine("[Trace] {0} After taking ast diff", DateTime.Now);
-
-                            if (changeSet != null) {
-                                WriteOut(writer, astChange);
-                                //WriteOut(allResultFileWriter, astChange);
+                        new StreamWriter(new FileStream(Path.Combine(basePath, name + timestamp + "-posi.txt"), FileMode.Append))) {
+                    writer.AutoFlush = true;
+                    using (
+                        var negawriter =
+                            new StreamWriter(new FileStream(Path.Combine(basePath, name + timestamp + "-nega.txt"),
+                                FileMode.Append))) {
+                        negawriter.AutoFlush = true;
+                        foreach (var filePath in filePaths) {
+                            var fileName = filePath.Split('\\').Last();
+                            var pullNumber = int.Parse(fileName.Substring(0, fileName.IndexOf('-')));
+                            Logger.Info("Pull #{0}", pullNumber);
+                            var reviewComments =
+                                ReadFromJson<Dictionary<string, PullRequestReviewComment>>(filePath);
+                            foreach (var item in reviewComments) {
+                                var reviewComment = item.Value;
+                                var isQuestion = CommentClassifier.isQuestion(reviewComment);
+                                Logger.Info("ReviewComment {0} {1}", reviewComment.Url, isQuestion);
+                                if (parsedDiffs.Contains(reviewComment.DiffHunk)) {
+                                    continue;
+                                }
+                                parsedDiffs.Add(reviewComment.DiffHunk);
+                                var path = reviewComment.Path;
+                                if (!path.EndsWith(".java")) continue;
+                                var diffPatcher = new CoarseDiffPatcher(reviewComment);
+                                var result = await diffPatcher.GetBothOldAndNewFiles();
+                                if (result.NewCode == null) {
+                                    if (result.DiffHunk != null) Logger.Info("Skipped {0}", reviewComment.Url);
+                                    continue;
+                                }
+                                Logger.Deactivate();
+                                var changeSet = CreateAstAndTakeDiff(result, path);
+                                changeSetCount += changeSet.Count;
+                                Logger.Activate();
+                                var astChange = new AstChange(GithubUrl(new[] { owner, name }, pullNumber), changeSet,
+                                    result.DiffHunk.Patch);
+                                if (changeSet.Count > 0) {
+                                    var w = isQuestion ? negawriter : writer;
+                                    WriteOut(w, astChange);
+                                }
                             }
                         }
                     }
                 }
-                //var miner = new FPGrowthMiner(
-                //    Path.Combine(path, name + ".txt"),
-                //    Path.Combine(path, name + ".out"), 200);
-
-                //var res = miner.GenerateFrequentItemsets();
-                //foreach (var itemset in miner.GetMinedItemSets()) {
-                //    Console.WriteLine(itemset);
-                //}
-                Console.WriteLine("[Trace] {0} {1}/{2} finished",
-                    DateTime.Now, owner, name);
-                log.WriteLine("[Trace] {0} {1}/{2} finished",
-                    DateTime.Now, owner, name);
             }
-            log.Close();
-            //var miner = new FPGrowthMiner(
-            //    Path.Combine("..", "..", "..", "20150708.txt"),
-            //    Path.Combine("..", "..", "..", "20150708.out"), 200);
+	        Logger.Info("ChangeSetCount: {0}", changeSetCount);
+	    }
 
-            //var res = miner.GenerateFrequentItemsets();
-            //using (
-            //    var resWriter =
-            //        new StreamWriter(new FileStream(Path.Combine("..", "..", "..", "20150708.res"), FileMode.Create))) {
-            //    foreach (var itemset in miner.GetMinedItemSets()) {
-            //        resWriter.WriteLine(itemset);
-            //    }
-            //}
+	    public async Task StartMining() {
+	    }
+
+	    public static T ReadFromJson<T>(string path)
+	    {
+            var resolver = new PrivateSetterContractResolver();
+            var serializeSettings = new JsonSerializerSettings {ContractResolver = resolver};
+	        var json = new StreamReader(path).ReadToEnd();
+            return JsonConvert.DeserializeObject<T>(json, serializeSettings);
         }
+
+	    public static void WriteOutJson(object obj, string path) {
+	        var json = JsonConvert.SerializeObject(obj);
+	        Directory.CreateDirectory(Path.Combine(path, ".."));
+            using (var writer = new StreamWriter(path)) {
+                writer.Write(json);
+            }
+	    }
 
         private string GithubUrl(string[] repoId, int pullId) {
 	        var sb = new StringBuilder();
@@ -117,8 +121,8 @@ namespace Minyar {
 	        return sb.ToString();
 	    }
 
-		public static void WriteOut(StreamWriter writer, AstChange astChange, string githubUrl = null) {
-			var builder = new StringBuilder();
+		public void WriteOut(StreamWriter writer, AstChange astChange, string githubUrl = null) {
+			//var builder = new StringBuilder();
 			if (astChange.Items.Count == 0)
 				return;
 		 //   if (githubUrl != null)
@@ -137,7 +141,16 @@ namespace Minyar {
             writer.WriteLine(astChange);
 		}
 
-		private HashSet<ChangePair> CreateAstAndTakeDiff
+	    private HashSet<ChangePair> CreateAstAndTakeDiff(PatchResult diffResult, string filePath) {
+	        var orgCst = Program.GenerateCst(diffResult.OldCode);
+	        var cmpCst = Program.GenerateCst(diffResult.NewCode);
+	        var lineChange = new LineChange(diffResult.DiffHunk);
+            var mapper = new TreeMapping(orgCst, cmpCst, filePath, new List<LineChange> {lineChange});
+            mapper.Map(log);
+	        return mapper.ChangeSet;
+	    }
+
+	    private HashSet<ChangePair> CreateAstAndTakeDiff
             (GithubRepository githubRepo, List<FileDiff> fileDiffs, string sha) {
 			var changeSet = new HashSet<ChangePair>();
 			var changedCodes = GitRepository.GetChangedCodes(githubRepo, fileDiffs, sha);

@@ -33,46 +33,65 @@ namespace Minyar.Git {
         /// </summary>
         /// <param name="repositories">List of repository information: string array of ["owner", "name"]</param>
         public static void DownloadRepositories(List<string[]> repositories) {
-            var baseUrl = @"https://github.com/{0}/{1}.git";
             foreach (var repo in repositories) {
-                var owner = repo[0];
-                var name = repo[1];
-                var clonePath = Path.Combine("..", "..", "..", "repos", owner, name);
-                if (!Directory.Exists(clonePath) || Directory.GetFileSystemEntries(clonePath).Length == 0) {
-                    Directory.CreateDirectory(clonePath);
-                    Repository.Clone(string.Format(baseUrl, owner, name), clonePath);
-                } else {
-                    Console.WriteLine("[Skipped] Repository {0} already exists.", clonePath);
-                }
+                DownloadImpl(repo[0], repo[1]);
+            }
+        }
+
+        public static void DownloadRepositories(List<Octokit.Repository> repositories) {
+            foreach (var repo in repositories) {
+                DownloadImpl(repo.Owner.Login, repo.Name);
+            }
+        }
+
+        private static void DownloadImpl(string owner, string name) {
+            var baseUrl = @"https://github.com/{0}/{1}.git";
+            var clonePath = Path.Combine("..", "..", "..", "repos", owner, name);
+            if (!Directory.Exists(clonePath) || Directory.GetFileSystemEntries(clonePath).Length == 0) {
+                Directory.CreateDirectory(clonePath);
+                Console.WriteLine("[Trace] Cloning {0}/{1}...", owner, name);
+                Repository.Clone(string.Format(baseUrl, owner, name), clonePath);
+            } else {
+                Console.WriteLine("[Skipped] Repository {0} already exists.", clonePath);
             }
         }
 
         public static void UpdateRepositories(List<string[]> repos) {
+            foreach (var repo in repos) {
+                UpdateImpl(repo[0], repo[1]);
+            }
+        }
+
+        public static void UpdateRepositories(List<Octokit.Repository> repos) {
+            foreach (var repo in repos) {
+                UpdateImpl(repo.Owner.Login, repo.Name);
+            }
+        }
+
+        private static void UpdateImpl(string owner, string name) {
 			var path = Path.Combine("..", "..", "..", "Minyar", "Resources", "GitHubCredentials.json");
             Dictionary<string, string> credentials;
             using (var file = new StreamReader(path)) {
                 var json = file.ReadToEnd();
                 credentials = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
             }
-
-            foreach (var repoName in repos) {
-                Console.WriteLine("[Trace] Fetching {0}/{1}...", repoName[0], repoName[1]);
-                using (
-                    var repo =
-                        new Repository(Path.Combine("..", "..", "..", "Minyar", "repos", repoName[0], repoName[1]))) {
-                    var opts = new CheckoutOptions();
-                    opts.CheckoutModifiers = CheckoutModifiers.Force;
-                    var branch = repo.Branches.First(b => !b.Name.Contains("/"));
-                    repo.Checkout(branch, opts);
-                    var pullOpts = new PullOptions();
-                    pullOpts.FetchOptions = new FetchOptions();
-                    pullOpts.FetchOptions.CredentialsProvider =
-                        (url, username, types) => new UsernamePasswordCredentials() {
-                            Username = credentials["UserName"],
-                            Password = credentials["Password"]
-                        };
-                    repo.Network.Pull(new Signature("Minyar", "minyar@gmail.com", DateTimeOffset.Now), pullOpts);
-                }
+            Console.WriteLine("[Trace] Fetching {0}/{1}...", owner, name);
+            using (
+                var repo =
+                    new Repository(Path.Combine("..", "..", "..", "repos", owner, name))) {
+                var opts = new CheckoutOptions();
+                opts.CheckoutModifiers = CheckoutModifiers.Force;
+                var branch = repo.Branches.First(b => !b.Name.Contains("/"));
+                repo.Checkout(branch, opts);
+                var pullOpts = new PullOptions();
+                pullOpts.FetchOptions = new FetchOptions();
+                pullOpts.FetchOptions.CredentialsProvider =
+                    (url, username, types) => new UsernamePasswordCredentials() {
+                        Username = credentials["UserName"],
+                        Password = credentials["Password"]
+                    };
+                Console.WriteLine("[Trace] Updating {0}/{1}...", owner, name);
+                repo.Network.Pull(new Signature("Minyar", "minyar@gmail.com", DateTimeOffset.Now), pullOpts);
             }
         }
 
@@ -111,6 +130,43 @@ namespace Minyar.Git {
                     Console.WriteLine("[Error] Exception has occured");
                 }
             }
+        }
+
+
+
+        public static List<string> GetChangedCodes(
+            Octokit.Repository repository, string filePath, string cmpSha, string orgSha) {
+            var codes = new List<string>();
+            var repoPath = Path.Combine("..", "..", "..", "repos", repository.Owner.Login, repository.Name);
+            using (var repo = new Repository(repoPath)) {
+                foreach (var sha in new [] { orgSha, cmpSha }) {
+                    var checkoutOpts = new CheckoutOptions() {
+                        CheckoutModifiers = CheckoutModifiers.Force
+                    };
+                    try {
+                        repo.Checkout(sha, checkoutOpts);
+                    } catch (Exception e) {
+                        //repo.Reset(ResetMode.Hard);
+                        //repo.Checkout(sha, checkoutOpts);
+                        Console.WriteLine("[Trace] Checkout to {0} failed", sha);
+                        Console.WriteLine(e);
+                        continue;
+                    }
+                    string code = "";
+                    try {
+                        using (var reader = new StreamReader(
+                            Path.Combine(repoPath, filePath))) {
+                            code = reader.ReadToEnd();
+                        }
+                        codes.Add(code);
+                    } catch (Exception e) {
+                        Console.Write("[Trace] Reading code from {0} failed", filePath);
+                        Console.WriteLine(e.Message);
+                        Console.WriteLine(e.StackTrace);
+                    }
+                }
+            }
+            return codes;
         }
 
         public static Dictionary<string, List<string>> GetChangedCodes(

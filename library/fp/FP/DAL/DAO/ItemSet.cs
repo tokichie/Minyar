@@ -77,12 +77,39 @@ namespace FP.DAL.DAO {
 
 		public override string ToString() {
 			var sb = new StringBuilder();
+            var metaData = new StringBuilder();
+		    metaData.AppendLine();
 			if (items.Count > 0) {
-                var metaData = new StringBuilder();
 				sb.Append("<");
+                items.Sort((i1, i2) => i1.JsonItems.Count.CompareTo(i2.JsonItems.Count));
+			    var url = "";
+			    var path = "";
+			    foreach (var jsonItem in items[0].JsonItems) {
+			        url = jsonItem.GithubUrl;
+			        path = jsonItem.ChangedPath;
+                    if (url.StartsWith("https://github.com/chrisjenx/Calligraphy")) continue;
+                    if (url.StartsWith("https://github.com/dropwizard/metrics")) continue;
+                    var f = true;
+                    var ff = false;
+                    foreach (var item in items) {
+                        var j = item.JsonItems.Where(i => i.GithubUrl == url && i.ChangedPath == path);
+                        f &= item.JsonItems.Any(i => i.GithubUrl == url && i.ChangedPath == path);
+                        if (!f) {
+                            ff = true;
+                            break;
+                        }
+                        Console.WriteLine("{0} {1} {2}: {3}", url, path, item, j.First());
+                    }
+			        if (ff) continue;
+			        if (f) break;
+			    }
+			    var c = items[0].JsonItems.Count;
+                //var i = new Random().Next(c - 1);
+			    metaData.Append(url).Append(" ").Append(path).Append(" ");
 				foreach (var item in items) {
 					sb.Append(item.Symbol).Append(", ");
-        //            var dic = new Dictionary<string, List<JsonItem>>();
+                    metaData.Append(item.JsonItems.First(x => x.GithubUrl == url && x.ChangedPath == path)).Append(" ");
+				    //            var dic = new Dictionary<string, List<JsonItem>>();
 				    //foreach (var jsonItem in item.JsonItems) {
 				    //    if (! dic.ContainsKey(jsonItem.GithubUrl)) {
 				    //        dic[jsonItem.GithubUrl] = new List<JsonItem>();
@@ -100,7 +127,7 @@ namespace FP.DAL.DAO {
                 }
 			    sb.Remove(sb.Length - 2, 2).Append(">");
 			}
-            return string.Format("[SupportCount={0} {1}]", SupportCount, sb);
+            return string.Format("[SupportCount={0} {1}]{2}", SupportCount, sb, metaData);
 		}
 	}
 }

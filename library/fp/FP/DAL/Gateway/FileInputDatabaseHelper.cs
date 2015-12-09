@@ -110,8 +110,10 @@ namespace FP.DAL.Gateway
 			string line;
 			StreamReader file ;
             try {
+                var c = 0;
                 file = new StreamReader(Path);//open file for streaming
 				while ((line = file.ReadLine()) != null) {
+				    if (line.Contains("CompilationUnit")) continue;
 				    var itemWrapper = ItemWrapper.Deserialize(line.Trim());
                     var isAdded = new HashSet<string>();
 					foreach(JsonItem item in itemWrapper.Items) {
@@ -129,7 +131,9 @@ namespace FP.DAL.Gateway
 					        }
 					    }
 					}
+				    c ++;
 				}
+                Console.WriteLine("Total itemsets: {0}", c);
 
 				file.Close(); // close file
             } catch (Exception e) {

@@ -9,6 +9,7 @@ namespace Minyar.Github {
     struct FileDiff {
         public string ChangedFilePath;
         public string NewFilePath;
+        public string Path;
         public List<LineChange> ChangedLineList { get; private set; }
 
         public FileDiff(string changedPath, string newPath) : this() {

@@ -16,7 +16,7 @@ namespace Minyar.Tests.Git {
 
         [Test]
         public void TestUpdateRepositories() {
-            GitRepository.UpdateRepositories(null);
+            //GitRepository.UpdateRepositories(null);
         }
 
         [Test]

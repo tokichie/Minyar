@@ -16,8 +16,8 @@ namespace Minyar {
 	    private List<LineChange> lineChanges; 
 		private HashSet<AstNode> movedNodes;
         private HashSet<AstNode> targetNodes;
-	    private Code2XmlDummy.CodeRange orgCodeRange;
-	    private Code2XmlDummy.CodeRange cmpCodeRange;
+	    private CodeRange orgCodeRange;
+	    private CodeRange cmpCodeRange;
 
 		public HashSet<ChangePair> ChangeSet { get; private set; }
 
@@ -48,17 +48,17 @@ namespace Minyar {
 	    private void Initialize(LineChange lineChange) {
 	        var orgRange = lineChange.ChangedLine;
 	        var cmpRange = lineChange.NewLine;
-		    orgCodeRange = new Code2XmlDummy.CodeRange(
+		    orgCodeRange = new CodeRange(
 		        new CodeLocation(orgRange[0], 0),
-		        new CodeLocation(orgRange[0] + orgRange[1], 0));
-            Console.Write(FilePath + " " + orgCodeRange + " ");
+		        new CodeLocation(orgRange[0] + orgRange[1] - 1, 0));
+            //Console.Write(FilePath + " " + orgCodeRange + " ");
             orgOuterMostRoot = orgCodeRange.FindOutermostNode(orgTree);
 		    if (orgOuterMostRoot == null)
 		        orgOuterMostRoot = orgTree;
 
-		    cmpCodeRange = new Code2XmlDummy.CodeRange(
+		    cmpCodeRange = new CodeRange(
 		        new CodeLocation(cmpRange[0], 0),
-		        new CodeLocation(cmpRange[0] + cmpRange[1], 0));
+		        new CodeLocation(cmpRange[0] + cmpRange[1] - 1, 0));
 		    cmpOuterMostRoot = cmpCodeRange.FindOutermostNode(cmpTree);
 		    if (cmpOuterMostRoot == null)
 		        cmpOuterMostRoot = cmpTree; 
@@ -70,20 +70,20 @@ namespace Minyar {
 		public void Map(StreamWriter log) {
 			ChangeSet = new HashSet<ChangePair>();
 		    foreach (var lineChange in lineChanges) {
-		        log.WriteLine("[Trace] {0} LineChange {1}:{2}", DateTime.Now, lineChange.ChangedLine, lineChange.NewLine);
+                Logger.Info("LineChange {0}:{1}", lineChange.ChangedLine, lineChange.NewLine);
                 Initialize(lineChange);
-                log.WriteLine("[Trace] {0} Initial mapping started", DateTime.Now);
-		        var tokenMap = InitialMapping();
-                log.WriteLine("[Trace] {0} Bottomup mapping started", DateTime.Now);
-		        var bottomUpNodeMap = BottomUpMapping(tokenMap);
+                Logger.Info("Initial mapping started");
+                var tokenMap = InitialMapping();
+                Logger.Info("Bottomup mapping started");
+                var bottomUpNodeMap = BottomUpMapping(tokenMap);
 
-                log.WriteLine("[Trace] {0} Topdown mapping started", DateTime.Now);
-		        TopDownMapping(bottomUpNodeMap);
+                Logger.Info("Topdown mapping started");
+                TopDownMapping(bottomUpNodeMap);
 
-		        //Debug(orgTree, 0, tokenMap, bottomUpNodeMap);
+                //Debug(orgTree, 0, tokenMap, bottomUpNodeMap);
 
-                log.WriteLine("[Trace] {0} Mapping finished", DateTime.Now);
-		        MergeNodeMap(tokenMap, bottomUpNodeMap);
+                Logger.Info("Mapping finished");
+                MergeNodeMap(tokenMap, bottomUpNodeMap);
 		        GetChangeSet(tokenMap);
 		    }
 		}
@@ -140,6 +140,9 @@ namespace Minyar {
 			var cmpTokenList = new List<AstNode>();
 
             foreach (var node in orgOuterMostRoot.AllTokenNodes()) {
+                //if (!orgCodeRange.Overlaps(node)) {
+                //    continue;
+                //}
                 if (node.Name != "EOF") {
                     orgTokenList.Add(node);
                     targetNodes.Add(node);
@@ -147,12 +150,15 @@ namespace Minyar {
 			}
 
 			foreach (var node in cmpOuterMostRoot.AllTokenNodes()) {
+                //if (!cmpCodeRange.Overlaps(node)) {
+                //    continue;
+                //}
                 if (node.Name != "EOF") {
                     cmpTokenList.Add(node);
                 }
             }
 
-            Console.WriteLine("{0} {1}", orgTokenList.Count, cmpTokenList.Count);
+            //Console.WriteLine("{0} {1}", orgTokenList.Count, cmpTokenList.Count);
 			return LcsDetector.Detect(orgTokenList, cmpTokenList);
 		}
 
