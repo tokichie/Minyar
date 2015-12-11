@@ -4,32 +4,29 @@ using System.IO;
 using System.Linq;
 using Code2Xml.Core.Generators;
 using Code2Xml.Core.SyntaxTree;
+using Octokit;
 
 namespace Minyar {
 	public class Program {
-		private static void Main(string[] args) {
-			Test();
-			/*
-            if (args.Length < 4) {
-                Console.WriteLine("mono code2xml input1 input2 output1 output2");
-                return;
-            }
-            Process(args);
-            */
+		public static void Main(string[] args) {
+		    if (args.Length == 0) return;
+            switch (args[0]) {
+                case "start":
+                    var index = 0;
+                    if (args.Length > 1) index = int.Parse(args[1]);
+                    Start(index, 100 - index);
+                    break;
+		    }
 		}
 
-		private static void Test() {
-			var org =
-				"public class K {\nprivate void hoge(){\nint a, b;\nboolean ok;\nif (a > b)\na = a + 1;\n}\n}\n";
-			var cmp =
-				"public class K {\nprivate void hoge(){\nint a, b;\nboolean ok;\nif (a < b)\na = a - b;\nelse\nok = true;\n}\n}\n";
-
-			var orgTree = GenerateCst(org);
-			var cmpTree = GenerateCst(cmp);
-
-			//var mapper = new TreeMapping(orgTree, cmpTree, "FilePath", new int[] { 3, 10 }, new int[] { 3, 12 });
-			//mapper.Map();
-		}
+	    private static void Start(int index, int count) {
+	        var main = new Main();
+            var repositories = Minyar.Main.ReadFromJson<List<Repository>>(
+                Path.Combine("..", "..", "TestData", "JavaRepositories.json"));
+	        var task = main.Start(repositories.GetRange(index, count));
+	        task.Wait();
+            File.Create(@"C:\Users\Yuta\Dropbox\ifttt\" + DateTime.Now.ToString("yyyyMMddHHmmss"));
+	    }
 
 		public static AstNode GenerateCst(string code) {
 			//var gen = CstGenerators.JavaUsingAntlr3;
@@ -44,22 +41,6 @@ namespace Minyar {
 //            }
 			return cst;
 		}
-
-		private static void Process(IList<string> args) {
-			try {
-				var originalCst = GenerateCst(args[0]);
-				var diffCst = GenerateCst(args[1]);
-				using (var writer = new StreamWriter(args[2])) {
-					writer.Write(originalCst.ToXml());
-				}
-				using (var writer = new StreamWriter(args[3])) {
-					writer.Write(diffCst.ToXml());
-				}
-			} catch (Exception e) {
-				Console.WriteLine(e);
-			}
-		}
-
 		/*
 		private static void RemoveUnnecessaryNodes(AstNode node) {
 			const string tokenName = "TOKEN";

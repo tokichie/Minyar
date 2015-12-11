@@ -13,15 +13,15 @@ using Octokit;
 using FileMode = System.IO.FileMode;
 
 namespace Minyar {
-	class Minyar {
+	class Main {
 		public List<string[]> Repositories;
 	    private static StreamWriter log;
 
-		public Minyar() {
+		public Main() {
 			Repositories = new List<string[]>();
 		}
 
-		public Minyar(List<string[]> repositories) {
+		public Main(List<string[]> repositories) {
 			Repositories = repositories;
 		}
 

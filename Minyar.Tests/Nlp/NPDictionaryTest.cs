@@ -10,13 +10,13 @@ namespace Minyar.Tests.Nlp {
         public void ChangeWorkingDirectory() {
             var dir = new DirectoryInfo(".");
             while(true) {
-                var newPath = Path.Combine(dir.FullName, "Minyar", "bin", "Debug");
+                var newPath = Path.Combine(dir.FullName, "Main", "bin", "Debug");
                 if (Directory.Exists(newPath)) {
                     Environment.CurrentDirectory = newPath;
                     break;
                 }
                 if (dir.Parent == null) {
-                    throw new Exception("Cannot find the directory 'Minyar/bin/Debug'.");
+                    throw new Exception("Cannot find the directory 'Main/bin/Debug'.");
                 }
                 dir = dir.Parent;
             }

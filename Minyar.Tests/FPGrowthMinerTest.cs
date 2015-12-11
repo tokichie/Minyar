@@ -39,8 +39,8 @@ namespace Minyar.Tests {
 			var miner = new FPGrowthMiner(
                             //Path.Combine("..", "..", "TestData", "items", "elastic" , "elasticsearch20151115023903.txt"),
                             //Path.Combine("..", "..", "TestData", "items", "elastic" , "elasticsearch20151115023903.out"),
-                            Path.Combine("..", "..", "TestData", "all-posi-20151208.txt"),
-                            Path.Combine("..", "..", "TestData", "all-posi-20151208.out"),
+                            Path.Combine("..", "..", "TestData", "all-posi-20151210.txt"),
+                            Path.Combine("..", "..", "TestData", "all-posi-20151210.out"),
                             300);
 	        
 			var res = miner.GenerateFrequentItemsets();
@@ -100,7 +100,7 @@ namespace Minyar.Tests {
         [Test]
         public void ConcatResultFiles() {
             var dirPath = Path.Combine("..", "..", "TestData", "items");
-	        using (var writer = new StreamWriter(Path.Combine("..", "..", "TestData", "all-posi-20151208.txt"))) {
+	        using (var writer = new StreamWriter(Path.Combine("..", "..", "TestData", "all-nega-20151210.txt"))) {
 	            TraverseDirectory(dirPath, writer);
 	        }
 	    }
@@ -113,7 +113,7 @@ namespace Minyar.Tests {
 	                TraverseDirectory(dir, writer);
             } else {
                 //var filenames = files.Select(f => f.Substring(f.LastIndexOf('\\') + 1, f.Length - f.LastIndexOf('\\') - 1));
-	            files = files.Where((f) => f.EndsWith("posi.txt")).ToArray();
+	            files = files.Where((f) => f.EndsWith("nega.txt")).ToArray();
 	            var filenames = files.Reverse();
 	            Console.WriteLine(filenames.ToArray()[0]);
                 writer.Write(new StreamReader(filenames.ToArray()[0]).ReadToEnd());

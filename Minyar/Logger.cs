@@ -42,5 +42,12 @@ namespace Minyar {
             var formattedMsg = string.Format(msg, prms);
             logger.WriteLine("{0} [INFO] {1}", timestamp, formattedMsg);
         }
+
+        public static void Console(string msg, params object[] prms) {
+            if (!active) return;
+            var timestamp = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ssZ");
+            var formattedMsg = string.Format(msg, prms);
+            System.Console.WriteLine("{0} [INFO] {1}", timestamp, formattedMsg);
+        }
     }
 }

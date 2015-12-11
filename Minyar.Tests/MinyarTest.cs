@@ -33,7 +33,7 @@ namespace Minyar.Tests {
 				//new[] {"tokichie", "pattern-detection"}
 			};
 			//var repos = ReadCsvFile();
-			var minyar = new Minyar(repos);
+			var minyar = new Main(repos);
 			var task = minyar.StartMining();
 			task.Wait();
 
@@ -41,10 +41,10 @@ namespace Minyar.Tests {
 
 	    [Test]
 	    public void TestWhole() {
-            var minyar = new Minyar();
-            var repositories = Minyar.ReadFromJson<List<Repository>>(
+            var minyar = new Main();
+            var repositories = Main.ReadFromJson<List<Repository>>(
                 Path.Combine("..", "..", "TestData", "JavaRepositories.json"));
-	        var task = minyar.Start(repositories);
+	        var task = minyar.Start(repositories.GetRange(1, 99));
 	        task.Wait();
             File.Create(@"C:\Users\Yuta\Dropbox\ifttt\" + DateTime.Now.ToString("yyyyMMddHHmmss"));
         }
@@ -53,7 +53,7 @@ namespace Minyar.Tests {
 	    public void TestCreateComments() {
 	        var sb = new StringBuilder();
 	        sb.AppendLine("<body>").AppendLine("  <ul>");
-            var repositories = Minyar.ReadFromJson<List<Repository>>(
+            var repositories = Main.ReadFromJson<List<Repository>>(
                 Path.Combine("..", "..", "TestData", "JavaRepositories.json"));
 	        foreach (var repo in repositories) {
 	            var owner = repo.Owner.Login;
@@ -61,7 +61,7 @@ namespace Minyar.Tests {
                 Console.WriteLine(repo.FullName);
 	            sb.Append("    <li>").AppendLine(repo.FullName);
 	            var filePaths = Directory.GetFiles(
-	                Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "Comments", owner, name),
+	                Path.Combine("..", "..", "..", "Main.Tests", "TestData", "Comments", owner, name),
 	                "*-PullComments.json"
 	                );
 	            foreach (var filePath in filePaths) {
@@ -71,7 +71,7 @@ namespace Minyar.Tests {
 	                sb.AppendLine("    <ul>").Append("      <li>pull #")
                         .AppendLine(pullNumber.ToString()).AppendLine("      <ul>");
 	                var reviewComments =
-	                    Minyar.ReadFromJson<Dictionary<string, PullRequestReviewComment>>(filePath);
+	                    Main.ReadFromJson<Dictionary<string, PullRequestReviewComment>>(filePath);
 	                foreach (var item in reviewComments) {
 	                    var comment = item.Value;
 	                    sb.Append("        <a href=\"").Append(comment.HtmlUrl).Append("\">")
@@ -85,7 +85,7 @@ namespace Minyar.Tests {
 	        sb.AppendLine("  </ul>").AppendLine("</body>\n</html>");
 	        using (
 	            var writer =
-	                new StreamWriter(Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "gathered_comments.txt"))) {
+	                new StreamWriter(Path.Combine("..", "..", "..", "Main.Tests", "TestData", "gathered_comments.txt"))) {
 	            writer.WriteLine(sb.ToString());
 	        }
 	    }
@@ -102,7 +102,7 @@ namespace Minyar.Tests {
 	    [Test]
 	    public void TestItems()
 	    {
-            var repositories = Minyar.ReadFromJson<List<Repository>>(
+            var repositories = Main.ReadFromJson<List<Repository>>(
                Path.Combine("..", "..", "TestData", "JavaRepositories.json"));
 	        var c = 0;
             var writer = new StreamWriter(Path.Combine("..", "..", "TestData", "all-20151111.txt"), false);
@@ -169,7 +169,7 @@ namespace Minyar.Tests {
 					var cmpCst = Program.GenerateCst(codeChange[1]);
 					//var mapper = new TreeMapping(orgCst, cmpCst, "filepath", new []{ 0, 1 }, new []{ 0, 1 });
 					//mapper.Map();
-					//Minyar.WriteOut(writer, mapper.ChangeSet);
+					//Main.WriteOut(writer, mapper.ChangeSet);
 				}
 			}
 		}
@@ -184,7 +184,7 @@ namespace Minyar.Tests {
 
 		private List<string[]> ReadCsvFile() {
 			var repoList = new List<string[]>();
-			var csvFilePath = Path.Combine("..", "..", "..", "Minyar", "Resources", "java3.csv");
+			var csvFilePath = Path.Combine("..", "..", "..", "Main", "Resources", "java3.csv");
 			using (var csvFile = new StreamReader(new FileStream(csvFilePath, FileMode.Open))) {
 				string line = "";
 				while ((line = csvFile.ReadLine()) != null) {
