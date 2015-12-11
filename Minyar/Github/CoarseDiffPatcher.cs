@@ -38,7 +38,7 @@ namespace Minyar.Github {
                     return new PatchResult();
                 }
                 var pullUri = comment.PullRequestUrl.ToString();
-                var pullNumber = int.Parse(pullUri.Substring(pullUri.LastIndexOf('/')));
+                var pullNumber = int.Parse(pullUri.Substring(pullUri.LastIndexOf('/') + 1));
                 var pull = await OctokitClient.Client.PullRequest.Get(repoOwner, repoName, pullNumber);
                 //var parentId = commit.Parents[0].Sha;
                 var parentId = pull.Base.Sha;

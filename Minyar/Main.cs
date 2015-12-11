@@ -77,10 +77,10 @@ namespace Minyar {
                                     if (result.DiffHunk != null) Logger.Info("Skipped {0}", reviewComment.Url);
                                     continue;
                                 }
-                                Logger.Deactivate();
+                                //Logger.Deactivate();
                                 var changeSet = CreateAstAndTakeDiff(result, path);
                                 changeSetCount += changeSet.Count;
-                                Logger.Activate();
+                                //Logger.Activate();
                                 var astChange = new AstChange(GithubUrl(new[] { owner, name }, pullNumber), changeSet,
                                     result.DiffHunk.Patch);
                                 if (changeSet.Count > 0) {

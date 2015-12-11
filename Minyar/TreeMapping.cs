@@ -70,7 +70,7 @@ namespace Minyar {
 		public void Map(StreamWriter log) {
 			ChangeSet = new HashSet<ChangePair>();
 		    foreach (var lineChange in lineChanges) {
-                Logger.Info("LineChange {0}:{1}", lineChange.ChangedLine, lineChange.NewLine);
+                Logger.Info("LineChange {0},{1}:{2},{3}", lineChange.ChangedLine[0], lineChange.ChangedLine[1], lineChange.NewLine[0], lineChange.NewLine[1]);
                 Initialize(lineChange);
                 Logger.Info("Initial mapping started");
                 var tokenMap = InitialMapping();
