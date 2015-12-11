@@ -37,15 +37,19 @@ namespace Minyar.Github {
                     Logger.Info("Deleted diffhunk");
                     return new PatchResult();
                 }
-                var parentId = commit.Parents[0].Sha;
-                var newFile = commit.Files.First(f => f.Filename == path);
+                var pullUri = comment.PullRequestUrl.ToString();
+                var pullNumber = int.Parse(pullUri.Substring(pullUri.LastIndexOf('/')));
+                var pull = await OctokitClient.Client.PullRequest.Get(repoOwner, repoName, pullNumber);
+                //var parentId = commit.Parents[0].Sha;
+                var parentId = pull.Base.Sha;
+                //var newFile = commit.Files.First(f => f.Filename == path);
                 var oldFileContent = await FileCache.LoadContent(repoOwner, repoName, parentId, path);
                 //var newFileContent = LoadNewFileContent(commitId, path, diffHunk, oldFileContent, newFile);
                 var newFileContent = await FileCache.LoadContent(repoOwner, repoName, commitId, path);
                 //var newHunk = GetNewDiffHunk(parentId, commitId, path);
                 var newHunk = GithubDiff.ParseDiffHunk(diffHunk);
-                var oldLine = newHunk.OldRange.StartLine + Regex.Matches(diffHunk, "\n ").Count + Regex.Matches(diffHunk, "\n-").Count;
-                var newLine = newHunk.NewRange.StartLine + Regex.Matches(diffHunk, "\n ").Count + Regex.Matches(diffHunk, "\n\\+").Count;
+                var oldLine = newHunk.OldRange.StartLine + Regex.Matches(diffHunk, "\n ").Count + Regex.Matches(diffHunk, "\n-").Count - 1;
+                var newLine = newHunk.NewRange.StartLine + Regex.Matches(diffHunk, "\n ").Count + Regex.Matches(diffHunk, "\n\\+").Count - 1;
                 if (oldLine <= 0 || newLine <= 0)
                     return new PatchResult(null, null, newHunk);
                 newHunk = new DiffHunk(oldLine - 3, 6, newLine - 3, 6, diffHunk);
