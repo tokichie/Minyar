@@ -142,8 +142,8 @@ namespace Minyar {
 		}
 
 	    private HashSet<ChangePair> CreateAstAndTakeDiff(PatchResult diffResult, string filePath) {
-	        var orgCst = Program.GenerateCst(diffResult.OldCode);
-	        var cmpCst = Program.GenerateCst(diffResult.NewCode);
+	        var orgCst = Program.GenerateAst(diffResult.OldCode);
+	        var cmpCst = Program.GenerateAst(diffResult.NewCode);
 	        var lineChange = new LineChange(diffResult.DiffHunk);
             var mapper = new TreeMapping(orgCst, cmpCst, filePath, new List<LineChange> {lineChange});
             mapper.Map(log);
@@ -166,8 +166,8 @@ namespace Minyar {
 				}
 			    var orgKey = sha + fileDiff.ChangedFilePath;
 			    var cmpKey = sha + fileDiff.NewFilePath;
-			    if (!orgCstCache.ContainsKey(orgKey)) orgCstCache[sha] = Program.GenerateCst(codes[0]);
-			    if (!cmpCstCache.ContainsKey(cmpKey)) cmpCstCache[sha] = Program.GenerateCst(codes[1]);
+			    if (!orgCstCache.ContainsKey(orgKey)) orgCstCache[sha] = Program.GenerateAst(codes[0]);
+			    if (!cmpCstCache.ContainsKey(cmpKey)) cmpCstCache[sha] = Program.GenerateAst(codes[1]);
 			    var orgCst = orgCstCache[sha];
 			    var cmpCst = cmpCstCache[sha];
 			    var mapper = new TreeMapping(orgCst, cmpCst, filePath, fileDiff.ChangedLineList);

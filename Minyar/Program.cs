@@ -9,7 +9,15 @@ using Octokit;
 namespace Minyar {
 	public class Program {
 		public static void Main(string[] args) {
-		    if (args.Length == 0) return;
+		    Console.CancelKeyPress += (sender, eventArgs) => {
+                Console.WriteLine("\nOperation has interrupted. Press any key to exit.");
+		        Console.ReadKey();
+		    };
+		    if (args.Length == 0) {
+                Console.WriteLine("Please specify args...");
+		        var line = Console.ReadLine();
+		        args = line.Split(' ');
+		    }
             switch (args[0]) {
                 case "start":
                     var index = 0;
@@ -17,28 +25,22 @@ namespace Minyar {
                     Start(index, 100 - index);
                     break;
 		    }
+            Console.WriteLine("\nProgram finished.");
+		    Console.ReadKey();
 		}
 
 	    private static void Start(int index, int count) {
 	        var main = new Main();
             var repositories = Minyar.Main.ReadFromJson<List<Repository>>(
-                Path.Combine("..", "..", "TestData", "JavaRepositories.json"));
+                Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "JavaRepositories.json"));
 	        var task = main.Start(repositories.GetRange(index, count));
 	        task.Wait();
             File.Create(@"C:\Users\Yuta\Dropbox\ifttt\" + DateTime.Now.ToString("yyyyMMddHHmmss"));
 	    }
 
-		public static AstNode GenerateCst(string code) {
-			//var gen = CstGenerators.JavaUsingAntlr3;
+		public static AstNode GenerateAst(string code) {
 			var gen = AstGenerators.Java;
 			var cst = gen.GenerateTreeFromCodeText(code);
-//            foreach (var node in cst.AllTokenNodes()) {
-//                node.Hiddens.Clear();
-//            }
-//            var nodes = cst.Descendants().ToList();
-//            for (int i = nodes.Count - 1; i >= 0; i--) {
-//                RemoveUnnecessaryNodes(nodes[i]);
-//            }
 			return cst;
 		}
 		/*

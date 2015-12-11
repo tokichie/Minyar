@@ -96,7 +96,7 @@ namespace Minyar.Tests {
 	                   "    public void hoge(int i) {\n" +
 	                   "        int a = 0;\n" +
 	                   "}";
-	        var ast = Program.GenerateCst(code);
+	        var ast = Program.GenerateAst(code);
 	    }
 
 	    [Test]
@@ -165,8 +165,8 @@ namespace Minyar.Tests {
 					var writer =
 						new StreamWriter(new FileStream(Path.Combine("..", "..", "TestData", "test.dat"),
 							FileMode.Append))) {
-					var orgCst = Program.GenerateCst(codeChange[0]);
-					var cmpCst = Program.GenerateCst(codeChange[1]);
+					var orgCst = Program.GenerateAst(codeChange[0]);
+					var cmpCst = Program.GenerateAst(codeChange[1]);
 					//var mapper = new TreeMapping(orgCst, cmpCst, "filepath", new []{ 0, 1 }, new []{ 0, 1 });
 					//mapper.Map();
 					//Main.WriteOut(writer, mapper.ChangeSet);
