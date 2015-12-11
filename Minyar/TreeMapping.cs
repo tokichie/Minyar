@@ -165,6 +165,7 @@ namespace Minyar {
 		private Dictionary<AstNode, AstNode> BottomUpMapping(Dictionary<AstNode, AstNode> tokenMap) {
 			var bottomUpNodeMap = new Dictionary<AstNode, AstNode>();
 			foreach (var tokenNodes in tokenMap) {
+                Logger.Info(".");
 				var orgTokenNode = tokenNodes.Key;
 				var cmpTokenNode = tokenNodes.Value;
 				foreach (var ancestor in orgTokenNode.Ancestors()) {
@@ -216,6 +217,7 @@ namespace Minyar {
 		private void MapRecursively(Dictionary<AstNode, AstNode> nodeMap, AstNode node) {
 			this.DetectUnmappedChildren(nodeMap, node);
 		    foreach (var child in node.Children()) {
+                Logger.Info(".");
 		        if (targetNodes.Contains(child)) {
 		            MapRecursively(nodeMap, child);
 		        }
