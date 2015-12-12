@@ -24,14 +24,11 @@ namespace MinyarClient {
             InitializeComponent();
         }
 
-        private void fileSelectButton_Click(object sender, RoutedEventArgs e) {
-            var vm = DataContext as MainViewModel;
-            vm.SelectFile();
-        }
-
         private void miningButton_Click(object sender, RoutedEventArgs e) {
             var vm = DataContext as MainViewModel;
             vm.StartMining();
+            var itemSetsView = CollectionViewSource.GetDefaultView(vm.Model.MinedItemSets);
+            itemSetsView.GroupDescriptions.Add(new PropertyGroupDescription("ItemCount"));
         }
     }
 }

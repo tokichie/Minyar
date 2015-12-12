@@ -21,6 +21,13 @@ namespace Minyar {
 		    this.Threshold = threshold;
 		}
 
+		public FPGrowthMiner(string inputPath, int threshold = 5) { 
+			fpGrowth = new FPGrowth();
+			this.inputHelper = new FileInputDatabaseHelper(inputPath);
+			this.outputHelper = new FileOutputDatabaseHelper(inputPath.Replace(".txt", ".out"));
+		    this.Threshold = threshold;
+		}
+
 		public int GenerateFrequentItemsets() {
 			return fpGrowth.CreateFPTreeAndGenerateFrequentItemsets(
 				inputHelper, outputHelper,
@@ -40,6 +47,12 @@ namespace Minyar {
 	        return res.GetRange(0, 100);
 	        //return res;
 	    }
+
+	    public List<ItemSet> GetAllMinedItemSets() {
+	        var res = fpGrowth.MinedItemSets;
+            res.Sort((set1, set2) => set2.SupportCount.CompareTo(set1.SupportCount));
+	        return res;
+	    } 
 	}
 }
 

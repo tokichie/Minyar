@@ -40,7 +40,6 @@ namespace Minyar.Tests {
                             //Path.Combine("..", "..", "TestData", "items", "elastic" , "elasticsearch20151115023903.txt"),
                             //Path.Combine("..", "..", "TestData", "items", "elastic" , "elasticsearch20151115023903.out"),
                             Path.Combine("..", "..", "TestData", "all-posi-20151210.txt"),
-                            Path.Combine("..", "..", "TestData", "all-posi-20151210.out"),
                             300);
 	        
 			var res = miner.GenerateFrequentItemsets();

@@ -1,29 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Data;
+using FP.DAL.DAO;
 using Microsoft.Win32;
+using Minyar;
+using MinyarClient.ViewModel;
 
 namespace MinyarClient.Model {
-    public class MainModel {
-        public string FilePath { get; private set; }
-        public bool FileSelected { get; private set; }
-        public string Threshold { get; set; }
+    public class MainModel : Livet.NotificationObject {
 
         public MainModel() {
-            Threshold = "200";
+            MinedItemSets = new ObservableCollection<ItemSet>();
         }
 
-        public void SelectFile() {
-            var dialog = new OpenFileDialog();
-            dialog.Multiselect = false;
-            dialog.Filter = "Text File|*.txt|All Files|*.*";
-            var res = dialog.ShowDialog();
-            if (res == true) {
-                FilePath = dialog.FileName;
-                FileSelected = true;
+        private ObservableCollection<ItemSet> _MinedItemSets;
+
+        public ObservableCollection<ItemSet> MinedItemSets {
+            get { return _MinedItemSets; }
+            set {
+                _MinedItemSets = value;
+                RaisePropertyChanged();
             }
+        }  
+
+        public void StartMining(string filePath, int threshold) {
+            var miner = new FPGrowthMiner(filePath, threshold);
+            miner.GenerateFrequentItemsets();
+            var itemSets = new ObservableCollection<ItemSet>(miner.GetAllMinedItemSets());
+            MinedItemSets = itemSets;
         }
     }
 }

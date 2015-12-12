@@ -18,7 +18,15 @@ namespace FP.DAL.DAO {
 			set { supportCount = value; }
 		}
 
-		//constructor
+	    public int ItemCount {
+	        get { return items.Count; }
+	    }
+
+	    public string Items {
+	        get { return string.Join(", ", items); }
+	    }
+
+	    //constructor
 		public ItemSet() {
 			items = new List<Item>();
 			supportCount = -1;
