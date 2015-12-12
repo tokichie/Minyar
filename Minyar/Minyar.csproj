@@ -242,7 +242,6 @@
     <Compile Include="Git\GitRepository.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="OutputWriter.cs" />
     <Compile Include="PatternMatcher.cs" />
     <Compile Include="PrivateSetterContractResolver.cs" />
