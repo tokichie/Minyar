@@ -59,19 +59,31 @@ namespace MinyarClient.ViewModel {
         }
         #endregion
 
-        public string Threshold { get; set; }
+        #region Threshold
+        private string _Threshold;
+
+        public string Threshold {
+            get { return _Threshold; }
+            set {
+                _Threshold = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
 
         public void SelectFile(OpeningFileSelectionMessage m) {
             if (m.Response == null) return;
             FilePath = m.Response[0];
             FileSelected = true;
+            Threshold = "Auto";
             SetItemsetCount();
         }
 
         public void StartMining() {
             int threshold;
             int.TryParse(Threshold, out threshold);
-            if (Threshold == "Auto") threshold = _ItemsetCount/10;
+            if (Threshold == "Auto") threshold = _ItemsetCount/10*4;
+            Threshold = threshold.ToString();
             Model.StartMining(_FilePath, threshold);
        }
 
