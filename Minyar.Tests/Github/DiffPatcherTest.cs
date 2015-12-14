@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Minyar.Github;
 using NUnit.Framework;
@@ -18,6 +19,19 @@ namespace Minyar.Tests.Github {
             var patcher = new CoarseDiffPatcher();
             var res = patcher.Patch(content, patch);
             Assert.That(res == "HOGEPIYO\n\nKORILAKKUMA\n\nNICEBOAT\n\nHOGEPIYO\n\nRILAKKUMA\n\nKIIROITORI\n\nHATENA\n");
+        }
+
+        [Test]
+        public async Task TestCountLine() {
+            var prComment = await OctokitClient.Client.Repository.PullRequest.Comment.GetComment("tokichie", "pattern-detection",
+                21068083);
+            var diffHunk = prComment.DiffHunk;
+            var newHunk = GithubDiff.ParseDiffHunk(diffHunk);
+            var space = Regex.Matches(diffHunk, "\n ").Count;
+            var minus = Regex.Matches(diffHunk, "\n-").Count;
+            var plus = Regex.Matches(diffHunk, "\n\\+").Count;
+            var oldLine = newHunk.OldRange.StartLine + space + minus;
+            var newLine = newHunk.NewRange.StartLine + space + plus;
         }
 
         [Test]

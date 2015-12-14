@@ -31,8 +31,8 @@ namespace Minyar.Tests {
         public void TestLcsWithComparingToken() {
             var code1 = "class c { void m() { int a, b; a = a + b; } }";
             var code2 = "class klass { private void method() { a = a - 1; } }";
-            var ast1 = Program.GenerateCst(code1);
-            var ast2 = Program.GenerateCst(code2);
+            var ast1 = Program.GenerateAst(code1);
+            var ast2 = Program.GenerateAst(code2);
             var left = ast1.AllTokenNodes().ToList();
             var right = ast2.AllTokenNodes().ToList();
             var res = LcsDetector.Detect(left, right);
@@ -52,8 +52,8 @@ namespace Minyar.Tests {
         public void TestLcsWithoutComparingToken() {
             var code1 = "class c { void m() { int a, b; a = a + b; } }";
             var code2 = "class klass { private void method() { a = a - 1; } }";
-            var ast1 = Program.GenerateCst(code1);
-            var ast2 = Program.GenerateCst(code2);
+            var ast1 = Program.GenerateAst(code1);
+            var ast2 = Program.GenerateAst(code2);
             var left = ast1.AllTokenNodes().ToList();
             var right = ast2.AllTokenNodes().ToList();
             var res = LcsDetector.Detect(left, right, false);

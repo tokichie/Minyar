@@ -13,7 +13,7 @@ namespace Minyar.Tests.Github {
     class OctokitClientTest {
         [SetUp]
         public void ChangeWorkingDirectory() {
-            Environment.CurrentDirectory = Path.Combine("..", "..", "..", "Minyar", "bin", "Debug");
+            Environment.CurrentDirectory = Path.Combine("..", "..", "..", "Main", "bin", "Debug");
         }
 
         [Test]

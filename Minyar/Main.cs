@@ -13,15 +13,15 @@ using Octokit;
 using FileMode = System.IO.FileMode;
 
 namespace Minyar {
-	class Minyar {
+	class Main {
 		public List<string[]> Repositories;
 	    private static StreamWriter log;
 
-		public Minyar() {
+		public Main() {
 			Repositories = new List<string[]>();
 		}
 
-		public Minyar(List<string[]> repositories) {
+		public Main(List<string[]> repositories) {
 			Repositories = repositories;
 		}
 
@@ -77,10 +77,10 @@ namespace Minyar {
                                     if (result.DiffHunk != null) Logger.Info("Skipped {0}", reviewComment.Url);
                                     continue;
                                 }
-                                Logger.Deactivate();
+                                //Logger.Deactivate();
                                 var changeSet = CreateAstAndTakeDiff(result, path);
                                 changeSetCount += changeSet.Count;
-                                Logger.Activate();
+                                //Logger.Activate();
                                 var astChange = new AstChange(GithubUrl(new[] { owner, name }, pullNumber), changeSet,
                                     result.DiffHunk.Patch);
                                 if (changeSet.Count > 0) {
@@ -142,8 +142,8 @@ namespace Minyar {
 		}
 
 	    private HashSet<ChangePair> CreateAstAndTakeDiff(PatchResult diffResult, string filePath) {
-	        var orgCst = Program.GenerateCst(diffResult.OldCode);
-	        var cmpCst = Program.GenerateCst(diffResult.NewCode);
+	        var orgCst = Program.GenerateAst(diffResult.OldCode);
+	        var cmpCst = Program.GenerateAst(diffResult.NewCode);
 	        var lineChange = new LineChange(diffResult.DiffHunk);
             var mapper = new TreeMapping(orgCst, cmpCst, filePath, new List<LineChange> {lineChange});
             mapper.Map(log);
@@ -166,8 +166,8 @@ namespace Minyar {
 				}
 			    var orgKey = sha + fileDiff.ChangedFilePath;
 			    var cmpKey = sha + fileDiff.NewFilePath;
-			    if (!orgCstCache.ContainsKey(orgKey)) orgCstCache[sha] = Program.GenerateCst(codes[0]);
-			    if (!cmpCstCache.ContainsKey(cmpKey)) cmpCstCache[sha] = Program.GenerateCst(codes[1]);
+			    if (!orgCstCache.ContainsKey(orgKey)) orgCstCache[sha] = Program.GenerateAst(codes[0]);
+			    if (!cmpCstCache.ContainsKey(cmpKey)) cmpCstCache[sha] = Program.GenerateAst(codes[1]);
 			    var orgCst = orgCstCache[sha];
 			    var cmpCst = cmpCstCache[sha];
 			    var mapper = new TreeMapping(orgCst, cmpCst, filePath, fileDiff.ChangedLineList);

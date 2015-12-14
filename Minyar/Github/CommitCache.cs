@@ -18,7 +18,7 @@ namespace Minyar.Github {
         public static async Task<GitHubCommit> LoadCommit(string owner, string name, string sha) {
             var filepath = Path.Combine(cacheDir, owner, name, sha + ".json");
             if (File.Exists(filepath)) {
-                return Minyar.ReadFromJson<GitHubCommit>(filepath);
+                return Main.ReadFromJson<GitHubCommit>(filepath);
             }
             var commit = await OctokitClient.Client.Repository.Commits.Get(owner, name, sha);
             Save(owner, name, sha, filepath, commit);
@@ -27,7 +27,7 @@ namespace Minyar.Github {
 
         public static void Save(string owner, string name, string sha, string path, object content) {
             var filepath = Path.Combine(cacheDir, owner, name, sha + ".json");
-            Minyar.WriteOutJson(content, filepath);
+            Main.WriteOutJson(content, filepath);
         }
     }
 }

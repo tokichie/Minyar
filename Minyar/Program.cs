@@ -4,62 +4,45 @@ using System.IO;
 using System.Linq;
 using Code2Xml.Core.Generators;
 using Code2Xml.Core.SyntaxTree;
+using Octokit;
 
 namespace Minyar {
 	public class Program {
-		private static void Main(string[] args) {
-			Test();
-			/*
-            if (args.Length < 4) {
-                Console.WriteLine("mono code2xml input1 input2 output1 output2");
-                return;
-            }
-            Process(args);
-            */
+		public static void Main(string[] args) {
+		    Console.CancelKeyPress += (sender, eventArgs) => {
+                Console.WriteLine("\nOperation has interrupted. Press any key to exit.");
+		        Console.ReadKey();
+		    };
+		    if (args.Length == 0) {
+                Console.WriteLine("Please specify args...");
+		        var line = Console.ReadLine();
+		        args = line.Split(' ');
+		    }
+            switch (args[0]) {
+                case "start":
+                    var index = 0;
+                    if (args.Length > 1) index = int.Parse(args[1]);
+                    Start(index, 100 - index);
+                    break;
+		    }
+            Console.WriteLine("\nProgram finished.");
+		    Console.ReadKey();
 		}
 
-		private static void Test() {
-			var org =
-				"public class K {\nprivate void hoge(){\nint a, b;\nboolean ok;\nif (a > b)\na = a + 1;\n}\n}\n";
-			var cmp =
-				"public class K {\nprivate void hoge(){\nint a, b;\nboolean ok;\nif (a < b)\na = a - b;\nelse\nok = true;\n}\n}\n";
+	    private static void Start(int index, int count) {
+	        var main = new Main();
+            var repositories = Minyar.Main.ReadFromJson<List<Repository>>(
+                Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "JavaRepositories.json"));
+	        var task = main.Start(repositories.GetRange(index, count));
+	        task.Wait();
+            File.Create(@"C:\Users\Yuta\Dropbox\ifttt\" + DateTime.Now.ToString("yyyyMMddHHmmss"));
+	    }
 
-			var orgTree = GenerateCst(org);
-			var cmpTree = GenerateCst(cmp);
-
-			//var mapper = new TreeMapping(orgTree, cmpTree, "FilePath", new int[] { 3, 10 }, new int[] { 3, 12 });
-			//mapper.Map();
-		}
-
-		public static AstNode GenerateCst(string code) {
-			//var gen = CstGenerators.JavaUsingAntlr3;
+		public static AstNode GenerateAst(string code) {
 			var gen = AstGenerators.Java;
 			var cst = gen.GenerateTreeFromCodeText(code);
-//            foreach (var node in cst.AllTokenNodes()) {
-//                node.Hiddens.Clear();
-//            }
-//            var nodes = cst.Descendants().ToList();
-//            for (int i = nodes.Count - 1; i >= 0; i--) {
-//                RemoveUnnecessaryNodes(nodes[i]);
-//            }
 			return cst;
 		}
-
-		private static void Process(IList<string> args) {
-			try {
-				var originalCst = GenerateCst(args[0]);
-				var diffCst = GenerateCst(args[1]);
-				using (var writer = new StreamWriter(args[2])) {
-					writer.Write(originalCst.ToXml());
-				}
-				using (var writer = new StreamWriter(args[3])) {
-					writer.Write(diffCst.ToXml());
-				}
-			} catch (Exception e) {
-				Console.WriteLine(e);
-			}
-		}
-
 		/*
 		private static void RemoveUnnecessaryNodes(AstNode node) {
 			const string tokenName = "TOKEN";

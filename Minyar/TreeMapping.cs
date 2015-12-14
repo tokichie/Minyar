@@ -70,7 +70,7 @@ namespace Minyar {
 		public void Map(StreamWriter log) {
 			ChangeSet = new HashSet<ChangePair>();
 		    foreach (var lineChange in lineChanges) {
-                Logger.Info("LineChange {0}:{1}", lineChange.ChangedLine, lineChange.NewLine);
+                Logger.Info("LineChange {0},{1}:{2},{3}", lineChange.ChangedLine[0], lineChange.ChangedLine[1], lineChange.NewLine[0], lineChange.NewLine[1]);
                 Initialize(lineChange);
                 Logger.Info("Initial mapping started");
                 var tokenMap = InitialMapping();
@@ -165,6 +165,7 @@ namespace Minyar {
 		private Dictionary<AstNode, AstNode> BottomUpMapping(Dictionary<AstNode, AstNode> tokenMap) {
 			var bottomUpNodeMap = new Dictionary<AstNode, AstNode>();
 			foreach (var tokenNodes in tokenMap) {
+                Logger.Info(".");
 				var orgTokenNode = tokenNodes.Key;
 				var cmpTokenNode = tokenNodes.Value;
 				foreach (var ancestor in orgTokenNode.Ancestors()) {
@@ -216,6 +217,7 @@ namespace Minyar {
 		private void MapRecursively(Dictionary<AstNode, AstNode> nodeMap, AstNode node) {
 			this.DetectUnmappedChildren(nodeMap, node);
 		    foreach (var child in node.Children()) {
+                Logger.Info(".");
 		        if (targetNodes.Contains(child)) {
 		            MapRecursively(nodeMap, child);
 		        }

@@ -14,8 +14,8 @@ namespace Minyar.Tests {
 		public void MapSimpleExpression() {
 			var code1 = "class A { void m() { a = a - 1; } }";
 			var code2 = "class A { void m() { a = a + b; } }";
-			var cst1 = Program.GenerateCst(code1);
-			var cst2 = Program.GenerateCst(code2);
+			var cst1 = Program.GenerateAst(code1);
+			var cst2 = Program.GenerateAst(code2);
 
 			WriteToXml(cst1, cst2);
 
@@ -41,8 +41,8 @@ namespace Minyar.Tests {
 		public void MapVariableAndParameter() {
 			var code1 = "class A { void m() { a = a - b; } }";
 			var code2 = "class A { void m() { a = a + f(b); } }";
-			var cst1 = Program.GenerateCst(code1);
-			var cst2 = Program.GenerateCst(code2);
+			var cst1 = Program.GenerateAst(code1);
+			var cst2 = Program.GenerateAst(code2);
 
 			WriteToXml(cst1, cst2);
 
@@ -67,7 +67,7 @@ namespace Minyar.Tests {
 		[Test]
 		public void MapOriginalTree() {
 			var code = "class A { void m() { a = a - 1; a = a + b; } }";
-			var cst = Program.GenerateCst(code);
+			var cst = Program.GenerateAst(code);
 			Console.WriteLine(cst.ToXml());
 
 			var gen = CstGenerators.JavaUsingAntlr3;
@@ -82,8 +82,8 @@ namespace Minyar.Tests {
 			var cmp =
 				"public class K {\nprivate void hoge(){\nint a, b;\nboolean ok;\nif (a < b)\na = a - b;\nelse\nok = true;\n}\n}\n";
 
-			var orgTree = Program.GenerateCst(org);
-			var cmpTree = Program.GenerateCst(cmp);
+			var orgTree = Program.GenerateAst(org);
+			var cmpTree = Program.GenerateAst(cmp);
 
 			var mapper = new TreeMapping(orgTree, cmpTree, new int[]{ 3, 10 }, new int[]{ 3, 12 });
 			mapper.Map();

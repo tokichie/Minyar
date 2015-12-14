@@ -12,7 +12,7 @@ namespace Minyar.Tests {
         [Test]
         public void VerticalFeatureTestForTokens() {
             var code = "class A { void m() { a = a - b; } }";
-            var cst = Program.GenerateCst(code);
+            var cst = Program.GenerateAst(code);
 
             var exp = cst.Descendants().First(x => x.Name == "expression");
             MethodInfo methodInfo = typeof(ExasTreeSimilarity)
@@ -31,7 +31,7 @@ namespace Minyar.Tests {
         [Test]
         public void VerticalFeatureTestForVariableAndParameter() {
             var code = "class A { void m() { a = a + f(b); } }";
-            var cst = Program.GenerateCst(code);
+            var cst = Program.GenerateAst(code);
 
             var exp = cst.Descendants().First(x => x.Name == "expression");
             MethodInfo methodInfo = typeof(ExasTreeSimilarity)
