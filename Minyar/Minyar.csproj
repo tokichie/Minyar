@@ -240,6 +240,8 @@
     <Compile Include="Github\LineChange.cs" />
     <Compile Include="Github\PatchResult.cs" />
     <Compile Include="Git\GitRepository.cs" />
+    <Compile Include="ItTree\ItemTidset.cs" />
+    <Compile Include="ItTree\ItTree.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="OutputWriter.cs" />
@@ -314,4 +316,5 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
+  <ItemGroup />
 </Project>
