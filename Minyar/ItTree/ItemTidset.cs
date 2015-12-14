@@ -7,12 +7,14 @@ using FP.DAL.DAO;
 
 namespace Minyar.ItTree {
     public class ItemTidset : IComparable {
-        public SortedSet<string> TransactionItems;
-        public HashSet<int> TransactionIds;
+        public SortedSet<string> TransactionItems { get; set; }
+        public HashSet<int> TransactionIds { get; set; }
+        public int SupportCount { get; set; }
 
         public ItemTidset(SortedSet<string> items, HashSet<int> ids) {
             TransactionItems = items;
             TransactionIds = ids;
+            SupportCount = 0;
         }
 
         public static bool operator >=(ItemTidset left, ItemTidset right) {
