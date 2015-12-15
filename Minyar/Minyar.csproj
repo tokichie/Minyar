@@ -240,8 +240,8 @@
     <Compile Include="Github\LineChange.cs" />
     <Compile Include="Github\PatchResult.cs" />
     <Compile Include="Git\GitRepository.cs" />
-    <Compile Include="ItTree\ItemTidset.cs" />
-    <Compile Include="ItTree\ItTree.cs" />
+    <Compile Include="Charm\ItemTidset.cs" />
+    <Compile Include="Charm\ItTree.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="OutputWriter.cs" />

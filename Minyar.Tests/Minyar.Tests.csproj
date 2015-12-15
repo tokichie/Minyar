@@ -211,6 +211,7 @@
     <Compile Include="Github\GithubDiffTest.cs" />
     <Compile Include="Github\OctokitClientTest.cs" />
     <Compile Include="Git\GitRepositoryTest.cs" />
+    <Compile Include="Charm\ItTreeTest.cs" />
     <Compile Include="LcsDetectorTest.cs" />
     <Compile Include="TestHelper.cs" />
     <Compile Include="MinyarTest.cs" />
