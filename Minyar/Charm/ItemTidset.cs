@@ -6,44 +6,50 @@ using System.Threading.Tasks;
 using FP.DAL.DAO;
 
 namespace Minyar.Charm {
-    public class ItemTidset : IComparable {
-        public SortedSet<string> Items { get; set; }
-        public HashSet<int> Tids { get; set; }
+    public class ItemTidSet<T1, T2> : IComparable {
+        public SortedSet<T1> Items { get; set; }
+        public HashSet<T2> Tids { get; set; }
 
-        public ItemTidset(SortedSet<string> items, HashSet<int> ids) {
-            Items = items;
-            Tids = ids;
+        public ItemTidSet(IEnumerable<T1> items, IEnumerable<T2> ids) {
+            Items = new SortedSet<T1>(items);
+            Tids = new HashSet<T2>(ids);
         }
 
-        public ItemTidset(ItemTidset it) {
-            Items = new SortedSet<string>(it.Items);
-            Tids = new HashSet<int>(it.Tids);
+        public ItemTidSet(ItemTidSet<T1, T2> it) {
+            Items = new SortedSet<T1>(it.Items);
+            Tids = new HashSet<T2>(it.Tids);
         }
 
-        public static bool operator >=(ItemTidset left, ItemTidset right) {
+        public int GetFrequency() {
+            if (typeof (T2) != typeof (RepeatableTid)) return Tids.Count;
+            var tids = Tids as HashSet<RepeatableTid>;
+            return tids.Min(i => i.Occurrences);
+        }
+
+        public static bool operator >=(ItemTidSet<T1, T2> left, ItemTidSet<T1, T2> right) {
             return left.CompareTo(right) >= 0;
         }
 
-        public static bool operator <=(ItemTidset left, ItemTidset right) {
+        public static bool operator <=(ItemTidSet<T1, T2> left, ItemTidSet<T1, T2> right) {
             return left.CompareTo(right) <= 0;
         }
 
-        public static bool operator ==(ItemTidset left, ItemTidset right) {
+        public static bool operator ==(ItemTidSet<T1, T2> left, ItemTidSet<T1, T2> right) {
             return left.ToString() == right.ToString();
         }
 
-        public static bool operator !=(ItemTidset left, ItemTidset right) {
+        public static bool operator !=(ItemTidSet<T1, T2> left, ItemTidSet<T1, T2> right) {
             return left.ToString() != right.ToString();
         }
 
         public int CompareTo(object obj) {
             if (obj == null) return 1;
-            var right = (ItemTidset) obj;
-            return Tids.Count.CompareTo(right.Tids.Count);
+            var right = (ItemTidSet<T1, T2>) obj;
+            return GetFrequency().CompareTo(right.GetFrequency());
         }
 
         public override bool Equals(object obj) {
-            var right = (ItemTidset) obj;
+            var right = (ItemTidSet<T1, T2>) obj;
             return ToString().Equals(right.ToString());
         }
 

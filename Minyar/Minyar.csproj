@@ -223,6 +223,9 @@
   <ItemGroup>
     <Compile Include="ApiRateLimit.cs" />
     <Compile Include="AstChange.cs" />
+    <Compile Include="Charm\ITreeTid.cs" />
+    <Compile Include="Charm\CharmItTree.cs" />
+    <Compile Include="Charm\RepeatableTid.cs" />
     <Compile Include="Database\mined_itemsets.cs" />
     <Compile Include="Database\MinyarModel.cs" />
     <Compile Include="Github\CommentClassifier.cs" />
