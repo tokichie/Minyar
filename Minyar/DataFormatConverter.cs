@@ -9,21 +9,32 @@ using Minyar.Charm;
 namespace Minyar {
     public class DataFormatConverter {
         public static List<ItemTidSet<string, RepeatableTid>> HorizontalToVertical(List<ItemWrapper> data) {
-            var res = new List<ItemTidSet<string, RepeatableTid>>();
+            var counter = new Dictionary<string, Dictionary<int, int>>(); 
             int tid = 0;
             foreach (var item in data) {
                 tid++;
-                var counter = new Dictionary<int, Dictionary<string, int>>(); 
                 foreach (var symbol in item.Items.Select(i => i.Symbol)) {
-                    counter[tid] = new Dictionary<string, int>();
-                    if (!counter[tid].ContainsKey(symbol)) {
-                        counter[tid][symbol] = 0;
+                    if (!counter.ContainsKey(symbol)) {
+                        counter[symbol] = new Dictionary<int, int>();
                     } else {
-                        counter[tid][symbol]++;
+                        if (!counter[symbol].ContainsKey(tid)) {
+                            counter[symbol][tid] = 1;
+                        } else {
+                            counter[symbol][tid]++;
+                        }
                     }
                 }
-                res.Add(new ItemTidSet<string, RepeatableTid>(new [] {item.}));
             }
+            var res = new List<ItemTidSet<string, RepeatableTid>>();
+            foreach (var pair in counter) {
+                var symbol = pair.Key;
+                var items = pair.Value;
+                res.Add(new ItemTidSet<string, RepeatableTid>(
+                    new[] {symbol},
+                    items.Select(i => new RepeatableTid(i.Key, i.Value))
+                    ));
+            }
+            return res;
         }
     }
 }
