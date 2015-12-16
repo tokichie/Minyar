@@ -228,6 +228,7 @@
     <Compile Include="Charm\RepeatableTid.cs" />
     <Compile Include="Database\mined_itemsets.cs" />
     <Compile Include="Database\MinyarModel.cs" />
+    <Compile Include="DataFormatConverter.cs" />
     <Compile Include="Github\CommentClassifier.cs" />
     <Compile Include="Github\CommitCache.cs" />
     <Compile Include="Github\DiffHunk.cs" />
@@ -245,6 +246,7 @@
     <Compile Include="Git\GitRepository.cs" />
     <Compile Include="Charm\ItemTidset.cs" />
     <Compile Include="Charm\ItTree.cs" />
+    <Compile Include="ItTreeMiner.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="OutputWriter.cs" />
