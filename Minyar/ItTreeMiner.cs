@@ -40,7 +40,7 @@ namespace Minyar {
             if (Threshold == -1) Threshold = lineCount / 10 * 4;
             var convertedData = DataFormatConverter.HorizontalToVertical(data);
             var itTree = new ItTree(convertedData, Threshold);
-            ClosedItemSets = itTree.GetClosedItemSets().OrderByDescending(i => i.SupportCount);
+            ClosedItemSets = itTree.GetClosedItemSets().OrderByDescending(i => i.SupportCount).ToList();
         }
 
         public List<ItemTidSet<string, RepeatableTid>> GetMinedItemSets() {

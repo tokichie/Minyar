@@ -20,7 +20,9 @@ namespace Minyar.Charm {
         }
 
         public override bool Equals(object obj) {
+            if (obj == null) return false;
             var right = obj as RepeatableTid;
+            if (right == null) return false;
             return Tid == right.Tid && Occurrences == right.Occurrences;
         }
 

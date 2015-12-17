@@ -7,14 +7,25 @@ using FP.DAL.DAO;
 
 namespace Minyar.Charm {
     public class ItemTidSet<T1, T2> : IComparable {
-        public SortedSet<T1> Items { get; set; }
+        private SortedSet<T1> items; 
         private HashSet<T2> tids;
         public int SupportCount { get; private set; }
+        public int ItemCount { get; private set; }
+
+        public string ItemsString {
+            get { return string.Join(", ", items); }
+        }
+
+        public SortedSet<T1> Items {
+            get { return items; }
+            set {
+                items = value;
+                ItemCount = value.Count;
+            }
+        }
 
         public HashSet<T2> Tids {
-            get {
-                return tids;
-            }
+            get { return tids; }
             set {
                 tids = value;
                 SupportCount = value.Count;
@@ -45,14 +56,6 @@ namespace Minyar.Charm {
             return left.CompareTo(right) <= 0;
         }
 
-        public static bool operator ==(ItemTidSet<T1, T2> left, ItemTidSet<T1, T2> right) {
-            return left.ToString() == right.ToString();
-        }
-
-        public static bool operator !=(ItemTidSet<T1, T2> left, ItemTidSet<T1, T2> right) {
-            return left.ToString() != right.ToString();
-        }
-
         public int CompareTo(object obj) {
             if (obj == null) return 1;
             var right = (ItemTidSet<T1, T2>) obj;
@@ -60,7 +63,8 @@ namespace Minyar.Charm {
         }
 
         public override bool Equals(object obj) {
-            var right = (ItemTidSet<T1, T2>) obj;
+            var right = obj as ItemTidSet<T1, T2>;
+            if (right == null) return false;
             return ToString().Equals(right.ToString());
         }
 

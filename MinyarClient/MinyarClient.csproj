@@ -91,7 +91,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Model\IMinedItemSet.cs" />
     <Compile Include="Model\MainModel.cs" />
+    <Compile Include="Model\MinedItemSet.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\MinedItemSetList.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />

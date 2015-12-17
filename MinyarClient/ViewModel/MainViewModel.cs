@@ -71,6 +71,7 @@ namespace MinyarClient.ViewModel {
         }
         #endregion
 
+
         public void SelectFile(OpeningFileSelectionMessage m) {
             if (m.Response == null) return;
             FilePath = m.Response[0];
@@ -84,7 +85,8 @@ namespace MinyarClient.ViewModel {
             int.TryParse(Threshold, out threshold);
             if (Threshold == "Auto") threshold = _ItemsetCount/10*4;
             Threshold = threshold.ToString();
-            Model.StartMining(_FilePath, threshold);
+            //Model.StartMiningUsingFpGrowth(_FilePath, threshold);
+            Model.StartMiningUsingCharm(_FilePath, threshold);
        }
 
         private void SetItemsetCount() {

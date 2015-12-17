@@ -14,7 +14,7 @@
     </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" MinHeight="92"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <StackPanel x:Name="miningPanel" HorizontalAlignment="Left" Margin="10,39,0,0" VerticalAlignment="Top" Orientation="Horizontal" IsEnabled="{Binding FileSelected}">
@@ -25,7 +25,7 @@
             <Label x:Name="label_Copy" Content="Number of Itemsets:" Margin="0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <Label x:Name="label_Copy1" Content="{Binding ItemsetCount, Mode=OneWay}" Margin="0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
         </StackPanel>
-        <StackPanel HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Orientation="Horizontal">
+        <StackPanel HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Orientation="Horizontal" Height="26">
             <Button x:Name="fileSelectButton" Content="SelectFile" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" RenderTransformOrigin="-0.739,0.367">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
@@ -39,11 +39,15 @@
             </Button>
             <Label x:Name="filePathLabel" Content="{Binding FilePath}" HorizontalAlignment="Left" VerticalAlignment="Center" RenderTransformOrigin="13.373,8.521" />
         </StackPanel>
+        <StackPanel HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top" Orientation="Horizontal">
+            <RadioButton x:Name="fpGrowthRadioButton" Content="FPGrowth" GroupName="MiningAlgorithm"/>
+            <RadioButton x:Name="charmRadioButton" Content="CHARM" Margin="10,0,0,0" Height="15" VerticalAlignment="Top" IsChecked="True" GroupName="MiningAlgorithm"/>
+        </StackPanel>
         <DataGrid x:Name="dataGrid" Grid.Row="1" ItemsSource="{Binding Model.MinedItemSets}" AutoGenerateColumns="False">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding SupportCount}" ClipboardContentBinding="{x:Null}" Header="SupportCount"/>
+                <DataGridTextColumn Binding="{Binding SupportCount, Mode=OneWay}" ClipboardContentBinding="{x:Null}" Header="SupportCount"/>
                 <DataGridTextColumn Binding="{Binding ItemCount, Mode=OneWay}" ClipboardContentBinding="{x:Null}" Header="ItemCount"/>
-                <DataGridTextColumn Binding="{Binding Items, Mode=OneWay}" ClipboardContentBinding="{x:Null}" Header="Items" Width="*"/>
+                <DataGridTextColumn Binding="{Binding ItemsString, Mode=OneWay}" ClipboardContentBinding="{x:Null}" Header="Items" Width="*"/>
             </DataGrid.Columns>
             <DataGrid.GroupStyle>
                 <GroupStyle>
