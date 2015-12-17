@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FP.DAL.DAO;
 using Minyar.Charm;
+using Minyar.Extensions;
 using Paraiba.IO;
 
 namespace Minyar {
@@ -14,22 +15,36 @@ namespace Minyar {
         private string inputFilePath;
         public int Threshold;
 
-        public ItTreeMiner(string inputPath, int threshold = -1) {
-            Threshold = threshold;
+        public List<ItemTidSet<string, RepeatableTid>> ClosedItemSets; 
+
+        public ItTreeMiner(string inputPath) {
             inputFilePath = inputPath;
+            Threshold = -1;
         }
 
-        public void GenerateClosedItemsets() {
+        public ItTreeMiner(string inputPath, int threshold) {
+            inputFilePath = inputPath;
+            Threshold = threshold;
+        }
+
+        public void GenerateClosedItemSets() {
             int lineCount = 0;
+            var data = new List<ItemWrapper>();
             using (var reader = new StreamReader(inputFilePath)) {
-                lineCount++;
-                var data = new List<ItemWrapper>();
                 foreach (var line in reader.ReadLines()) {
                     var itemWrapper = ItemWrapper.Deserialize(line.Trim());
                     data.Add(itemWrapper);
+                    lineCount++;
                 }
             }
-            if (Threshold == -1) Threshold = lineCount / 10 * 2;
+            if (Threshold == -1) Threshold = lineCount / 10 * 4;
+            var convertedData = DataFormatConverter.HorizontalToVertical(data);
+            var itTree = new ItTree(convertedData, Threshold);
+            ClosedItemSets = itTree.GetClosedItemSets().OrderByDescending(i => i.SupportCount);
         }
+
+        public List<ItemTidSet<string, RepeatableTid>> GetMinedItemSets() {
+            return ClosedItemSets;
+        } 
     }
 }

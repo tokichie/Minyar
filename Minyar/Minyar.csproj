@@ -247,6 +247,7 @@
     <Compile Include="Charm\ItemTidset.cs" />
     <Compile Include="Charm\ItTree.cs" />
     <Compile Include="ItTreeMiner.cs" />
+    <Compile Include="Extensions\LinqExtension.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="OutputWriter.cs" />

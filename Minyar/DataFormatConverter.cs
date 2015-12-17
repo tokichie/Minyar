@@ -16,12 +16,11 @@ namespace Minyar {
                 foreach (var symbol in item.Items.Select(i => i.Symbol)) {
                     if (!counter.ContainsKey(symbol)) {
                         counter[symbol] = new Dictionary<int, int>();
+                    }
+                    if (!counter[symbol].ContainsKey(tid)) {
+                        counter[symbol][tid] = 1;
                     } else {
-                        if (!counter[symbol].ContainsKey(tid)) {
-                            counter[symbol][tid] = 1;
-                        } else {
-                            counter[symbol][tid]++;
-                        }
+                        counter[symbol][tid]++;
                     }
                 }
             }

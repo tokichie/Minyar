@@ -8,7 +8,18 @@ using FP.DAL.DAO;
 namespace Minyar.Charm {
     public class ItemTidSet<T1, T2> : IComparable {
         public SortedSet<T1> Items { get; set; }
-        public HashSet<T2> Tids { get; set; }
+        private HashSet<T2> tids;
+        public int SupportCount { get; private set; }
+
+        public HashSet<T2> Tids {
+            get {
+                return tids;
+            }
+            set {
+                tids = value;
+                SupportCount = value.Count;
+            }
+        }
 
         public ItemTidSet(IEnumerable<T1> items, IEnumerable<T2> ids) {
             Items = new SortedSet<T1>(items);

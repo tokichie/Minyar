@@ -207,12 +207,14 @@
   <ItemGroup>
     <Compile Include="ApiRateLimitTest.cs" />
     <Compile Include="CommentCrawler.cs" />
+    <Compile Include="DataFormatConverterTest.cs" />
     <Compile Include="Github\CommentClassifierTest.cs" />
     <Compile Include="Github\DiffPatcherTest.cs" />
     <Compile Include="Github\GithubDiffTest.cs" />
     <Compile Include="Github\OctokitClientTest.cs" />
     <Compile Include="Git\GitRepositoryTest.cs" />
     <Compile Include="Charm\ItTreeTest.cs" />
+    <Compile Include="ItTreeMinerTest.cs" />
     <Compile Include="LcsDetectorTest.cs" />
     <Compile Include="TestHelper.cs" />
     <Compile Include="MinyarTest.cs" />
