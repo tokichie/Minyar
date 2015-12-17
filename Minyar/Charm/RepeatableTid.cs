@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Minyar.Charm {
     public class RepeatableTid : IComparable {
-        public int Tid;
-        public int Occurrences;
+        public int Tid { get; set; }
+        public int Occurrences { get; set; }
 
         public RepeatableTid(int tid, int occurences) {
             Tid = tid;

@@ -15,6 +15,7 @@ namespace Minyar.Tests {
             var path = Path.Combine("..", "..", "TestData", "all-posi-20151210.txt");
             var miner = new ItTreeMiner(path);
             miner.GenerateClosedItemSets();
+            var res = miner.GetMinedItemSets();
         }
     }
 }

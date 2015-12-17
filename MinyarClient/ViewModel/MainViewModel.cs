@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 using Livet.EventListeners;
 using Livet.Messaging.IO;
 using Microsoft.Win32;
+using Minyar.Charm;
 using MinyarClient.Model;
+using MinyarClient.View;
 
 namespace MinyarClient.ViewModel {
     public class MainViewModel : Livet.ViewModel {
@@ -17,6 +19,7 @@ namespace MinyarClient.ViewModel {
         public MainViewModel() {
             Model = new MainModel();
             Threshold = "Auto";
+            FilePath = "Please open file...";
             var listener = new PropertyChangedEventListener(Model, 
                 (sender, args) => RaisePropertyChanged(args.PropertyName));
             CompositeDisposable.Add(listener);
@@ -88,6 +91,12 @@ namespace MinyarClient.ViewModel {
             //Model.StartMiningUsingFpGrowth(_FilePath, threshold);
             Model.StartMiningUsingCharm(_FilePath, threshold);
        }
+
+        public void OpenDetailWindow(object selectedItem) {
+            var item = selectedItem as ItemTidSet<string, RepeatableTid>;
+            var detailWindow = new DetailWindow(item);
+            detailWindow.Show();
+        }
 
         private void SetItemsetCount() {
             using (var reader = new StreamReader(FilePath)) {
