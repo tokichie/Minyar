@@ -37,7 +37,7 @@ namespace Minyar {
                     lineCount++;
                 }
             }
-            if (Threshold == -1) Threshold = lineCount / 10 * 4;
+            if (Threshold == -1) Threshold = lineCount / 2;
             var convertedData = DataFormatConverter.HorizontalToVertical(data);
             var itTree = new ItTree(convertedData, Threshold);
             ClosedItemSets = itTree.GetClosedItemSets().OrderByDescending(i => i.SupportCount).ToList();

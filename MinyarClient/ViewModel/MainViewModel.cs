@@ -86,7 +86,7 @@ namespace MinyarClient.ViewModel {
         public void StartMining() {
             int threshold;
             int.TryParse(Threshold, out threshold);
-            if (Threshold == "Auto") threshold = _ItemsetCount/10*4;
+            if (Threshold == "Auto") threshold = _ItemsetCount / 2;
             Threshold = threshold.ToString();
             //Model.StartMiningUsingFpGrowth(_FilePath, threshold);
             Model.StartMiningUsingCharm(_FilePath, threshold);

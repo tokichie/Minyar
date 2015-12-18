@@ -13,14 +13,21 @@ namespace Minyar {
             int tid = 0;
             foreach (var item in data) {
                 tid++;
+                var repeatCounter = new Dictionary<string, int>();
                 foreach (var symbol in item.Items.Select(i => i.Symbol)) {
-                    if (!counter.ContainsKey(symbol)) {
-                        counter[symbol] = new Dictionary<int, int>();
-                    }
-                    if (!counter[symbol].ContainsKey(tid)) {
-                        counter[symbol][tid] = 1;
+                    if (!repeatCounter.ContainsKey(symbol)) {
+                        repeatCounter[symbol] = 1;
                     } else {
-                        counter[symbol][tid]++;
+                        repeatCounter[symbol]++;
+                    }
+                    var _symbol = string.Format("{0}:{1}", symbol, repeatCounter[symbol]);
+                    if (!counter.ContainsKey(_symbol)) {
+                        counter[_symbol] = new Dictionary<int, int>();
+                    }
+                    if (!counter[_symbol].ContainsKey(tid)) {
+                        counter[_symbol][tid] = 1;
+                    } else {
+                        counter[_symbol][tid]++;
                     }
                 }
             }
