@@ -56,6 +56,7 @@
     <Reference Include="LibGit2Sharp">
       <HintPath>..\packages\LibGit2Sharp.0.21.0.176\lib\net40\LibGit2Sharp.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="MySql.Data, Version=6.9.8.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <HintPath>..\packages\MySql.Data.6.9.8\lib\net45\MySql.Data.dll</HintPath>
       <Private>True</Private>
@@ -206,11 +207,14 @@
   <ItemGroup>
     <Compile Include="ApiRateLimitTest.cs" />
     <Compile Include="CommentCrawler.cs" />
+    <Compile Include="DataFormatConverterTest.cs" />
     <Compile Include="Github\CommentClassifierTest.cs" />
     <Compile Include="Github\DiffPatcherTest.cs" />
     <Compile Include="Github\GithubDiffTest.cs" />
     <Compile Include="Github\OctokitClientTest.cs" />
     <Compile Include="Git\GitRepositoryTest.cs" />
+    <Compile Include="Charm\ItTreeTest.cs" />
+    <Compile Include="ItTreeMinerTest.cs" />
     <Compile Include="LcsDetectorTest.cs" />
     <Compile Include="TestHelper.cs" />
     <Compile Include="MinyarTest.cs" />

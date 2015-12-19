@@ -8,25 +8,20 @@
         xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MInyar" Height="550" Width="700">
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" MinHeight="107"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <StackPanel x:Name="miningPanel" HorizontalAlignment="Left" Margin="10,39,0,0" VerticalAlignment="Top" Orientation="Horizontal" IsEnabled="{Binding FileSelected}">
-            <Button x:Name="miningButton" Content="Mining" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" RenderTransformOrigin="-0.739,0.367" Click="miningButton_Click">
-            </Button>
-            <Label x:Name="label" Content="Threshold:" Margin="0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="24" TextWrapping="Wrap" VerticalAlignment="Center" Width="60" Text="{Binding Threshold}"/>
-            <Label x:Name="label_Copy" Content="Number of Itemsets:" Margin="0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Label x:Name="label_Copy1" Content="{Binding ItemsetCount, Mode=OneWay}" Margin="0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        <StackPanel x:Name="miningPanel" HorizontalAlignment="Left" Margin="10,39,0,0" VerticalAlignment="Top" Orientation="Horizontal">
+            <Label x:Name="filePathLabel" Content="{Binding FilePath, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Center" RenderTransformOrigin="13.373,8.521" />
         </StackPanel>
         <StackPanel HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Orientation="Horizontal">
-            <Button x:Name="fileSelectButton" Content="SelectFile" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" RenderTransformOrigin="-0.739,0.367">
+            <Button x:Name="fileSelectButton" Content="SelectFile" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.739,0.367">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
                         <l:OpenFileDialogInteractionMessageAction>
@@ -37,13 +32,22 @@
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </Button>
-            <Label x:Name="filePathLabel" Content="{Binding FilePath}" HorizontalAlignment="Left" VerticalAlignment="Center" RenderTransformOrigin="13.373,8.521" />
+            <Button x:Name="miningButton" Content="Mining" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" RenderTransformOrigin="-0.739,0.367" Click="miningButton_Click" Margin="10,0,0,0"/>
+            <Button x:Name="detailButton" Content="Detail" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="10,0,0,0" Click="detailButton_Click"/>
+        </StackPanel>
+        <StackPanel HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top" Orientation="Horizontal" IsEnabled="{Binding FileSelected, Mode=OneWay}">
+            <RadioButton x:Name="fpGrowthRadioButton" Content="FPGrowth" GroupName="MiningAlgorithm" VerticalAlignment="Center"/>
+            <RadioButton x:Name="charmRadioButton" Content="CHARM" Margin="10,0,0,0" VerticalAlignment="Center" IsChecked="True" GroupName="MiningAlgorithm"/>
+            <Label x:Name="label" Content="Threshold:" Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="24" TextWrapping="Wrap" VerticalAlignment="Center" Width="60" Text="{Binding Threshold}"/>
+            <Label x:Name="label_Copy" Content="Number of Itemsets:" Margin="0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Label x:Name="label_Copy1" Content="{Binding ItemsetCount, Mode=OneWay}" Margin="0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
         </StackPanel>
         <DataGrid x:Name="dataGrid" Grid.Row="1" ItemsSource="{Binding Model.MinedItemSets}" AutoGenerateColumns="False">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding SupportCount}" ClipboardContentBinding="{x:Null}" Header="SupportCount"/>
+                <DataGridTextColumn Binding="{Binding SupportCount, Mode=OneWay}" ClipboardContentBinding="{x:Null}" Header="SupportCount"/>
                 <DataGridTextColumn Binding="{Binding ItemCount, Mode=OneWay}" ClipboardContentBinding="{x:Null}" Header="ItemCount"/>
-                <DataGridTextColumn Binding="{Binding Items, Mode=OneWay}" ClipboardContentBinding="{x:Null}" Header="Items" Width="*"/>
+                <DataGridTextColumn Binding="{Binding ItemsString, Mode=OneWay}" ClipboardContentBinding="{x:Null}" Header="Items" Width="*"/>
             </DataGrid.Columns>
             <DataGrid.GroupStyle>
                 <GroupStyle>
@@ -72,3 +76,4 @@
 
     </Grid>
 </Window>
+

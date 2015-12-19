@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
+using MinyarClient.View;
 using MinyarClient.ViewModel;
 
 namespace MinyarClient {
@@ -29,6 +30,11 @@ namespace MinyarClient {
             vm.StartMining();
             var itemSetsView = CollectionViewSource.GetDefaultView(vm.Model.MinedItemSets);
             itemSetsView.GroupDescriptions.Add(new PropertyGroupDescription("ItemCount"));
+        }
+
+        private void detailButton_Click(object sender, RoutedEventArgs e) {
+            var vm = DataContext as MainViewModel;
+            vm.OpenDetailWindow(dataGrid.SelectedItem);
         }
     }
 }

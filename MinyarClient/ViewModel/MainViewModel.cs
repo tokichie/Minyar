@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 using Livet.EventListeners;
 using Livet.Messaging.IO;
 using Microsoft.Win32;
+using Minyar.Charm;
 using MinyarClient.Model;
+using MinyarClient.View;
 
 namespace MinyarClient.ViewModel {
     public class MainViewModel : Livet.ViewModel {
@@ -17,6 +19,7 @@ namespace MinyarClient.ViewModel {
         public MainViewModel() {
             Model = new MainModel();
             Threshold = "Auto";
+            FilePath = "Please open file...";
             var listener = new PropertyChangedEventListener(Model, 
                 (sender, args) => RaisePropertyChanged(args.PropertyName));
             CompositeDisposable.Add(listener);
@@ -71,6 +74,7 @@ namespace MinyarClient.ViewModel {
         }
         #endregion
 
+
         public void SelectFile(OpeningFileSelectionMessage m) {
             if (m.Response == null) return;
             FilePath = m.Response[0];
@@ -82,10 +86,17 @@ namespace MinyarClient.ViewModel {
         public void StartMining() {
             int threshold;
             int.TryParse(Threshold, out threshold);
-            if (Threshold == "Auto") threshold = _ItemsetCount/10*4;
+            if (Threshold == "Auto") threshold = _ItemsetCount / 2;
             Threshold = threshold.ToString();
-            Model.StartMining(_FilePath, threshold);
+            //Model.StartMiningUsingFpGrowth(_FilePath, threshold);
+            Model.StartMiningUsingCharm(_FilePath, threshold);
        }
+
+        public void OpenDetailWindow(object selectedItem) {
+            var item = selectedItem as ItemTidSet<string, RepeatableTid>;
+            var detailWindow = new DetailWindow(item);
+            detailWindow.Show();
+        }
 
         private void SetItemsetCount() {
             using (var reader = new StreamReader(FilePath)) {
