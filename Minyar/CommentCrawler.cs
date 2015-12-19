@@ -1,24 +1,15 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Minyar.Git;
 using Minyar.Github;
 using Minyar.Nlp;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
-using NUnit.Framework;
 using Octokit;
 
 namespace Minyar.Tests {
-    [TestFixture]
     class CommentCrawler {
-        [Test]
         public void TestCrawl() {
             var json = new StreamReader(Path.Combine("..", "..", "TestData", "JavaRepositories.json")).ReadToEnd();
             var resolver = new PrivateSetterContractResolver();
@@ -31,7 +22,6 @@ namespace Minyar.Tests {
             }
         }
 
-        [Test]
         public void TestCrawlWithMyRepo() {
             var task = Crawl("tokichie/pattern-detection");
             task.Wait();
@@ -77,7 +67,6 @@ namespace Minyar.Tests {
             return score / words.Length;
         }
 
-        [Test]
         public void TestExploreStarredRepositories() {
             var task = Search();
             task.Wait();
@@ -89,14 +78,13 @@ namespace Minyar.Tests {
             req.Language = Language.Java;
             req.SortField = RepoSearchSort.Stars;
             req.Order = SortDirection.Descending;
-            req.Stars = Range.GreaterThan(10); 
+            req.Stars = Range.GreaterThan(10);
             var res = await client.Search.SearchRepo(req);
             using (var writer = new StreamWriter(Path.Combine("..", "..", "TestData", "JavaRepositories.json"))) {
                 writer.WriteLine(JsonConvert.SerializeObject(res.Items));
             }
         }
 
-        [Test]
         public void ListUpComments() {
             var commentDirPath = Path.Combine("..", "..", "TestData", "Comments");
             var dic = new Dictionary<string, double>();
