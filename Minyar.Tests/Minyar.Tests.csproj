@@ -216,6 +216,7 @@
     <Compile Include="Charm\ItTreeTest.cs" />
     <Compile Include="ItTreeMinerTest.cs" />
     <Compile Include="LcsDetectorTest.cs" />
+    <Compile Include="MachineLearning\ClassifierTest.cs" />
     <Compile Include="TestHelper.cs" />
     <Compile Include="MinyarTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
