@@ -8,7 +8,7 @@ namespace Minyar.Database
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    [Table("pull_requests")]
+    [Table("minyar.pull_requests")]
     public partial class pull_requests
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]

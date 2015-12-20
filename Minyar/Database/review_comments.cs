@@ -9,7 +9,7 @@ namespace Minyar.Database
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    [Table("review_comments")]
+    [Table("minyar.review_comments")]
     public partial class review_comments
     {
         public review_comments(PullRequestReviewComment comment, int? repoId = null) {

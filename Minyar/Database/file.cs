@@ -6,7 +6,7 @@ namespace Minyar.Database
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    [Table("files")]
+    [Table("minyar.files")]
     public partial class file
     {
         public int id { get; set; }

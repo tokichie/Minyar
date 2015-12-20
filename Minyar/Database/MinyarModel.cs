@@ -1,5 +1,6 @@
 using System.Configuration;
 using System.IO;
+using MySql.Data.Entity;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -7,9 +8,11 @@ using Newtonsoft.Json.Linq;
 namespace Minyar.Database {
     using System.Data.Entity;
 
+    [DbConfigurationType(typeof(MySqlEFConfiguration))]
     public partial class MinyarModel : DbContext {
         public static readonly string credentialPath = Path.Combine("..", "..", "..", "Minyar", "Resources",
             "credentials.json");
+        //public static readonly string credentialPath = @"C:\repos\Minyar\Minyar\Resources\credentials.json";
 
         public MinyarModel() : base(FormatConnectionString()) { 
         }

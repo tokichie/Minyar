@@ -6,7 +6,7 @@ namespace Minyar.Database
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    [Table("diffs")]
+    [Table("minyar.diffs")]
     public partial class diff
     {
         public int id { get; set; }
