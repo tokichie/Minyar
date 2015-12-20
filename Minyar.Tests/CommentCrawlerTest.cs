@@ -6,13 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Minyar.Tests.Tests {
+namespace Minyar.Tests {
     [TestFixture()]
     public class CommentCrawlerTest {
         [Test()]
         public void TestCrawlTest() {
             var crawler = new CommentCrawler();
-            crawler.TestExploreStarredRepositories();
+            crawler.ExploreStarredRepositories();
         }
     }
 }

@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Octokit;
 
-namespace Minyar.Tests {
+namespace Minyar {
     public class CommentCrawler {
         public void TestCrawl() {
             var json = new StreamReader(Path.Combine("..", "..", "TestData", "JavaRepositories.json")).ReadToEnd();
@@ -24,7 +24,7 @@ namespace Minyar.Tests {
             }
         }
 
-        public void TestCrawlWithMyRepo() {
+        public void CrawlWithMyRepo() {
             var task = Crawl("tokichie/pattern-detection");
             task.Wait();
         }
@@ -69,7 +69,7 @@ namespace Minyar.Tests {
             return score / words.Length;
         }
 
-        public void TestExploreStarredRepositories() {
+        public void ExploreStarredRepositories() {
             var task = Search();
             task.Wait();
         }

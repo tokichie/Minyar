@@ -24,7 +24,11 @@ namespace Minyar {
                     if (args.Length > 1) index = int.Parse(args[1]);
                     Start(index, 100 - index);
                     break;
-		    }
+                case "crawl":
+                    var crawler = new CommentCrawler();
+                    crawler.ExploreStarredRepositories();
+                    break;
+            }
             Console.WriteLine("\nProgram finished.");
 		    Console.ReadKey();
 		}
