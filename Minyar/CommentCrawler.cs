@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using Minyar.Database;
 using Minyar.Github;
 using Minyar.Nlp;
 using Newtonsoft.Json;
@@ -9,7 +11,7 @@ using Newtonsoft.Json.Linq;
 using Octokit;
 
 namespace Minyar.Tests {
-    class CommentCrawler {
+    public class CommentCrawler {
         public void TestCrawl() {
             var json = new StreamReader(Path.Combine("..", "..", "TestData", "JavaRepositories.json")).ReadToEnd();
             var resolver = new PrivateSetterContractResolver();
@@ -78,11 +80,31 @@ namespace Minyar.Tests {
             req.Language = Language.Java;
             req.SortField = RepoSearchSort.Stars;
             req.Order = SortDirection.Descending;
-            req.Stars = Range.GreaterThan(10);
-            var res = await client.Search.SearchRepo(req);
-            using (var writer = new StreamWriter(Path.Combine("..", "..", "TestData", "JavaRepositories.json"))) {
-                writer.WriteLine(JsonConvert.SerializeObject(res.Items));
+            req.Stars = Range.GreaterThan(500);
+            for (int i = 2; i <= 10; i++) {
+                req.Page = i;
+                var repos = await client.Search.SearchRepo(req);
+                using (var model = new MinyarModel()) {
+                    foreach (var repo in repos.Items) {
+                        Console.WriteLine(repo.FullName);
+                        if (model.repositories.FirstOrDefault(r => r.original_id == repo.Id) != null) continue;
+                        model.repositories.Add(new repository(repo));
+                        model.SaveChanges();
+                        Console.WriteLine("Add to DB");
+                        var repoNames = repo.FullName.Split('/');
+                        var comments = await client.PullRequest.Comment.GetAllForRepository(repoNames[0], repoNames[1]);
+                        ApiRateLimit.CheckLimit();
+                        foreach (var comment in comments) {
+                            if (model.review_comments.FirstOrDefault(c => c.original_id == comment.Id) != null) continue;
+                            model.review_comments.Add(new review_comments(comment, repo.Id));
+                            model.SaveChanges();
+                        }
+                    }
+                }
             }
+            //using (var writer = new StreamWriter(Path.Combine("..", "..", "TestData", "JavaRepositories.json"))) {
+            //    writer.WriteLine(JsonConvert.SerializeObject(res.Items));
+            //}
         }
 
         public void ListUpComments() {

@@ -112,6 +112,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
@@ -251,8 +252,14 @@
     <Compile Include="Charm\ITreeTid.cs" />
     <Compile Include="Charm\CharmItTree.cs" />
     <Compile Include="Charm\RepeatableTid.cs" />
-    <Compile Include="Database\mined_itemsets.cs" />
+    <Compile Include="CommentCrawler.cs" />
+    <Compile Include="Database\commit.cs" />
+    <Compile Include="Database\diff.cs" />
+    <Compile Include="Database\file.cs" />
     <Compile Include="Database\MinyarModel.cs" />
+    <Compile Include="Database\pull_requests.cs" />
+    <Compile Include="Database\repository.cs" />
+    <Compile Include="Database\review_comments.cs" />
     <Compile Include="DataFormatConverter.cs" />
     <Compile Include="Github\CommentClassifier.cs" />
     <Compile Include="Github\CommitCache.cs" />
@@ -276,6 +283,16 @@
     <Compile Include="Logger.cs" />
     <Compile Include="MachineLearning\Classifier.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="Migrations\201512191736442_Initial.cs" />
+    <Compile Include="Migrations\201512191736442_Initial.Designer.cs">
+      <DependentUpon>201512191736442_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201512200616009_AlterColumnInRepository.cs" />
+    <Compile Include="Migrations\201512200616009_AlterColumnInRepository.Designer.cs">
+      <DependentUpon>201512200616009_AlterColumnInRepository.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Migrations\MySqlHistoryContext.cs" />
     <Compile Include="OutputWriter.cs" />
     <Compile Include="PatternMatcher.cs" />
     <Compile Include="PrivateSetterContractResolver.cs" />
@@ -301,6 +318,7 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Resources\credentials.json" />
     <None Include="Resources\java.csv" />
     <None Include="Resources\java2.csv" />
     <None Include="Resources\java3.csv" />
@@ -352,6 +370,18 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201512191736442_Initial.resx">
+      <DependentUpon>201512191736442_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201512200616009_AlterColumnInRepository.resx">
+      <DependentUpon>201512200616009_AlterColumnInRepository.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="..\packages\Accord.3.0.2\build\Accord.targets" Condition="Exists('..\packages\Accord.3.0.2\build\Accord.targets')" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties Resources_4credentials_1json__JSONSchema="http://json.schemastore.org/config" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
