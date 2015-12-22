@@ -18,6 +18,7 @@ namespace Minyar {
 		        var line = Console.ReadLine();
 		        args = line.Split(' ');
 		    }
+            var crawler = new CommentCrawler();
             switch (args[0]) {
                 case "start":
                     var index = 0;
@@ -25,8 +26,10 @@ namespace Minyar {
                     Start(index, 100 - index);
                     break;
                 case "crawl":
-                    var crawler = new CommentCrawler();
                     crawler.ExploreStarredRepositories();
+                    break;
+                case "cherry-pick":
+                    crawler.CherryPick();
                     break;
             }
             Console.WriteLine("\nProgram finished.");
