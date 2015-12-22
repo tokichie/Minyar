@@ -12,7 +12,7 @@ namespace Minyar.Tests {
     public class ItTreeMinerTest {
         [Test()]
         public void GenerateClosedItemsetsTest() {
-            var path = Path.Combine("..", "..", "TestData", "all-posi-20151210.txt");
+            var path = Path.Combine("..", "..", "TestData", "all-nega-20151210.txt");
             var miner = new ItTreeMiner(path);
             miner.GenerateClosedItemSets();
             var res = miner.GetMinedItemSets();

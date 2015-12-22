@@ -9,46 +9,55 @@ using Accord.MachineLearning.VectorMachines.Learning;
 namespace Minyar.MachineLearning {
     public class Classifier {
         public double Error;
-        private List<ISet<string>> groundTruths;
+        private List<HashSet<string>> groundTruths;
+        private List<HashSet<string>> inputData;
+        private List<int> labelsForInput; 
         private SupportVectorMachine svm;
 
         public Classifier() {
-            groundTruths = new List<ISet<string>>();
+            groundTruths = new List<HashSet<string>>();
+            inputData = new List<HashSet<string>>();
+            labelsForInput = new List<int>();
         }
 
-        public void AddTruth(ISet<string> truth) {
+        public void AddTruth(HashSet<string> truth) {
             groundTruths.Add(truth);
         }
 
-        public void Train(List<ISet<string>> inputs, IEnumerable<int> labels) {
-            svm = new SupportVectorMachine(inputs.Count);
+        public void AddRangeTruth(IEnumerable<HashSet<string>> truths) {
+            groundTruths.AddRange(truths);
+        }
+
+        public void AddRangeInputs(List<HashSet<string>> inputs, int label) {
+            inputData.AddRange(inputs);
+            labelsForInput.AddRange(Enumerable.Repeat(label, inputs.Count));
+        }
+
+        public void Train() { 
+            svm = new SupportVectorMachine(groundTruths.Count);
             var doubleInputs = new List<double[]>();
-            foreach (var input in inputs) {
-                var elements = new List<double>();
-                foreach (var truth in groundTruths) {
-                    if (input.IsProperSupersetOf(truth)) {
-                        elements.Add(1);
-                    } else {
-                        elements.Add(0);
-                    }
-                }
-                doubleInputs.Add(elements.ToArray());
+            foreach (var set in inputData) {
+                doubleInputs.Add(CompareWithGroundTruth(set));
             }
-            var smo = new SequentialMinimalOptimization(svm, doubleInputs.ToArray(), labels.ToArray());
-            smo.Complexity = 1.0;
+            var smo = new SequentialMinimalOptimization(svm, doubleInputs.ToArray(), labelsForInput.ToArray());
+            smo.Complexity = 0.1;
             Error = smo.Run();
         }
 
-        public double Classify(ISet<string> inputs) {
-            var doubleInputs = new List<double>();
+        public double Classify(HashSet<string> inputs) {
+            return svm.Compute(CompareWithGroundTruth(inputs));
+        }
+
+        private double[] CompareWithGroundTruth(HashSet<string> inputs) {
+            var res = new List<double>();
             foreach (var truth in groundTruths) {
                 if (inputs.IsProperSupersetOf(truth)) {
-                    doubleInputs.Add(1);
+                    res.Add(1);
                 } else {
-                    doubleInputs.Add(0);
+                    res.Add(0);
                 }
             }
-            return svm.Compute(doubleInputs.ToArray());
+            return res.ToArray();
         }
     }
 }

@@ -282,6 +282,7 @@
     <Compile Include="Extensions\LinqExtension.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MachineLearning\Classifier.cs" />
+    <Compile Include="MachineLearning\DataProcessor.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Migrations\201512201029045_Initial.cs" />
     <Compile Include="Migrations\201512201029045_Initial.Designer.cs">

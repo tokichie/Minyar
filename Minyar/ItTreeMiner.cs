@@ -33,6 +33,7 @@ namespace Minyar {
             using (var reader = new StreamReader(inputFilePath)) {
                 foreach (var line in reader.ReadLines()) {
                     var itemWrapper = ItemWrapper.Deserialize(line.Trim());
+                    if (itemWrapper.Items.Count < 4) continue;
                     data.Add(itemWrapper);
                     lineCount++;
                 }

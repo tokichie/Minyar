@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Microsoft.Win32;
-using MinyarClient.View;
+using System.IO;
+using System.Linq;
+using Minyar.Charm;
 using MinyarClient.ViewModel;
+using Newtonsoft.Json;
 
 namespace MinyarClient {
     /// <summary>
@@ -35,6 +26,15 @@ namespace MinyarClient {
         private void detailButton_Click(object sender, RoutedEventArgs e) {
             var vm = DataContext as MainViewModel;
             vm.OpenDetailWindow(dataGrid.SelectedItem);
+        }
+
+        private void truthButton_Click(object sender, RoutedEventArgs e) {
+            var selectedItems = dataGrid.SelectedItems.Cast<ItemTidSet<string, RepeatableTid>>().ToList();
+            var path = Path.Combine("..", "..", "..", "data", "GroundTruth.json");
+            Directory.CreateDirectory(Path.Combine(path, ".."));
+            using (var writer = new StreamWriter(path)) {
+                writer.Write(JsonConvert.SerializeObject(selectedItems.Select(i => i.Items)));
+            }
         }
     }
 }
