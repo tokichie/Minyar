@@ -73,27 +73,80 @@ namespace Minyar {
         public void InsertCommits() {
             var path = Path.Combine("..", "..", "..", "commits");
             var files = Directory.GetFileSystemEntries(path);
-            InsertCommit(files);
-        }
-
-        private void InsertCommit(string[] files) {
-            foreach (var file in files) {
-                if (Directory.Exists(file)) {
-                    InsertCommit(Directory.GetFileSystemEntries(file));                    
-                } else if (File.Exists(file)) {
+            var fileList = new List<string>();
+            TraverseDirectory(files, ref fileList);
+            using (var model = new MinyarModel())
+            {
+                model.Configuration.AutoDetectChangesEnabled = false;
+                foreach (var file in fileList)
+                {
                     var p = file.Replace("\\", "/");
                     var list = p.Split('/');
-                    using (var model = new MinyarModel()) {
-                        var repo =
-                            model.repositories.First(r => r.full_name == string.Format("{0}/{1}", list[4], list[5]));
-                        Console.Write(repo.full_name + " ");
-                        var commit = Main.ReadFromJson<GitHubCommit>(file);
-                        var cm = new commit(commit, repo.original_id);
-                        model.commits.Add(cm);
-                        model.SaveChanges();
-                        Console.WriteLine(commit.Sha);
-                    }
+                    var fullName = list[4] + "/" + list[5];
+                    var repo = model.repositories.First(r => r.full_name == fullName);
+                    Console.Write(repo.full_name + " ");
+                    var commit = Main.ReadFromJson<GitHubCommit>(file);
+                    var cm = new commit(commit, repo.original_id);
+                    model.commits.Add(cm);
+                    Console.Write(commit.Sha);
+                    model.SaveChanges();
+                    Console.WriteLine(" Add to DB");
                 }
+            }
+        }
+
+        public void InsertFiles()
+        {
+            var task = InsertFilesAsync();
+            task.Wait();
+        }
+
+        public async Task InsertFilesAsync()
+        {
+            var path = Path.Combine("..", "..", "..", "cache");
+            var files = Directory.GetFileSystemEntries(path);
+            var fileList = new List<string>();
+            TraverseDirectory(files, ref fileList);
+            using (var model = new MinyarModel())
+            {
+                model.Configuration.AutoDetectChangesEnabled = false;
+                foreach (var file in fileList)
+                {
+                    var p = file.Replace("\\", "/");
+                    var list = p.Split('/');
+                    var sha = list[6];
+                    var filePath = p.SubstringAfter(list[6] + "/");
+                    var content = "";
+                    using (var reader = new StreamReader(file)) { content = reader.ReadToEnd(); }
+                    Console.Write("{0}/{1} {2}", list[4], list[5], p.SubstringAfterLast("/"));
+                    if (model.files.Any(c => c.commit_sha == sha))
+                    {
+                        Console.WriteLine(" skipped");
+                        continue;
+                    }
+                    var f = new file(sha, filePath, content);
+                    model.files.Add(f);
+                    try {
+                        model.SaveChanges();
+                    } catch (Exception e)
+                    {
+                        Console.Write(" exception");
+                    }
+                    Console.WriteLine(" Add to DB");
+                }
+            }
+        }
+
+        private void TraverseDirectory(string[] files, ref List<string> fileList) {
+            foreach (var file in files) {
+                if (Directory.Exists(file)) {
+                    TraverseDirectory(Directory.GetFileSystemEntries(file), ref fileList);
+                }
+                else if (File.Exists(file))
+                {
+                    fileList.Add(file);
+                }
+
             }
         }
 

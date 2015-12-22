@@ -34,6 +34,12 @@ namespace Minyar {
                 case "cherry-pick":
                     crawler.CherryPick();
                     break;
+                case "commits":
+                    crawler.InsertCommits();
+                    break;
+                case "files":
+                    crawler.InsertFiles();
+                    break;
             }
             Console.WriteLine("\nProgram finished.");
 		    Console.ReadKey();

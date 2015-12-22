@@ -9,6 +9,7 @@ namespace Minyar.Database
     [Table("minyar.diffs")]
     public partial class diff
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int id { get; set; }
 
         [Column("diff")]
@@ -16,13 +17,9 @@ namespace Minyar.Database
         [StringLength(16777215)]
         public string diff1 { get; set; }
 
-        public int? base_commit_id { get; set; }
-
         [Required]
         [StringLength(40)]
         public string base_sha { get; set; }
-
-        public int? head_commit_id { get; set; }
 
         [Required]
         [StringLength(40)]
@@ -39,8 +36,10 @@ namespace Minyar.Database
         [Column(TypeName = "timestamp")]
         public DateTime created_at { get; set; }
 
+        [ForeignKey("base_sha")]
         public virtual commit commit { get; set; }
 
+        [ForeignKey("head_sha")]
         public virtual commit commit1 { get; set; }
     }
 }

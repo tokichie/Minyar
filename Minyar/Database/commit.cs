@@ -33,10 +33,12 @@ namespace Minyar.Database
             diffs1 = new HashSet<diff>();
         }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int id { get; set; }
 
         public int repository_id { get; set; }
 
+        [Key]
         [Required]
         [StringLength(40)]
         public string sha { get; set; }
@@ -64,6 +66,7 @@ namespace Minyar.Database
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<diff> diffs { get; set; }
 
+        [ForeignKey("repository_id")]
         public virtual repository repository { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

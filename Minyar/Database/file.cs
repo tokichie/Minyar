@@ -9,14 +9,24 @@ namespace Minyar.Database
     [Table("minyar.files")]
     public partial class file
     {
-        public int id { get; set; }
+        public file(string sha, string path, string content)
+        {
+            commit_sha = sha;
+            this.path = path;
+            this.content = content;
+        }
 
-        public int? commit_id { get; set; }
+        public file()
+        {
+
+        }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int id { get; set; }
 
         [StringLength(40)]
         public string commit_sha { get; set; }
 
-        [Required]
         [StringLength(16777215)]
         public string content { get; set; }
 
@@ -34,6 +44,7 @@ namespace Minyar.Database
         [Column(TypeName = "timestamp")]
         public DateTime created_at { get; set; }
 
+        [ForeignKey("commit_sha")]
         public virtual commit commit { get; set; }
     }
 }

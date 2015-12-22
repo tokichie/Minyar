@@ -62,18 +62,18 @@ namespace Minyar.Database {
 
             modelBuilder.Entity<commit>()
                 .HasMany(e => e.diffs)
-                .WithOptional(e => e.commit)
-                .HasForeignKey(e => e.base_commit_id);
+                .WithRequired(e => e.commit)
+                .HasForeignKey(e => e.base_sha);
 
             modelBuilder.Entity<commit>()
                 .HasMany(e => e.files)
-                .WithOptional(e => e.commit)
-                .HasForeignKey(e => e.commit_id);
+                .WithRequired(e => e.commit)
+                .HasForeignKey(e => e.commit_sha);
 
             modelBuilder.Entity<commit>()
                 .HasMany(e => e.diffs1)
-                .WithOptional(e => e.commit1)
-                .HasForeignKey(e => e.head_commit_id);
+                .WithRequired(e => e.commit1)
+                .HasForeignKey(e => e.head_sha);
 
             modelBuilder.Entity<diff>()
                 .Property(e => e.diff1)

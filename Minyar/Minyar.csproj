@@ -312,6 +312,26 @@
     <Compile Include="Migrations\201512221212402_DeleteColumnFromCommits.Designer.cs">
       <DependentUpon>201512221212402_DeleteColumnFromCommits.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201512221225180_hogehoge.cs" />
+    <Compile Include="Migrations\201512221225180_hogehoge.Designer.cs">
+      <DependentUpon>201512221225180_hogehoge.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201512221317164_hogehogehoge.cs" />
+    <Compile Include="Migrations\201512221317164_hogehogehoge.Designer.cs">
+      <DependentUpon>201512221317164_hogehogehoge.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201512221352586_RemoveColumns.cs" />
+    <Compile Include="Migrations\201512221352586_RemoveColumns.Designer.cs">
+      <DependentUpon>201512221352586_RemoveColumns.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201512221424491_hogepiyo.cs" />
+    <Compile Include="Migrations\201512221424491_hogepiyo.Designer.cs">
+      <DependentUpon>201512221424491_hogepiyo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201512221440315_RemoveRequiredFromFileContent.cs" />
+    <Compile Include="Migrations\201512221440315_RemoveRequiredFromFileContent.Designer.cs">
+      <DependentUpon>201512221440315_RemoveRequiredFromFileContent.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\MySqlHistoryContext.cs" />
     <Compile Include="OutputWriter.cs" />
@@ -412,6 +432,21 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201512221212402_DeleteColumnFromCommits.resx">
       <DependentUpon>201512221212402_DeleteColumnFromCommits.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201512221225180_hogehoge.resx">
+      <DependentUpon>201512221225180_hogehoge.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201512221317164_hogehogehoge.resx">
+      <DependentUpon>201512221317164_hogehogehoge.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201512221352586_RemoveColumns.resx">
+      <DependentUpon>201512221352586_RemoveColumns.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201512221424491_hogepiyo.resx">
+      <DependentUpon>201512221424491_hogepiyo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201512221440315_RemoveRequiredFromFileContent.resx">
+      <DependentUpon>201512221440315_RemoveRequiredFromFileContent.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="..\packages\Accord.3.0.2\build\Accord.targets" Condition="Exists('..\packages\Accord.3.0.2\build\Accord.targets')" />
