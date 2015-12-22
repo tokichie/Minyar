@@ -7,10 +7,28 @@ namespace Minyar.Database
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
+    using Newtonsoft.Json;
 
     [Table("minyar.pull_requests")]
     public partial class pull_requests
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public pull_requests(PullRequest pull, int repoId)
+        {
+            original_id = pull.Number;
+            repository_id = repoId;
+            number = pull.Number;
+            state = pull.State.ToString();
+            title = pull.Title;
+            body = pull.Body;
+            base_sha = pull.Base.Sha;
+            merged_commit_sha = pull.MergeCommitSha;
+            original_created_at = pull.CreatedAt.ToString("s");
+            original_updated_at = pull.UpdatedAt.ToString("s");
+            raw_json = JsonConvert.SerializeObject(pull);
+            review_comments1 = new HashSet<review_comments>();
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public pull_requests() {
             review_comments1 = new HashSet<review_comments>();

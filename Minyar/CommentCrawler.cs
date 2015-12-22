@@ -89,6 +89,43 @@ namespace Minyar {
             }
         }
 
+        public void CrawlPullRequests()
+        {
+            var task = SearchPulls();
+            task.Wait();
+        }
+
+        private async Task SearchPulls()
+        {
+            var client = OctokitClient.Client;
+            using (var model = new MinyarModel())
+            {
+                foreach (var repo in model.repositories)
+                {
+                    var options = new PullRequestRequest
+                    {
+                        State = ItemState.All
+                    };
+                    var repoNames = repo.full_name.Split('/');
+                    var pulls = await client.PullRequest.GetAllForRepository(repoNames[0], repoNames[1], options);
+                    ApiRateLimit.CheckLimit();
+                    foreach (var pull in pulls)
+                    {
+                        var pr = new pull_requests(pull, repo.original_id);
+                        model.pull_requests.Add(pr);
+                        model.SaveChanges();
+                        if (model.review_comments.Any(rc => rc.repository_id == repo.original_id && rc.pull_request_url.EndsWith(pull.Number.ToString()))) {
+                            foreach (var comment in model.review_comments.Where(rc => rc.repository_id == repo.original_id && rc.pull_request_url.EndsWith(pull.Number.ToString())))
+                            {
+                                comment.pull_request_id = pr.id;
+                            }
+                            model.SaveChanges();
+                        }
+                    }
+                }
+            }
+        }
+
         public void ExploreStarredRepositories() {
             var task = Search();
             task.Wait();
@@ -100,7 +137,7 @@ namespace Minyar {
             req.Language = Language.Java;
             req.SortField = RepoSearchSort.Stars;
             req.Order = SortDirection.Descending;
-            req.Stars = Range.LessThanOrEquals(500);
+            req.Stars = Range.GreaterThan(500);
             for (int i = 1; i <= 10; i++) {
                 req.Page = i;
                 var repos = await client.Search.SearchRepo(req);
@@ -108,7 +145,8 @@ namespace Minyar {
                     model.Configuration.AutoDetectChangesEnabled = false;
                     foreach (var repo in repos.Items) {
                         Console.WriteLine(repo.FullName);
-                        if (model.repositories.FirstOrDefault(r => r.original_id == repo.Id) != null) continue;
+                        if (model.repositories.Any(r => r.original_id == repo.Id)) continue;
+                        if (model.review_comments.Any(r => r.repository_id == repo.Id)) continue;
                         var repoNames = repo.FullName.Split('/');
                         var comments = await client.PullRequest.Comment.GetAllForRepository(repoNames[0], repoNames[1]);
                         ApiRateLimit.CheckLimit();
@@ -126,6 +164,7 @@ namespace Minyar {
                         }
                     }
                 }
+                break;
             }
             //using (var writer = new StreamWriter(Path.Combine("..", "..", "TestData", "JavaRepositories.json"))) {
             //    writer.WriteLine(JsonConvert.SerializeObject(res.Items));
