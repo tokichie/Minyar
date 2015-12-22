@@ -14,5 +14,12 @@ namespace Minyar.Tests {
             var crawler = new CommentCrawler();
             crawler.ExploreStarredRepositories();
         }
+
+        [Test]
+        public void TestCrawlPulls()
+        {
+            var crawler = new CommentCrawler();
+            crawler.CrawlPullRequests();
+        }
     }
 }

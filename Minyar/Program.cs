@@ -28,8 +28,8 @@ namespace Minyar {
                 case "crawl":
                     crawler.ExploreStarredRepositories();
                     break;
-                case "cherry-pick":
-                    crawler.CherryPick();
+                case "pulls":
+                    crawler.CrawlPullRequests();
                     break;
             }
             Console.WriteLine("\nProgram finished.");
