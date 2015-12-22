@@ -9,6 +9,7 @@ using Minyar.Nlp;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Octokit;
+using Paraiba.Core;
 
 namespace Minyar {
     public class CommentCrawler {
@@ -67,6 +68,29 @@ namespace Minyar {
             var words = parser.Parse(comment);
             score += NPDictionary.CalculateNPScore(words);
             return score / words.Length;
+        }
+
+        public void InsertCommits() {
+            var path = Path.Combine("..", "..", "..", "commits");
+            var files = Directory.GetFileSystemEntries(path);
+            InsertCommit(files);
+        }
+
+        private void InsertCommit(string[] files) {
+            foreach (var file in files) {
+                if (Directory.Exists(file)) {
+                    InsertCommit(Directory.GetFileSystemEntries(file));                    
+                } else if (File.Exists(file)) {
+                    var p = file.Replace("\\", "/");
+                    var list = p.Split('/');
+                    using (var model = new MinyarModel()) {
+                        var repo =
+                            model.repositories.First(r => r.full_name == string.Format("{0}/{1}", list[4], list[5]));
+
+                    }
+                    Console.WriteLine("{0} {1} {2}", list[4], list[5], list[6].SubstringBefore("."));
+                }
+            }
         }
 
         public void CherryPick()

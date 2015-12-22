@@ -1,3 +1,6 @@
+using Newtonsoft.Json;
+using Octokit;
+
 namespace Minyar.Database
 {
     using System;
@@ -9,6 +12,19 @@ namespace Minyar.Database
     [Table("minyar.commits")]
     public partial class commit
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public commit(GitHubCommit commit, int repoId) {
+            repository_id = repoId;
+            sha = commit.Sha;
+            url = commit.Url;
+            html_url = commit.HtmlUrl;
+            comments_url = commit.CommentsUrl;
+            raw_json = JsonConvert.SerializeObject(commit);
+            diffs = new HashSet<diff>();
+            files = new HashSet<file>();
+            diffs1 = new HashSet<diff>();
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public commit()
         {

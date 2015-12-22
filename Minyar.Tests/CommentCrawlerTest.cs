@@ -21,5 +21,11 @@ namespace Minyar.Tests {
             var crawler = new CommentCrawler();
             crawler.CrawlPullRequests();
         }
+
+        [Test]
+        public void TestInsertCommits() {
+            var crawler = new CommentCrawler();
+            crawler.InsertCommits();
+        }
     }
 }
