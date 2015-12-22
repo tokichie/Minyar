@@ -19,8 +19,6 @@ namespace Minyar.Database
 
         public int id { get; set; }
 
-        public int original_id { get; set; }
-
         public int repository_id { get; set; }
 
         [Required]

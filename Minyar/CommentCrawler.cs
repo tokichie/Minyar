@@ -74,15 +74,15 @@ namespace Minyar {
             using (var model = new MinyarModel())
             {
                 //model.Configuration.AutoDetectChangesEnabled = false;
-                foreach (var repo in model.repositories.ToList())
+                foreach (var pull in model.pull_requests.ToList())
                 {
-                    Console.Write(repo.full_name);
-                    if (model.review_comments.Any(rc => rc.repository_id == repo.original_id))
+                    Console.Write("{0} {1}", pull.repository_id, pull.number);
+                    if (model.review_comments.Any(rc => rc.pull_request_id == pull.id))
                     {
                         Console.WriteLine();
                         continue;
                     }
-                    model.repositories.Remove(repo);
+                    model.pull_requests.Remove(pull);
                     model.SaveChanges();
                     Console.WriteLine(" Deleted");
                 }
@@ -100,26 +100,43 @@ namespace Minyar {
             var client = OctokitClient.Client;
             using (var model = new MinyarModel())
             {
-                foreach (var repo in model.repositories)
+                foreach (var repo in model.repositories.Where(r => r.original_id == 6650539))
                 {
+                    //if (repo.full_name != "neo4j/neo4j")
+                        //if (model.pull_requests.Any(p => p.repository_id == repo.original_id)) continue;
                     var options = new PullRequestRequest
                     {
                         State = ItemState.All
                     };
+                    Console.WriteLine(repo.full_name);
                     var repoNames = repo.full_name.Split('/');
                     var pulls = await client.PullRequest.GetAllForRepository(repoNames[0], repoNames[1], options);
                     ApiRateLimit.CheckLimit();
-                    foreach (var pull in pulls)
+                    using (var model1 = new MinyarModel())
                     {
-                        var pr = new pull_requests(pull, repo.original_id);
-                        model.pull_requests.Add(pr);
-                        model.SaveChanges();
-                        if (model.review_comments.Any(rc => rc.repository_id == repo.original_id && rc.pull_request_url.EndsWith(pull.Number.ToString()))) {
-                            foreach (var comment in model.review_comments.Where(rc => rc.repository_id == repo.original_id && rc.pull_request_url.EndsWith(pull.Number.ToString())))
+                        foreach (var pull in pulls)
+                        {
+                            Console.Write("pull {0}...", pull.Number);
+                            if (model1.pull_requests.Any(p => p.repository_id == repo.original_id && p.number == pull.Number))
                             {
-                                comment.pull_request_id = pr.id;
+                                Console.WriteLine();
+                                continue;
                             }
-                            model.SaveChanges();
+                            var pr = new pull_requests(pull, repo.original_id);
+                            model1.pull_requests.Add(pr);
+                            model1.SaveChanges();
+                            Console.Write(" Add to DB... ");
+                            if (model1.review_comments.Any(rc => rc.repository_id == repo.original_id && rc.pull_request_url.EndsWith("/" + pull.Number.ToString())))
+                            {
+                                foreach (var comment in model1.review_comments.Where(rc => rc.repository_id == repo.original_id && rc.pull_request_url.EndsWith("/" + pull.Number.ToString())))
+                                {
+                                    comment.pull_request_id = pr.id;
+                                    comment.is_closed_pr = pr.state == "Closed";
+                                }
+                                model1.SaveChanges();
+                                Console.Write(" Update DB");
+                            }
+                            Console.WriteLine();
                         }
                     }
                 }

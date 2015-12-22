@@ -296,6 +296,22 @@
     <Compile Include="Migrations\201512220829194_AddForeignObkectToReviewComment.Designer.cs">
       <DependentUpon>201512220829194_AddForeignObkectToReviewComment.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201512220858533_Hoge.cs" />
+    <Compile Include="Migrations\201512220858533_Hoge.Designer.cs">
+      <DependentUpon>201512220858533_Hoge.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201512220934386_DeleteColumnFromPullRequests.cs" />
+    <Compile Include="Migrations\201512220934386_DeleteColumnFromPullRequests.Designer.cs">
+      <DependentUpon>201512220934386_DeleteColumnFromPullRequests.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201512221037156_AlterColumnInPullRequests.cs" />
+    <Compile Include="Migrations\201512221037156_AlterColumnInPullRequests.Designer.cs">
+      <DependentUpon>201512221037156_AlterColumnInPullRequests.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201512221212402_DeleteColumnFromCommits.cs" />
+    <Compile Include="Migrations\201512221212402_DeleteColumnFromCommits.Designer.cs">
+      <DependentUpon>201512221212402_DeleteColumnFromCommits.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\MySqlHistoryContext.cs" />
     <Compile Include="OutputWriter.cs" />
@@ -384,6 +400,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201512220829194_AddForeignObkectToReviewComment.resx">
       <DependentUpon>201512220829194_AddForeignObkectToReviewComment.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201512220858533_Hoge.resx">
+      <DependentUpon>201512220858533_Hoge.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201512220934386_DeleteColumnFromPullRequests.resx">
+      <DependentUpon>201512220934386_DeleteColumnFromPullRequests.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201512221037156_AlterColumnInPullRequests.resx">
+      <DependentUpon>201512221037156_AlterColumnInPullRequests.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201512221212402_DeleteColumnFromCommits.resx">
+      <DependentUpon>201512221212402_DeleteColumnFromCommits.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="..\packages\Accord.3.0.2\build\Accord.targets" Condition="Exists('..\packages\Accord.3.0.2\build\Accord.targets')" />

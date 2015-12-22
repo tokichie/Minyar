@@ -15,7 +15,6 @@ namespace Minyar.Database
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public pull_requests(PullRequest pull, int repoId)
         {
-            original_id = pull.Number;
             repository_id = repoId;
             number = pull.Number;
             state = pull.State.ToString();
@@ -37,8 +36,6 @@ namespace Minyar.Database
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int id { get; set; }
 
-        public int original_id { get; set; }
-
         public int repository_id { get; set; }
 
         public int number { get; set; }
@@ -47,7 +44,7 @@ namespace Minyar.Database
         [StringLength(45)]
         public string state { get; set; }
 
-        [StringLength(255)]
+        [StringLength(1000)]
         public string title { get; set; }
 
         [Column(TypeName = "text")]
