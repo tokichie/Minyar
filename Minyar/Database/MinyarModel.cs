@@ -20,6 +20,7 @@ namespace Minyar.Database {
         private static string FormatConnectionString() {
             var connString = ConfigurationManager.ConnectionStrings["MinyarModelConnection"].ConnectionString;
             var builder = new MySqlConnectionStringBuilder(connString);
+            builder.ConvertZeroDateTime = true;
             using (var reader = new StreamReader(credentialPath)) {
                 var json = JsonConvert.DeserializeObject(reader.ReadToEnd()) as JObject;
                 builder.Server = json["Database"]["Server"].ToString();

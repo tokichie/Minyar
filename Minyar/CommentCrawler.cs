@@ -69,6 +69,26 @@ namespace Minyar {
             return score / words.Length;
         }
 
+        public void CherryPick()
+        {
+            using (var model = new MinyarModel())
+            {
+                //model.Configuration.AutoDetectChangesEnabled = false;
+                foreach (var repo in model.repositories.ToList())
+                {
+                    Console.Write(repo.full_name);
+                    if (model.review_comments.Any(rc => rc.repository_id == repo.original_id))
+                    {
+                        Console.WriteLine();
+                        continue;
+                    }
+                    model.repositories.Remove(repo);
+                    model.SaveChanges();
+                    Console.WriteLine(" Deleted");
+                }
+            }
+        }
+
         public void ExploreStarredRepositories() {
             var task = Search();
             task.Wait();
@@ -80,24 +100,29 @@ namespace Minyar {
             req.Language = Language.Java;
             req.SortField = RepoSearchSort.Stars;
             req.Order = SortDirection.Descending;
-            req.Stars = Range.GreaterThan(500);
-            for (int i = 2; i <= 10; i++) {
+            req.Stars = Range.LessThanOrEquals(500);
+            for (int i = 1; i <= 10; i++) {
                 req.Page = i;
                 var repos = await client.Search.SearchRepo(req);
                 using (var model = new MinyarModel()) {
+                    model.Configuration.AutoDetectChangesEnabled = false;
                     foreach (var repo in repos.Items) {
                         Console.WriteLine(repo.FullName);
                         if (model.repositories.FirstOrDefault(r => r.original_id == repo.Id) != null) continue;
-                        model.repositories.Add(new repository(repo));
-                        model.SaveChanges();
-                        Console.WriteLine("Add to DB");
                         var repoNames = repo.FullName.Split('/');
                         var comments = await client.PullRequest.Comment.GetAllForRepository(repoNames[0], repoNames[1]);
                         ApiRateLimit.CheckLimit();
-                        foreach (var comment in comments) {
-                            if (model.review_comments.FirstOrDefault(c => c.original_id == comment.Id) != null) continue;
+                        foreach (var comment in comments.Where(c => c.Path.EndsWith(".java"))) {
+                            //if (model.review_comments.FirstOrDefault(c => c.original_id == comment.Id) != null) continue;
                             model.review_comments.Add(new review_comments(comment, repo.Id));
+                            Console.Write(".");
                             model.SaveChanges();
+                        }
+                        Console.WriteLine();
+                        if (comments.Any(c => c.Path.EndsWith(".java"))) {
+                            model.repositories.Add(new repository(repo));
+                            model.SaveChanges();
+                            Console.WriteLine("Add to DB");
                         }
                     }
                 }
