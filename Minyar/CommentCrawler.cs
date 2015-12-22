@@ -86,9 +86,13 @@ namespace Minyar {
                     using (var model = new MinyarModel()) {
                         var repo =
                             model.repositories.First(r => r.full_name == string.Format("{0}/{1}", list[4], list[5]));
-
+                        Console.Write(repo.full_name + " ");
+                        var commit = Main.ReadFromJson<GitHubCommit>(file);
+                        var cm = new commit(commit, repo.original_id);
+                        model.commits.Add(cm);
+                        model.SaveChanges();
+                        Console.WriteLine(commit.Sha);
                     }
-                    Console.WriteLine("{0} {1} {2}", list[4], list[5], list[6].SubstringBefore("."));
                 }
             }
         }
