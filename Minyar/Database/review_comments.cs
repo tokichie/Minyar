@@ -66,6 +66,10 @@ namespace Minyar.Database
         [StringLength(40)]
         public string original_commit_id { get; set; }
 
+        public int? for_diff { get; set; }
+
+        public bool? is_closed_pr { get; set; }
+
         [StringLength(2083)]
         public string url { get; set; }
 
@@ -93,5 +97,8 @@ namespace Minyar.Database
 
         [ForeignKey("pull_request_id")]
         public virtual pull_requests pull_requests { get; set; }
+
+        [ForeignKey("repository_id")]
+        public virtual repository repository { get; set; }
     }
 }

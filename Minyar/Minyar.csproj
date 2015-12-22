@@ -288,6 +288,14 @@
     <Compile Include="Migrations\201512201029045_Initial.Designer.cs">
       <DependentUpon>201512201029045_Initial.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201512220655369_AddColumnsToReviewComment.cs" />
+    <Compile Include="Migrations\201512220655369_AddColumnsToReviewComment.Designer.cs">
+      <DependentUpon>201512220655369_AddColumnsToReviewComment.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201512220829194_AddForeignObkectToReviewComment.cs" />
+    <Compile Include="Migrations\201512220829194_AddForeignObkectToReviewComment.Designer.cs">
+      <DependentUpon>201512220829194_AddForeignObkectToReviewComment.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\MySqlHistoryContext.cs" />
     <Compile Include="OutputWriter.cs" />
@@ -370,6 +378,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201512201029045_Initial.resx">
       <DependentUpon>201512201029045_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201512220655369_AddColumnsToReviewComment.resx">
+      <DependentUpon>201512220655369_AddColumnsToReviewComment.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201512220829194_AddForeignObkectToReviewComment.resx">
+      <DependentUpon>201512220829194_AddForeignObkectToReviewComment.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="..\packages\Accord.3.0.2\build\Accord.targets" Condition="Exists('..\packages\Accord.3.0.2\build\Accord.targets')" />

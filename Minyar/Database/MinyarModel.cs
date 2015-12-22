@@ -1,4 +1,5 @@
 using System.Configuration;
+using System.Data.Entity.Infrastructure;
 using System.IO;
 using MySql.Data.Entity;
 using MySql.Data.MySqlClient;
@@ -10,11 +11,11 @@ namespace Minyar.Database {
 
     [DbConfigurationType(typeof(MySqlEFConfiguration))]
     public partial class MinyarModel : DbContext {
-        public static readonly string credentialPath = Path.Combine("..", "..", "..", "Minyar", "Resources",
-            "credentials.json");
-        //public static readonly string credentialPath = @"C:\repos\Minyar\Minyar\Resources\credentials.json";
+        //public static readonly string credentialPath = Path.Combine("..", "..", "..", "Minyar", "Resources",
+        //    "credentials.json");
+        public static readonly string credentialPath = @"C:\repos\Minyar\Minyar\Resources\credentials.json";
 
-        public MinyarModel() : base(FormatConnectionString()) { 
+        public MinyarModel() : base(FormatConnectionString()) {
         }
 
         private static string FormatConnectionString() {
