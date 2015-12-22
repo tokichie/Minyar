@@ -31,6 +31,9 @@ namespace Minyar {
                 case "pulls":
                     crawler.CrawlPullRequests();
                     break;
+                case "cherry-pick":
+                    crawler.CherryPick();
+                    break;
             }
             Console.WriteLine("\nProgram finished.");
 		    Console.ReadKey();
