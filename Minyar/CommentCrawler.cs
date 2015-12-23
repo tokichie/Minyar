@@ -17,7 +17,7 @@ namespace Minyar {
             var json = new StreamReader(Path.Combine("..", "..", "TestData", "JavaRepositories.json")).ReadToEnd();
             var resolver = new PrivateSetterContractResolver();
             var repos = JsonConvert.DeserializeObject<List<Repository>>(json,
-                new JsonSerializerSettings {ContractResolver = resolver});
+                new JsonSerializerSettings { ContractResolver = resolver });
             foreach (var repo in repos) {
                 Console.WriteLine(repo.Name);
                 var task = Crawl(repo.Name);
@@ -70,16 +70,57 @@ namespace Minyar {
             return score / words.Length;
         }
 
+        public void CrawlFiles() {
+            var task = CrawlFilesAsync();
+            task.Wait();
+        }
+
+        private async Task CrawlFilesAsync() {
+            using (var model = new MinyarModel()) {
+                //model.Database.CommandTimeout = 120;
+                var comments = model.review_comments.Where(rc => rc.for_diff == 1);
+                try {
+                    foreach (var comment in comments) {
+                        try {
+                            Console.WriteLine("{0} {1}", comment.repository_id, comment.original_id);
+                            var names = new[] {"", ""};
+                            using (var model1 = new MinyarModel())
+                                names =
+                                    model1.repositories.First(r => r.original_id == comment.repository_id)
+                                        .full_name.Split('/');
+                            var sha = comment.position == null ? comment.original_commit_id : comment.commit_id;
+                            var commit = await CommitCache.LoadCommitFromDatabase(names[0], names[1], sha);
+                            await CommitCache.LoadCommitFromDatabase(names[0], names[1], commit.parent_sha);
+                            await FileCache.LoadContentFromDatabase(names[0], names[1], commit.parent_sha, comment.path);
+
+                        } catch (Exception e) {
+                            Console.WriteLine(e.Message);
+                        }
+                    }
+                } catch (Exception e) {
+                    Console.WriteLine(e.Message);
+                }
+            }
+        }
+
+        public void UpdateCommits() {
+            using (var model = new MinyarModel()) {
+                foreach (var commit in model.commits.ToList()) {
+                    var cm = JsonConvert.DeserializeObject<GitHubCommit>(commit.raw_json);
+                    commit.parent_sha = cm.Parents[0].Sha;
+                    model.SaveChanges();
+                }
+            }
+        }
+
         public void InsertCommits() {
             var path = Path.Combine("..", "..", "..", "commits");
             var files = Directory.GetFileSystemEntries(path);
             var fileList = new List<string>();
             TraverseDirectory(files, ref fileList);
-            using (var model = new MinyarModel())
-            {
+            using (var model = new MinyarModel()) {
                 model.Configuration.AutoDetectChangesEnabled = false;
-                foreach (var file in fileList)
-                {
+                foreach (var file in fileList) {
                     var p = file.Replace("\\", "/");
                     var list = p.Split('/');
                     var fullName = list[4] + "/" + list[5];
@@ -95,23 +136,19 @@ namespace Minyar {
             }
         }
 
-        public void InsertFiles()
-        {
+        public void InsertFiles() {
             var task = InsertFilesAsync();
             task.Wait();
         }
 
-        public async Task InsertFilesAsync()
-        {
+        public async Task InsertFilesAsync() {
             var path = Path.Combine("..", "..", "..", "cache");
             var files = Directory.GetFileSystemEntries(path);
             var fileList = new List<string>();
             TraverseDirectory(files, ref fileList);
-            using (var model = new MinyarModel())
-            {
+            using (var model = new MinyarModel()) {
                 model.Configuration.AutoDetectChangesEnabled = false;
-                foreach (var file in fileList)
-                {
+                foreach (var file in fileList) {
                     var p = file.Replace("\\", "/");
                     var list = p.Split('/');
                     var sha = list[6];
@@ -119,8 +156,7 @@ namespace Minyar {
                     var content = "";
                     using (var reader = new StreamReader(file)) { content = reader.ReadToEnd(); }
                     Console.Write("{0}/{1} {2}", list[4], list[5], p.SubstringAfterLast("/"));
-                    if (model.files.Any(c => c.commit_sha == sha))
-                    {
+                    if (model.files.Any(c => c.commit_sha == sha)) {
                         Console.WriteLine(" skipped");
                         continue;
                     }
@@ -128,8 +164,7 @@ namespace Minyar {
                     model.files.Add(f);
                     try {
                         model.SaveChanges();
-                    } catch (Exception e)
-                    {
+                    } catch (Exception e) {
                         Console.Write(" exception");
                     }
                     Console.WriteLine(" Add to DB");
@@ -141,25 +176,19 @@ namespace Minyar {
             foreach (var file in files) {
                 if (Directory.Exists(file)) {
                     TraverseDirectory(Directory.GetFileSystemEntries(file), ref fileList);
-                }
-                else if (File.Exists(file))
-                {
+                } else if (File.Exists(file)) {
                     fileList.Add(file);
                 }
 
             }
         }
 
-        public void CherryPick()
-        {
-            using (var model = new MinyarModel())
-            {
+        public void CherryPick() {
+            using (var model = new MinyarModel()) {
                 //model.Configuration.AutoDetectChangesEnabled = false;
-                foreach (var pull in model.pull_requests.ToList())
-                {
+                foreach (var pull in model.pull_requests.ToList()) {
                     Console.Write("{0} {1}", pull.repository_id, pull.number);
-                    if (model.review_comments.Any(rc => rc.pull_request_id == pull.id))
-                    {
+                    if (model.review_comments.Any(rc => rc.pull_request_id == pull.id)) {
                         Console.WriteLine();
                         continue;
                     }
@@ -170,36 +199,28 @@ namespace Minyar {
             }
         }
 
-        public void CrawlPullRequests()
-        {
+        public void CrawlPullRequests() {
             var task = SearchPulls();
             task.Wait();
         }
 
-        private async Task SearchPulls()
-        {
+        private async Task SearchPulls() {
             var client = OctokitClient.Client;
-            using (var model = new MinyarModel())
-            {
-                foreach (var repo in model.repositories.Where(r => r.original_id == 6650539))
-                {
+            using (var model = new MinyarModel()) {
+                foreach (var repo in model.repositories.Where(r => r.original_id == 6650539)) {
                     //if (repo.full_name != "neo4j/neo4j")
-                        //if (model.pull_requests.Any(p => p.repository_id == repo.original_id)) continue;
-                    var options = new PullRequestRequest
-                    {
+                    //if (model.pull_requests.Any(p => p.repository_id == repo.original_id)) continue;
+                    var options = new PullRequestRequest {
                         State = ItemState.All
                     };
                     Console.WriteLine(repo.full_name);
                     var repoNames = repo.full_name.Split('/');
                     var pulls = await client.PullRequest.GetAllForRepository(repoNames[0], repoNames[1], options);
                     ApiRateLimit.CheckLimit();
-                    using (var model1 = new MinyarModel())
-                    {
-                        foreach (var pull in pulls)
-                        {
+                    using (var model1 = new MinyarModel()) {
+                        foreach (var pull in pulls) {
                             Console.Write("pull {0}...", pull.Number);
-                            if (model1.pull_requests.Any(p => p.repository_id == repo.original_id && p.number == pull.Number))
-                            {
+                            if (model1.pull_requests.Any(p => p.repository_id == repo.original_id && p.number == pull.Number)) {
                                 Console.WriteLine();
                                 continue;
                             }
@@ -207,10 +228,8 @@ namespace Minyar {
                             model1.pull_requests.Add(pr);
                             model1.SaveChanges();
                             Console.Write(" Add to DB... ");
-                            if (model1.review_comments.Any(rc => rc.repository_id == repo.original_id && rc.pull_request_url.EndsWith("/" + pull.Number.ToString())))
-                            {
-                                foreach (var comment in model1.review_comments.Where(rc => rc.repository_id == repo.original_id && rc.pull_request_url.EndsWith("/" + pull.Number.ToString())))
-                                {
+                            if (model1.review_comments.Any(rc => rc.repository_id == repo.original_id && rc.pull_request_url.EndsWith("/" + pull.Number.ToString()))) {
+                                foreach (var comment in model1.review_comments.Where(rc => rc.repository_id == repo.original_id && rc.pull_request_url.EndsWith("/" + pull.Number.ToString()))) {
                                     comment.pull_request_id = pr.id;
                                     comment.is_closed_pr = pr.state == "Closed";
                                 }
@@ -293,13 +312,13 @@ namespace Minyar {
                     var json = new StreamReader(filePath).ReadToEnd();
                     var comments = JsonConvert.DeserializeObject<Dictionary<string, Object>>(json);
                     foreach (var comment in comments) {
-                        if (!((JObject) comment.Value).Property("Path").Value.ToString().EndsWith(".java"))
+                        if (!((JObject)comment.Value).Property("Path").Value.ToString().EndsWith(".java"))
                             continue;
-                        var diffHunk = ((JObject) comment.Value).Property("DiffHunk").Value.ToString();
+                        var diffHunk = ((JObject)comment.Value).Property("DiffHunk").Value.ToString();
                         if (!hashSet.Contains(diffHunk)) hashSet.Add(diffHunk);
                         var score = double.Parse(comment.Key.Substring(comment.Key.IndexOf('-') + 1));
-                        var apiurl = ((JObject) comment.Value).Property("Url").Value.ToString();
-                        var htmlurl = ((JObject) comment.Value).Property("HtmlUrl").Value.ToString();
+                        var apiurl = ((JObject)comment.Value).Property("Url").Value.ToString();
+                        var htmlurl = ((JObject)comment.Value).Property("HtmlUrl").Value.ToString();
                         var url = apiurl + " " + htmlurl;
                         dic.Add(url, score);
                     }

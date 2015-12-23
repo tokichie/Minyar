@@ -16,6 +16,7 @@ namespace Minyar.Database
         public commit(GitHubCommit commit, int repoId) {
             repository_id = repoId;
             sha = commit.Sha;
+            parent_sha = commit.Parents[0].Sha;
             url = commit.Url;
             html_url = commit.HtmlUrl;
             comments_url = commit.CommentsUrl;
@@ -43,6 +44,9 @@ namespace Minyar.Database
         [StringLength(40)]
         public string sha { get; set; }
 
+        [StringLength(40)]
+        public string parent_sha { get; set; }
+        
         [StringLength(2083)]
         public string url { get; set; }
 

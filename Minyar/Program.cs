@@ -40,6 +40,12 @@ namespace Minyar {
                 case "files":
                     crawler.InsertFiles();
                     break;
+                case "updatecommits":
+                    crawler.UpdateCommits();
+                    break;
+                case "crawlfiles":
+                    crawler.CrawlFiles();
+                    break;
             }
             Console.WriteLine("\nProgram finished.");
 		    Console.ReadKey();

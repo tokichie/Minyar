@@ -35,6 +35,7 @@ namespace Minyar.Github {
                     return model.commits.First(c => c.sha == sha);
                 }
                 var commit = await OctokitClient.Client.Repository.Commits.Get(owner, name, sha);
+                ApiRateLimit.CheckLimit();
                 var repo = model.repositories.First(r => r.full_name == owner + "/" + name);
                 var cm = new commit(commit, repo.original_id);
                 model.commits.Add(cm);
