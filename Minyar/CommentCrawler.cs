@@ -71,35 +71,37 @@ namespace Minyar {
         }
 
         public void CrawlFiles() {
-            var task = CrawlFilesAsync();
-            task.Wait();
+            CrawlFilesAsync();
         }
 
-        private async Task CrawlFilesAsync() {
-            using (var model = new MinyarModel()) {
-                //model.Database.CommandTimeout = 120;
-                var comments = model.review_comments.Where(rc => rc.for_diff == 1);
-                try {
-                    foreach (var comment in comments) {
-                        try {
-                            Console.WriteLine("{0} {1}", comment.repository_id, comment.original_id);
-                            var names = new[] {"", ""};
-                            using (var model1 = new MinyarModel())
-                                names =
-                                    model1.repositories.First(r => r.original_id == comment.repository_id)
-                                        .full_name.Split('/');
-                            var sha = comment.position == null ? comment.original_commit_id : comment.commit_id;
-                            var commit = await CommitCache.LoadCommitFromDatabase(names[0], names[1], sha);
-                            await CommitCache.LoadCommitFromDatabase(names[0], names[1], commit.parent_sha);
-                            await FileCache.LoadContentFromDatabase(names[0], names[1], commit.parent_sha, comment.path);
+        private void CrawlFilesAsync() {
+            var comments = new List<review_comments>();
+            using (var model = new MinyarModel())
+                comments = model.review_comments.Where(rc => rc.for_diff == 1).ToList();
+            try {
+                var i = 0;
+                foreach (var comment in comments) {
+                    if (++i < 6717) continue;
+                    try {
+                        Console.WriteLine("{0} {1} {2}", i, comment.repository_id, comment.original_id);
+                        var names = new[] { "", "" };
+                        using (var model1 = new MinyarModel())
+                            names =
+                                model1.repositories.First(r => r.original_id == comment.repository_id)
+                                    .full_name.Split('/');
+                        var sha = comment.position == null ? comment.original_commit_id : comment.commit_id;
+                        var task = CommitCache.LoadCommitFromDatabase(names[0], names[1], sha);
+                        task.Wait();
+                        var commit = task.Result;
+                        CommitCache.LoadCommitFromDatabase(names[0], names[1], commit.parent_sha).Wait();
+                        FileCache.LoadContentFromDatabase(names[0], names[1], commit.parent_sha, comment.path).Wait();
 
-                        } catch (Exception e) {
-                            Console.WriteLine(e.Message);
-                        }
+                    } catch (Exception e) {
+                        Console.WriteLine(e.Message);
                     }
-                } catch (Exception e) {
-                    Console.WriteLine(e.Message);
                 }
+            } catch (Exception e) {
+                Console.WriteLine(e.Message);
             }
         }
 
