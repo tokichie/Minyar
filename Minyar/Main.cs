@@ -8,6 +8,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Code2Xml.Core.SyntaxTree;
+using Minyar.Database;
 using Newtonsoft.Json;
 using Octokit;
 using FileMode = System.IO.FileMode;
@@ -31,8 +32,47 @@ namespace Minyar {
 
 
 	    private HashSet<string> parsedDiffs;
-         
-	    public async Task Start(List<Repository> repositories) {
+
+	    public async Task StartUsingDatabase() {
+            var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+	        var comments = new List<review_comments>();
+	        var changeSetCount = 0;
+	        using (var model = new MinyarModel())
+	            comments = model.review_comments.Where(rc => rc.for_diff == 1).ToList();
+            using (var writer =
+                    new StreamWriter(new FileStream(Path.Combine("..", "..", "..", "data", timestamp + "-all.txt"), FileMode.Append))
+                ) {
+                writer.AutoFlush = true;
+                foreach (var comment in comments) {
+                    var isQuestion = CommentClassifier.IsTarget(comment);
+                    Logger.Info("ReviewComment {0} {1}", comment.url, isQuestion);
+                    if (parsedDiffs.Contains(comment.diff_hunk)) {
+                        continue;
+                    }
+                    parsedDiffs.Add(comment.diff_hunk);
+                    var path = comment.path;
+                    if (!path.EndsWith(".java")) continue;
+                    var diffPatcher = new CoarseDiffPatcher(comment);
+                    var result = await diffPatcher.GetBothOldAndNewFiles();
+                    if (result.NewCode == null) {
+                        if (result.DiffHunk != null) Logger.Info("Skipped {0}", comment.url);
+                        continue;
+                    }
+                    //Logger.Deactivate();
+                    var changeSet = CreateAstAndTakeDiff(result, path);
+                    changeSetCount += changeSet.Count;
+                    //Logger.Activate();
+                    var repoName = comment.repository.full_name.Split('/');
+                    var astChange = new AstChange(GithubUrl(new[] { repoName[0], repoName[1] }, comment.pull_requests.number), changeSet,
+                        result.DiffHunk.Patch);
+                    if (changeSet.Count > 0) {
+                        WriteOut(writer, astChange);
+                    }
+                }
+            }
+        }
+
+        public async Task Start(List<Repository> repositories) {
             parsedDiffs = new HashSet<string>();
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
 	        var changeSetCount = 0;

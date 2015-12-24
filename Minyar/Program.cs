@@ -25,6 +25,9 @@ namespace Minyar {
                     if (args.Length > 1) index = int.Parse(args[1]);
                     Start(index, 100 - index);
                     break;
+                case "db":
+                    StartDb();
+                    break;
                 case "crawl":
                     crawler.ExploreStarredRepositories();
                     break;
@@ -50,6 +53,12 @@ namespace Minyar {
             Console.WriteLine("\nProgram finished.");
 		    Console.ReadKey();
 		}
+
+	    private static void StartDb() {
+	        var main = new Main();
+	        var task = main.StartUsingDatabase();
+	        task.Wait();
+	    }
 
 	    private static void Start(int index, int count) {
 	        var main = new Main();

@@ -27,6 +27,14 @@ namespace Minyar.Github {
             return commit;
         }
 
+        public static async Task<commit> LoadCommitFromDatabase(int? repositoryId, string sha) {
+            var repo = new repository();
+            using (var model = new MinyarModel())
+                repo = model.repositories.First(r => r.original_id == repositoryId);
+            var names = repo.full_name.Split('/');
+            return await LoadCommitFromDatabase(names[0], names[1], sha);
+        }
+
         public static async Task<commit> LoadCommitFromDatabase(string owner, string name, string sha)
         {
             using (var model = new MinyarModel())

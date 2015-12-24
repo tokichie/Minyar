@@ -58,6 +58,14 @@ namespace Minyar.Github {
             return content;
         }
 
+        public static async Task<string> LoadContentFromDatabase(int? repositoryId, string sha, string path) {
+            var repo = new repository();
+            using (var model = new MinyarModel())
+                repo = model.repositories.First(r => r.original_id == repositoryId);
+            var names = repo.full_name.Split('/');
+            return await LoadContentFromDatabase(names[0], names[1], sha, path);
+        }
+
         public static async Task<string> LoadContentFromDatabase(string owner, string name, string sha, string path)
         {
             using (var model = new MinyarModel())
