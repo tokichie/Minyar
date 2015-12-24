@@ -1,3 +1,4 @@
+using System.Linq;
 using Newtonsoft.Json;
 using Octokit;
 
@@ -24,6 +25,12 @@ namespace Minyar.Database
             diffs = new HashSet<diff>();
             files = new HashSet<file>();
             diffs1 = new HashSet<diff>();
+        }
+
+        public IEnumerable<GitHubCommitFile> GetFiles() {
+            var json = raw_json.Replace("\\\"", "\"");
+            var commit = JsonConvert.DeserializeObject<GitHubCommit>(json);
+            return commit.Files;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]

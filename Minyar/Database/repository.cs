@@ -35,9 +35,8 @@ namespace Minyar.Database
             pull_requests = new HashSet<pull_requests>();
         }
 
+        [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int id { get; set; }
-
         public int original_id { get; set; }
 
         [Required]

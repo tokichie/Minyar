@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using Octokit;
@@ -13,6 +14,9 @@ namespace Minyar.Database
     [Table("minyar.review_comments")]
     public partial class review_comments
     {
+        public review_comments(PullRequestReviewComment comment, string repoOwner, string repoName) :
+            this(comment, MinyarModel.GetRepositoryId(repoOwner, repoName)) { }
+
         public review_comments(PullRequestReviewComment comment, int? repoId = null) {
             original_id = comment.Id;
             repository_id = repoId;

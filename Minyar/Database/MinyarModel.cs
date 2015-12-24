@@ -1,6 +1,7 @@
 using System.Configuration;
 using System.Data.Entity.Infrastructure;
 using System.IO;
+using System.Linq;
 using MySql.Data.Entity;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
@@ -30,6 +31,13 @@ namespace Minyar.Database {
                 builder.Database = json["Database"]["DatabaseName"].ToString();
             }
             return builder.ToString();
+        }
+
+        public static int GetRepositoryId(string owner, string name) {
+            var repoId = 0;
+            using (var model = new MinyarModel())
+                repoId = model.repositories.First(r => r.full_name == owner + "/" + name).original_id;
+            return repoId;
         }
 
         public virtual DbSet<commit> commits { get; set; }

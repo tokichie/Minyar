@@ -22,7 +22,7 @@ namespace MinyarClient.ViewModel {
         private int cursor;
         private int totalComments;
 
-        private static readonly string path = Path.Combine("..", "..", "..", "..", "data", "Negative.json");
+        private static readonly string path = Path.Combine("..", "..", "..", "data", "Negative.json");
 
         public ReviewViewModel() {
             comments = new List<review_comments>();

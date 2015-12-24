@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Octokit;
 using Minyar.Database;
+using Newtonsoft.Json;
 
 namespace Minyar.Github {
     static class CommitCache {

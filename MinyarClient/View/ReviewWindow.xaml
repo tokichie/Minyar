@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MinyarClient.View"
         xmlns:ViewModel="clr-namespace:MinyarClient.ViewModel" x:Class="MinyarClient.View.ReviewWindow"
-        xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
+        xmlns:osm="clr-namespace:Awesomium.Windows.Controls;assembly=Awesomium.Windows.Controls"
         mc:Ignorable="d"
         Title="ReviewWindow" Height="497" Width="814" WindowState="Maximized" KeyDown="Window_KeyDown">
     <Window.DataContext>
@@ -35,6 +35,6 @@
                 <TextBlock x:Name="textBlock" TextWrapping="Wrap" Margin="5,5,5,0" Height="47" Text="{Binding Comment}"/>
             </StackPanel>
         </DockPanel>
-        <cefSharp:ChromiumWebBrowser Grid.Row="1" Address="{Binding CommentUri}"/>
+        <osm:WebControl Grid.Row="1" Source="{Binding CommentUri}"/>
     </Grid>
 </Window>

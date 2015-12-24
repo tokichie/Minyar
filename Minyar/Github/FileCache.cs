@@ -9,7 +9,7 @@ using Octokit;
 using Minyar.Database;
 
 namespace Minyar.Github {
-    static class FileCache {
+    public static class FileCache {
         private static readonly string cacheDir = Path.Combine("..", "..", "..", "cache");
 
         public static string FilePath(string owner, string name, string sha, string path) {
@@ -19,6 +19,15 @@ namespace Minyar.Github {
         public static bool FileExists(string owner, string name, string sha, string path) {
             var filepath = Path.Combine(cacheDir, owner, name, sha, path);
             return File.Exists(filepath);
+        }
+
+        public static bool FileExistsInDatabase(string owner, string name, string sha, string path) {
+            using (var model = new MinyarModel()) {
+                return
+                    model.files.Any(
+                        f =>
+                            f.commit.repository.full_name == owner + "/" + name && f.commit_sha == sha && f.path == path);
+            }
         }
 
         public static string LoadFile(string owner, string name, string sha, string path) {
