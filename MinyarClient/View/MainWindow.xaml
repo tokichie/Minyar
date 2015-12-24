@@ -35,6 +35,7 @@
             <Button x:Name="miningButton" Content="Mining" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" RenderTransformOrigin="-0.739,0.367" Click="miningButton_Click" Margin="10,0,0,0"/>
             <Button x:Name="detailButton" Content="Detail" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="10,0,0,0" Click="detailButton_Click"/>
             <Button x:Name="truthButton" Content="MakeTruth" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Click="truthButton_Click" Margin="10,0,0,0"/>
+            <Button x:Name="reviewButton" Content="Review" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="10,0,0,0" Click="reviewButton_Click"/>
         </StackPanel>
         <StackPanel HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top" Orientation="Horizontal" IsEnabled="{Binding FileSelected, Mode=OneWay}">
             <RadioButton x:Name="fpGrowthRadioButton" Content="FPGrowth" GroupName="MiningAlgorithm" VerticalAlignment="Center"/>

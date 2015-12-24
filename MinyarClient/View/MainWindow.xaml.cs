@@ -4,6 +4,7 @@ using System.Windows.Data;
 using System.IO;
 using System.Linq;
 using Minyar.Charm;
+using MinyarClient.View;
 using MinyarClient.ViewModel;
 using Newtonsoft.Json;
 
@@ -35,6 +36,11 @@ namespace MinyarClient {
             using (var writer = new StreamWriter(path)) {
                 writer.Write(JsonConvert.SerializeObject(selectedItems.Select(i => i.Items)));
             }
+        }
+
+        private void reviewButton_Click(object sender, RoutedEventArgs e) {
+            var window = new ReviewWindow();
+            window.Show();
         }
     }
 }

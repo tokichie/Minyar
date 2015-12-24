@@ -13,7 +13,7 @@ namespace Minyar.Database {
     public partial class MinyarModel : DbContext {
         //public static readonly string credentialPath = Path.Combine("..", "..", "..", "Minyar", "Resources",
         //    "credentials.json");
-        public static readonly string credentialPath = @"D:\repos\Minyar\Minyar\Resources\credentials.json";
+        public static readonly string credentialPath = @"C:\repos\Minyar\Minyar\Resources\credentials.json";
 
         public MinyarModel() : base(FormatConnectionString()) {
         }

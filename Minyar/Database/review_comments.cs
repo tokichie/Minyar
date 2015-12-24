@@ -1,3 +1,4 @@
+using System.Text;
 using Newtonsoft.Json;
 using Octokit;
 
@@ -32,6 +33,31 @@ namespace Minyar.Database
 
         public review_comments() {
             
+        }
+
+        public override int GetHashCode() {
+            return ToString().GetHashCode();
+        }
+
+        public override bool Equals(object obj) {
+            var right = obj as review_comments;
+            if (right == null) return false;
+            return repository_id == right.repository_id &&
+                   path == right.path && position == right.position &&
+                   original_position == right.original_position &&
+                   commit_id == right.commit_id &&
+                   original_commit_id == right.original_commit_id;
+        }
+
+        public override string ToString() {
+            var sb = new StringBuilder();
+            sb.Append(repository_id).Append(",")
+                .Append(path).Append(",")
+                .Append(position).Append(",")
+                .Append(original_position).Append(",")
+                .Append(commit_id).Append(",")
+                .Append(original_commit_id);
+            return sb.ToString();
         }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
