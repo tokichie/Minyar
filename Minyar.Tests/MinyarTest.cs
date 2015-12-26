@@ -92,11 +92,12 @@ namespace Minyar.Tests {
 
 	    [Test]
 	    public void TestCreateAstFromInadequateCode() {
-	        var code = "public class K {\n" +
-	                   "    public void hoge(int i) {\n" +
-	                   "        int a = 0;\n" +
-	                   "}";
-	        var ast = Program.GenerateAst(code);
+	        //var code = "public class K {\n" +
+	        //           "    public void hoge(int i) {\n" +
+	        //           "        int a = 0;\n" +
+	        //           "}";
+	        //var ast = Program.GenerateAst(code);
+	        var gen = AstGenerators.Java;
 	    }
 
 	    [Test]
