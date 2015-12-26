@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Minyar.Database;
 using Minyar.Github;
 using NUnit.Framework;
 using Octokit;
@@ -21,6 +23,17 @@ namespace Minyar.Tests.Github {
             Assert.That(CommentClassifier.isQuestion(comment) == false);
             typeof(PullRequestReviewComment).GetProperty("Body").SetValue(comment, "Necessary catch?");
             Assert.That(CommentClassifier.isQuestion(comment) == true);
+        }
+
+        [Test]
+        public async Task TestIsTarget() {
+            using (var model = new MinyarModel()) {
+                var comments = model.review_comments.Where(rc => rc.for_diff == 1).Take(100).ToList();
+                foreach (var comment in comments) {
+                    var isTarget = await CommentClassifier.IsTarget(comment);
+                    Console.WriteLine(isTarget);
+                }
+            }
         }
     }
 }
