@@ -74,7 +74,7 @@ namespace Minyar.Database
         public int? pull_request_id { get; set; }
 
         [Column(TypeName = "text")]
-        [Required]
+        [Required(AllowEmptyStrings = true)]
         [StringLength(65535)]
         public string body { get; set; }
 

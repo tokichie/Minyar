@@ -36,8 +36,10 @@ namespace Minyar.Database
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int id { get; set; }
 
+        [Required]
         public int repository_id { get; set; }
 
+        [Required]
         public int number { get; set; }
 
         [Required]
