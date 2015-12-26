@@ -2,6 +2,7 @@
 using Code2Xml.Core.Generators;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -91,13 +92,32 @@ namespace Minyar.Tests {
 	    }
 
 	    [Test]
-	    public void TestCreateAstFromInadequateCode() {
-	        var code = "public class K {\n" +
-	                   "    public void hoge(int i) {\n" +
-	                   "        int a = 0;\n" +
-	                   "}";
-	        var ast = Program.GenerateAst(code);
+	    public void TestJava() {
+            var process = new Process {
+                StartInfo = new ProcessStartInfo {
+                    FileName = "java",
+                    Arguments = "-version",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                }
+            };
+            process.Start();
+            var sb = new StringBuilder();
+	        while (! process.StandardError.EndOfStream) sb.Append(process.StandardError.ReadToEnd());
+            Console.WriteLine(sb.ToString());
 	    }
+
+        [Test]
+	    public void TestCreateAstFromInadequateCode() {
+	        //var code = "public class K {\n" +
+	        //           "    public void hoge(int i) {\n" +
+	        //           "        int a = 0;\n" +
+	        //           "}";
+	        //var ast = Program.GenerateAst(code);
+            var gen = AstGenerators.Java;
+        }
 
 	    [Test]
 	    public void TestItems()

@@ -2,6 +2,7 @@
 using Minyar.Github;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -20,6 +21,7 @@ namespace Minyar {
 
 		public Main() {
 			Repositories = new List<string[]>();
+            parsedDiffs = new HashSet<string>();
 		}
 
 		public Main(List<string[]> repositories) {
@@ -37,43 +39,48 @@ namespace Minyar {
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
 	        var comments = new List<review_comments>();
 	        var changeSetCount = 0;
-	        using (var model = new MinyarModel())
+	        Directory.CreateDirectory(Path.Combine("..", "..", "..", "data"));
+	        using (var model = new MinyarModel()) { 
 	            comments = model.review_comments.Where(rc => rc.for_diff == 1).ToList();
-            using (var writer =
-                    new StreamWriter(new FileStream(Path.Combine("..", "..", "..", "data", timestamp + "-all.txt"), FileMode.Append))
-                ) {
-                writer.AutoFlush = true;
-                foreach (var comment in comments) {
-                    var isQuestion = CommentClassifier.IsTarget(comment);
-                    Logger.Info("ReviewComment {0} {1}", comment.url, isQuestion);
-                    if (parsedDiffs.Contains(comment.diff_hunk)) {
-                        continue;
-                    }
-                    parsedDiffs.Add(comment.diff_hunk);
-                    var path = comment.path;
-                    if (!path.EndsWith(".java")) continue;
-                    var diffPatcher = new CoarseDiffPatcher(comment);
-                    var result = await diffPatcher.GetBothOldAndNewFiles();
-                    if (result.NewCode == null) {
-                        if (result.DiffHunk != null) Logger.Info("Skipped {0}", comment.url);
-                        continue;
-                    }
-                    //Logger.Deactivate();
-                    var changeSet = CreateAstAndTakeDiff(result, path);
-                    changeSetCount += changeSet.Count;
-                    //Logger.Activate();
-                    var repoName = comment.repository.full_name.Split('/');
-                    var astChange = new AstChange(GithubUrl(new[] { repoName[0], repoName[1] }, comment.pull_requests.number), changeSet,
-                        result.DiffHunk.Patch);
-                    if (changeSet.Count > 0) {
-                        WriteOut(writer, astChange);
-                    }
-                }
-            }
+                    //.Include(rc => rc.repository).Include(rc => rc.pull_requests).ToList();
+	            using (var writer =
+	                new StreamWriter(new FileStream(Path.Combine("..", "..", "..", "data", timestamp + "-all.txt"),
+	                    FileMode.Append))
+	                ) {
+	                writer.AutoFlush = true;
+	                foreach (var comment in comments) {
+	                    var isTarget = await CommentClassifier.IsTarget(comment);
+	                    Logger.Info("ReviewComment {0} {1}", comment.url, isTarget);
+	                    if (parsedDiffs.Contains(comment.diff_hunk)) {
+	                        continue;
+	                    }
+	                    parsedDiffs.Add(comment.diff_hunk);
+	                    var path = comment.path;
+	                    if (! path.EndsWith(".java")) continue;
+	                    var diffPatcher = new CoarseDiffPatcher(comment);
+	                    var result = await diffPatcher.GetBothOldAndNewFiles();
+	                    if (result.NewCode == null) {
+	                        if (result.DiffHunk != null) Logger.Info("Skipped {0}", comment.url);
+	                        continue;
+	                    }
+                        Logger.Deactivate();
+                        var changeSet = CreateAstAndTakeDiff(result, path);
+	                    changeSetCount += changeSet.Count;
+                        Logger.Activate();
+                        var repoName = comment.repository.full_name.Split('/');
+	                    var astChange =
+	                        new AstChange(GithubUrl(new[] {repoName[0], repoName[1]}, comment.pull_requests.number),
+	                            changeSet,
+	                            result.DiffHunk.Patch);
+	                    if (changeSet.Count > 0) {
+	                        WriteOut(writer, astChange);
+	                    }
+	                }
+	            }
+	        }
         }
 
         public async Task Start(List<Repository> repositories) {
-            parsedDiffs = new HashSet<string>();
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
 	        var changeSetCount = 0;
             foreach (var repo in repositories) {
@@ -140,11 +147,9 @@ namespace Minyar {
 
 	    public static T ReadFromJson<T>(string path)
 	    {
-            var resolver = new PrivateSetterContractResolver();
-            var serializeSettings = new JsonSerializerSettings {ContractResolver = resolver};
 	        var json = new StreamReader(path).ReadToEnd();
-            return JsonConvert.DeserializeObject<T>(json, serializeSettings);
-        }
+	        return JsonConverter.Deserialize<T>(json);
+	    }
 
 	    public static void WriteOutJson(object obj, string path) {
 	        var json = JsonConvert.SerializeObject(obj);

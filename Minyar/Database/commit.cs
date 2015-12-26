@@ -28,8 +28,7 @@ namespace Minyar.Database
         }
 
         public IEnumerable<GitHubCommitFile> GetFiles() {
-            var json = raw_json.Replace("\\\"", "\"");
-            var commit = JsonConvert.DeserializeObject<GitHubCommit>(json);
+            var commit = JsonConverter.Deserialize<GitHubCommit>(raw_json);
             return commit.Files;
         }
 

@@ -14,15 +14,17 @@ namespace Minyar.Database {
     public partial class MinyarModel : DbContext {
         //public static readonly string credentialPath = Path.Combine("..", "..", "..", "Minyar", "Resources",
         //    "credentials.json");
-        public static readonly string credentialPath = @"C:\repos\Minyar\Minyar\Resources\credentials.json";
+        public static readonly string credentialPath = @"D:\repos\Minyar\Minyar\Resources\credentials.json";
 
         public MinyarModel() : base(FormatConnectionString()) {
+            //this.Configuration.LazyLoadingEnabled = false;
         }
 
         private static string FormatConnectionString() {
             var connString = ConfigurationManager.ConnectionStrings["MinyarModelConnection"].ConnectionString;
             var builder = new MySqlConnectionStringBuilder(connString);
             builder.ConvertZeroDateTime = true;
+            builder.AllowBatch = true;
             using (var reader = new StreamReader(credentialPath)) {
                 var json = JsonConvert.DeserializeObject(reader.ReadToEnd()) as JObject;
                 builder.Server = json["Database"]["Server"].ToString();

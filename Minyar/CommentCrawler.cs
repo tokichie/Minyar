@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -209,39 +210,59 @@ namespace Minyar {
         private async Task SearchPulls() {
             var client = OctokitClient.Client;
             using (var model = new MinyarModel()) {
-                foreach (var repo in model.repositories.Where(r => r.original_id == 6650539)) {
-                    //if (repo.full_name != "neo4j/neo4j")
-                    //if (model.pull_requests.Any(p => p.repository_id == repo.original_id)) continue;
-                    var options = new PullRequestRequest {
-                        State = ItemState.All
-                    };
-                    Console.WriteLine(repo.full_name);
-                    var repoNames = repo.full_name.Split('/');
-                    var pulls = await client.PullRequest.GetAllForRepository(repoNames[0], repoNames[1], options);
-                    ApiRateLimit.CheckLimit();
-                    using (var model1 = new MinyarModel()) {
-                        foreach (var pull in pulls) {
-                            Console.Write("pull {0}...", pull.Number);
-                            if (model1.pull_requests.Any(p => p.repository_id == repo.original_id && p.number == pull.Number)) {
-                                Console.WriteLine();
+                model.Database.CommandTimeout = 300;
+                int? id = null;
+                var comments =
+                    model.review_comments.Where(rc => rc.id > 183000).ToList();//.Include(rc => rc.repository);//.Where(
+                        //rc => id == null ? rc.pull_request_id == null : rc.pull_request_id == id);
+                        //rc => (rc.pull_request_id == null && id == null) || rc.pull_request_id == id);
+                var c = 0;
+                var cnt = new[] {0, 0};
+                foreach (var comment in comments) {
+                    try {
+                        if (comment.pull_request_id != null) {
+                            Console.Write(".");
+                            continue;
+                        }
+                        c++;
+                        var number = int.Parse(comment.pull_request_url.SubstringAfterLast("/"));
+                        using (var model1 = new MinyarModel()) {
+                            var existPull =
+                                model1.pull_requests.FirstOrDefault(
+                                    p => p.repository_id == comment.repository_id && p.number == number);
+                            if (existPull != null) {
+                                cnt[0]++;
+                                Console.WriteLine("{0} Skip {1}", c, comment.id);
+                                comment.pull_request_id = existPull.id;
+                                comment.is_closed_pr = existPull.state == "Closed";
+                                if (cnt[0] % 100 == 0) {
+                                    Console.WriteLine("Saving to DB...");
+                                    model.SaveChanges();
+                                }
                                 continue;
                             }
-                            var pr = new pull_requests(pull, repo.original_id);
-                            model1.pull_requests.Add(pr);
-                            model1.SaveChanges();
-                            Console.Write(" Add to DB... ");
-                            if (model1.review_comments.Any(rc => rc.repository_id == repo.original_id && rc.pull_request_url.EndsWith("/" + pull.Number.ToString()))) {
-                                foreach (var comment in model1.review_comments.Where(rc => rc.repository_id == repo.original_id && rc.pull_request_url.EndsWith("/" + pull.Number.ToString()))) {
-                                    comment.pull_request_id = pr.id;
-                                    comment.is_closed_pr = pr.state == "Closed";
-                                }
-                                model1.SaveChanges();
-                                Console.Write(" Update DB");
-                            }
-                            Console.WriteLine();
                         }
+                        cnt[1]++;
+                        var repoNames = comment.repository.full_name.Split('/');
+                        Console.Write("{0} {1}/{2} Pull#{3}", c, repoNames[0], repoNames[1], number);
+                        var pull = await client.PullRequest.Get(repoNames[0], repoNames[1], number);
+                        ApiRateLimit.CheckLimit();
+                        var pr = new pull_requests(pull, comment.repository_id ?? 0);
+                        using (var model2 = new MinyarModel()) {
+                            model2.pull_requests.Add(pr);
+                            model2.SaveChanges();
+                        }
+                        comment.pull_request_id = pr.id;
+                        comment.is_closed_pr = pull.State == ItemState.Closed;
+                        if (cnt[1] % 100 == 0) {
+                            Console.WriteLine("Saving to DB...");
+                            model.SaveChanges();
+                        }
+                    } catch (Exception e) {
+                        Console.WriteLine(e.Message);
                     }
                 }
+                model.SaveChanges();
             }
         }
 
