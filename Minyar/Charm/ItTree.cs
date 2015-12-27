@@ -7,6 +7,8 @@ namespace Minyar.Charm {
     public class ItTree {
         private List<ItemTidSet<string, RepeatableTid>> transactions;
         private int minSup;
+        private int absoluteThreshold;
+        private int dynamicThreshold;
         private Dictionary<int, List<ItemTidSet<string, RepeatableTid>>> detectedSets;
         private HashSet<ItemTidSet<string, RepeatableTid>> skipFlag;
 
@@ -14,7 +16,8 @@ namespace Minyar.Charm {
 
         public ItTree(List<ItemTidSet<string, RepeatableTid>> transactions, int minSup) {
             this.transactions = transactions;
-            this.minSup = minSup;
+            absoluteThreshold = 30;//absoluteThreshold;
+            dynamicThreshold = 30;
             ClosedItemsets = new List<ItemTidSet<string, RepeatableTid>>();
         }
 
@@ -27,7 +30,7 @@ namespace Minyar.Charm {
             ClosedItemsets = new List<ItemTidSet<string, RepeatableTid>>();
             detectedSets = new Dictionary<int, List<ItemTidSet<string, RepeatableTid>>>();
             skipFlag = new HashSet<ItemTidSet<string, RepeatableTid>>();
-            CharmExtend(transactions.Where(t => t.Tids.Count >= minSup)
+            CharmExtend(transactions.Where(t => t.GetFrequency() >= 30 && t.GetFrequency() < 1000)
                 .OrderBy(t => t.GetFrequency()).ToList());
         }
 
@@ -67,7 +70,8 @@ namespace Minyar.Charm {
         }
 
         private void CharmProperty(List<ItemTidSet<string, RepeatableTid>> newN, ref ItemTidSet<string, RepeatableTid> nodeI, ItemTidSet<string, RepeatableTid> nodeJ, SortedSet<string> x, HashSet<RepeatableTid> y) {
-            if (y.Count < minSup) return;
+            if (y.Count < absoluteThreshold) return;
+            if (y.Sum(i => i.Occurrences) < dynamicThreshold) return;
             var xi = nodeI.Tids;
             var xj = nodeJ.Tids;
             if (xi.SetEquals(xj)) {

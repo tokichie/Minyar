@@ -39,43 +39,54 @@ namespace Minyar {
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
 	        var comments = new List<review_comments>();
 	        var changeSetCount = 0;
+	        var targetComments = 0;
+	        var errorCount = 0;
 	        Directory.CreateDirectory(Path.Combine("..", "..", "..", "data"));
 	        using (var model = new MinyarModel()) { 
 	            comments = model.review_comments.Where(rc => rc.for_diff == 1).ToList();
-                    //.Include(rc => rc.repository).Include(rc => rc.pull_requests).ToList();
 	            using (var writer =
 	                new StreamWriter(new FileStream(Path.Combine("..", "..", "..", "data", timestamp + "-all.txt"),
 	                    FileMode.Append))
 	                ) {
 	                writer.AutoFlush = true;
 	                foreach (var comment in comments) {
-	                    var isTarget = await CommentClassifier.IsTarget(comment);
-	                    Logger.Info("ReviewComment {0} {1}", comment.url, isTarget);
-	                    if (parsedDiffs.Contains(comment.diff_hunk)) {
-	                        continue;
-	                    }
-	                    parsedDiffs.Add(comment.diff_hunk);
-	                    var path = comment.path;
-	                    if (! path.EndsWith(".java")) continue;
-	                    var diffPatcher = new CoarseDiffPatcher(comment);
-	                    var result = await diffPatcher.GetBothOldAndNewFiles();
-	                    if (result.NewCode == null) {
-	                        if (result.DiffHunk != null) Logger.Info("Skipped {0}", comment.url);
-	                        continue;
-	                    }
-                        Logger.Deactivate();
-                        var changeSet = CreateAstAndTakeDiff(result, path);
-	                    changeSetCount += changeSet.Count;
-                        Logger.Activate();
-                        var repoName = comment.repository.full_name.Split('/');
-	                    var astChange =
-	                        new AstChange(GithubUrl(new[] {repoName[0], repoName[1]}, comment.pull_requests.number),
-	                            changeSet,
-	                            result.DiffHunk.Patch);
-	                    if (changeSet.Count > 0) {
-	                        WriteOut(writer, astChange);
+	                    try {
+	                        var isTarget = await CommentClassifier.IsTarget(comment);
+	                        if (parsedDiffs.Contains(comment.diff_hunk) || ! isTarget) {
+	                            Logger.Info("This comment is not target");
+	                            continue;
+	                        }
+	                        targetComments++;
+	                        Logger.Info("{0} ReviewComment {1}", targetComments, comment.url);
+	                        parsedDiffs.Add(comment.diff_hunk);
+	                        var path = comment.path;
+	                        if (! path.EndsWith(".java")) continue;
+	                        var diffPatcher = new CoarseDiffPatcher(comment);
+	                        var result = await diffPatcher.GetBothOldAndNewFiles();
+	                        if (result.NewCode == null) {
+	                            if (result.DiffHunk != null) Logger.Info("Skipped {0}", comment.url);
+	                            continue;
+	                        }
+	                        Logger.Deactivate();
+	                        var changeSet = CreateAstAndTakeDiff(result, path);
+	                        changeSetCount += changeSet.Count;
+	                        Logger.Activate();
+	                        var repoName = comment.repository.full_name.Split('/');
+	                        var astChange =
+	                            new AstChange(GithubUrl(new[] {repoName[0], repoName[1]}, comment.pull_requests.number),
+	                                changeSet,
+	                                result.DiffHunk.Patch);
+	                        if (changeSet.Count > 0) {
+	                            WriteOut(writer, astChange);
+	                        }
+	                    } catch (Exception e) {
+	                        errorCount++;
+	                        Logger.Error(e.Message);
 	                    }
 	                }
+                    Logger.Info("TargetComments: {0}", targetComments);
+                    Logger.Info("ChangeSetCount: {0}", changeSetCount);
+                    Logger.Info("ErrorCount: {0}", errorCount);
 	            }
 	        }
         }

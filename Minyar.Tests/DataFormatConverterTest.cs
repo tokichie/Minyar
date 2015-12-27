@@ -16,7 +16,7 @@ namespace Minyar.Tests {
     public class DataFormatConverterTest {
         [Test]
         public void HorizontalToVerticalTest() {
-            var path = Path.Combine("..", "..", "TestData", "all-nega-20151210.txt");
+            var path = Path.Combine("..", "..", "..", "data", "20151226153505-all.txt");
             var data = new List<ItemWrapper>();
             using (var reader = new StreamReader(path)) {
                 foreach (var line in reader.ReadLines()) {
