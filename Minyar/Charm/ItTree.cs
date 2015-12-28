@@ -16,8 +16,8 @@ namespace Minyar.Charm {
 
         public ItTree(List<ItemTidSet<string, RepeatableTid>> transactions, int minSup) {
             this.transactions = transactions;
-            absoluteThreshold = 30;//absoluteThreshold;
-            dynamicThreshold = 30;
+            absoluteThreshold = 50;//absoluteThreshold;
+            dynamicThreshold = 50;
             ClosedItemsets = new List<ItemTidSet<string, RepeatableTid>>();
         }
 
@@ -30,13 +30,14 @@ namespace Minyar.Charm {
             ClosedItemsets = new List<ItemTidSet<string, RepeatableTid>>();
             detectedSets = new Dictionary<int, List<ItemTidSet<string, RepeatableTid>>>();
             skipFlag = new HashSet<ItemTidSet<string, RepeatableTid>>();
-            CharmExtend(transactions.Where(t => t.GetFrequency() >= 30 && t.GetFrequency() < 1000)
+            CharmExtend(transactions.Where(t => t.GetFrequency() >= 50 && t.GetFrequency() < 750)
                 .OrderBy(t => t.GetFrequency()).ToList());
         }
 
         // http://www.cs.rpi.edu/tr/99-10.pdf p.10
-        private void CharmExtend(List<ItemTidSet<string, RepeatableTid>> nodes) {
+        private void CharmExtend(List<ItemTidSet<string, RepeatableTid>> nodes, bool logging = true) {
             foreach (var xi in nodes) {
+                if (logging) Console.WriteLine("{0} Node {1}/{2}", DateTime.Now, nodes.IndexOf(xi), nodes.Count);
                 var _xi = xi;
                 if (skipFlag.Contains(xi)) continue;
                 var newN = new List<ItemTidSet<string, RepeatableTid>>();
@@ -47,7 +48,7 @@ namespace Minyar.Charm {
                     x.UnionWith(xj.Items);
                     CharmProperty(newN, ref _xi, xj, x, y);
                 }
-                if (!newN.IsEmpty()) CharmExtend(newN);
+                if (!newN.IsEmpty()) CharmExtend(newN, false);
                 var newIt = new ItemTidSet<string, RepeatableTid>(_xi);
                 if (!IsSubsumed(newIt)) {
                     ClosedItemsets.Add(newIt);

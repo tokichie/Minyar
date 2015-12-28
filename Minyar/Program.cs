@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Code2Xml.Core.Generators;
 using Code2Xml.Core.SyntaxTree;
+using Newtonsoft.Json;
 using Octokit;
 
 namespace Minyar {
@@ -49,6 +50,9 @@ namespace Minyar {
                 case "crawlfiles":
                     crawler.CrawlFiles();
                     break;
+                case "mining":
+                    GenerateClosedItemsets();
+                    break;
             }
             Console.WriteLine("\nProgram finished.");
 		    Console.ReadKey();
@@ -59,6 +63,14 @@ namespace Minyar {
 	        var task = main.StartUsingDatabase();
 	        task.Wait();
 	    }
+
+        private static void GenerateClosedItemsets() {
+            var path = Path.Combine("..", "..", "..", "data", "20151226153505-all.txt");
+            var miner = new ItTreeMiner(path);
+            miner.GenerateClosedItemSets();
+            var res = miner.GetMinedItemSets();
+            new StreamWriter(Path.Combine("..", "..", "..", "data", "mining", "30.json")).Write(JsonConvert.SerializeObject(res));
+        }
 
 	    private static void Start(int index, int count) {
 	        var main = new Main();
