@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/tokichie/Minyar.png?label=ready&title=Ready)](https://waffle.io/tokichie/Minyar)
 # Minyar:cat:
 Github mining tools :cat2:
 
