@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Minyar {
-	public struct ChangePair {
+	public class ChangePair {
 	    [DataMember(Name = "Opration")] public CstChangeOperation Operation;
 
         [DataMember(Name = "NodeType")]
@@ -49,6 +49,8 @@ namespace Minyar {
 					this.NodeType = cmpNode.Name;
 			}
 		}
+
+        public ChangePair() { }
 
 		public ChangePair(CstChangeOperation op, string filePath, string orgToken, string cmpToken) {
 			this.Operation = op;

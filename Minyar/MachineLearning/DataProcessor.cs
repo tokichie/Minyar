@@ -48,7 +48,7 @@ namespace Minyar.MachineLearning {
                     items.Add(itemWrapper);
                 }
                 if (items.Count < count) throw new DataShortageException();
-                itemList.AddRange(items.Shuffle().Take(750));
+                itemList.AddRange(items.Shuffle().Take(count));
             }
         }
     }

@@ -21,6 +21,10 @@ namespace Minyar {
             DiffHunk = diffHunk;
         }
 
+        public AstChange() {
+            
+        }
+
         public override string ToString() {
             var settings = new JsonSerializerSettings();
             settings.Converters.Add(new StringEnumConverter());

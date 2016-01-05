@@ -22,7 +22,7 @@ namespace MinyarClient.ViewModel {
         private int cursor;
         private int totalComments;
 
-        private static readonly string path = Path.Combine("..", "..", "..", "data", "Negative.json");
+        private static readonly string path = Path.Combine("..", "..", "..", "data", "Positive.json");
 
         public ReviewViewModel() {
             comments = new List<review_comments>();
@@ -103,7 +103,7 @@ namespace MinyarClient.ViewModel {
             }
             SampleCount = savedComments.Count;
             comments = model.review_comments.Where(
-                rc => rc.repository_id == 9342529 && rc.for_diff == 1).ToList();
+                rc => rc.repository_id == 9342529 && rc.for_diff == 0).ToList();
             TotalComments = comments.Count;
             cursors = Enumerable.Range(0, comments.Count).Shuffle().ToList();
             Refresh();

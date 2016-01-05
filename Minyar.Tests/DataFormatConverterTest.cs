@@ -16,7 +16,7 @@ namespace Minyar.Tests {
     public class DataFormatConverterTest {
         [Test]
         public void HorizontalToVerticalTest() {
-            var path = Path.Combine("..", "..", "..", "data", "20151226153505-all.txt");
+            var path = Path.Combine("..", "..", "..", "data", "20160105-changed-mining.txt");
             var data = new List<ItemWrapper>();
             using (var reader = new StreamReader(path)) {
                 foreach (var line in reader.ReadLines()) {
@@ -34,6 +34,7 @@ namespace Minyar.Tests {
             foreach (var item in data) {
                 counter[item.ItemsString] = item.Tids.Sum(t => t.Occurrences);
             }
+            var res = counter.OrderByDescending(i => i.Value);
         }
 
         [Test]
