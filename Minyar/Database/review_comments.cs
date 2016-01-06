@@ -99,6 +99,8 @@ namespace Minyar.Database
         public int? for_diff { get; set; }
 
         public bool? is_closed_pr { get; set; }
+        
+        public bool? is_first_comment { get; set; }
 
         [StringLength(2083)]
         public string url { get; set; }

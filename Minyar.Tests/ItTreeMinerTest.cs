@@ -17,7 +17,7 @@ namespace Minyar.Tests {
             var miner = new ItTreeMiner(path);
             miner.GenerateClosedItemSets();
             var res = miner.GetMinedItemSets();
-            new StreamWriter(Path.Combine("..", "..", "..", "data", "mining", "30.json")).Write(JsonConvert.SerializeObject(res));
+            new StreamWriter(Path.Combine("..", "..", "..", "data", "mining", "750.json")).Write(JsonConvert.SerializeObject(res));
         }
     }
 }

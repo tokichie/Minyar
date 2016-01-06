@@ -26,6 +26,57 @@ namespace Minyar {
             }
         }
 
+        public async Task CountCommentWords() {
+            var dic = new Dictionary<string, int>();
+            using (var model = new MinyarModel()) {
+                foreach (var comment in model.review_comments.Where(rc => rc.is_first_comment == true)) {
+                    var words = comment.body.Trim().Replace("```", "").Split(' ');
+                    foreach (var word in words) {
+                        if (dic.ContainsKey(word)) {
+                            dic[word]++;
+                        } else {
+                            dic[word] = 1;
+                        }
+                    }
+                }
+            }
+            var path = Path.Combine("..", "..", "..", "..", "data", "words.json");
+            using (var writer = new StreamWriter(path)) {
+                writer.WriteLine(JsonConvert.SerializeObject(
+                    dic.OrderByDescending(i => i.Value).ToDictionary(i => i.Key, i => i.Value),
+                    Formatting.Indented));
+            }
+        }
+
+        public async Task UpdateCommentsAsync() {
+            var dic = new Dictionary<int, review_comments>();
+            using (var model = new MinyarModel()) {
+                foreach (var comment in model.review_comments) {
+                    if (dic.ContainsKey(comment.GetHashCode())) {
+                        if (dic[comment.GetHashCode()].original_created_at.CompareTo(comment.original_created_at) == 1)
+                            dic[comment.GetHashCode()] = comment;
+                    } else {
+                        dic[comment.GetHashCode()] = comment;
+                    }
+                }
+            }
+            Console.WriteLine("ItemCount {0}", dic.Count);
+            using (var model = new MinyarModel()) {
+                var c = 0;
+                foreach (var item in dic) {
+                    c++;
+                    Console.WriteLine(c);
+                    var comment = model.review_comments.First(rc => rc.id == item.Value.id);
+                    comment.is_first_comment = true;
+                    if (c % 1000 == 0) {
+                        Console.WriteLine("Saving ...");
+                        model.SaveChanges();
+                    }
+                }
+                model.SaveChanges();
+            }
+        }
+
         public void CrawlWithMyRepo() {
             var task = Crawl("tokichie/pattern-detection");
             task.Wait();

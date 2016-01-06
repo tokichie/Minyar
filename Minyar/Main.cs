@@ -37,56 +37,80 @@ namespace Minyar {
 
 	    public async Task StartUsingDatabase() {
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-	        var comments = new List<review_comments>();
+	        //var negaPath = Path.Combine("..", "..", "..", "data", "Positive.json");
+	        //var commentIds = ReadFromJson<List<int>>(negaPath);
 	        var changeSetCount = 0;
 	        var targetComments = 0;
+	        var progressCount = 0;
 	        var errorCount = 0;
 	        Directory.CreateDirectory(Path.Combine("..", "..", "..", "data"));
-	        using (var model = new MinyarModel()) { 
-	            comments = model.review_comments.Where(rc => rc.for_diff == 1).ToList();
+	        using (var model = new MinyarModel()) {
+                //comments = model.review_comments.Where(rc => rc.for_diff == 1).ToList();
+	            var comments = new List<review_comments>();
+	            try {
+	                //comments =
+	                //    commentIds.Select(id => model.review_comments.FirstOrDefault(rc => rc.original_id == id)).ToList();
+	                comments = model.review_comments.Where(rc => rc.id > 63787).Take(50000).ToList();
+	            } catch (Exception e) {
+	                Console.WriteLine(e.Message);
+	            }
 	            using (var writer =
-	                new StreamWriter(new FileStream(Path.Combine("..", "..", "..", "data", timestamp + "-all.txt"),
+	                new StreamWriter(new FileStream(Path.Combine("..", "..", "..", "data", timestamp + "-changed.txt"),
 	                    FileMode.Append))
 	                ) {
-	                writer.AutoFlush = true;
-	                foreach (var comment in comments) {
-	                    try {
-	                        var isTarget = await CommentClassifier.IsTarget(comment);
-	                        if (parsedDiffs.Contains(comment.diff_hunk) || ! isTarget) {
-	                            Logger.Info("This comment is not target");
-	                            continue;
+	                using (var writer2 =
+	                    new StreamWriter(
+	                        new FileStream(Path.Combine("..", "..", "..", "data", timestamp + "-unchanged.txt"),
+	                            FileMode.Append))
+	                    ) {
+	                    writer.AutoFlush = true;
+                        writer2.AutoFlush = true;
+	                    foreach (var comment in comments) {
+	                        if (comment == null) continue;
+	                        progressCount++;
+	                        Logger.Info("#{0} / {1}", progressCount, comments.Count);
+	                        try {
+	                            var isTarget = await CommentClassifier.IsTarget(comment);
+	                            if (parsedDiffs.Contains(comment.diff_hunk)) {
+	                                Logger.Info("This comment' diff is already parsed");
+	                                continue;
+	                            }
+	                            targetComments++;
+	                            Logger.Info("{0} ReviewComment {1}", targetComments, comment.url);
+	                            parsedDiffs.Add(comment.diff_hunk);
+	                            var path = comment.path;
+	                            if (! path.EndsWith(".java")) continue;
+	                            var diffPatcher = new CoarseDiffPatcher(comment);
+	                            var result = await diffPatcher.GetBothOldAndNewFiles();
+	                            if (result.NewCode == null) {
+	                                if (result.DiffHunk != null) Logger.Info("Skipped {0}", comment.url);
+	                                continue;
+	                            }
+	                            Logger.Deactivate();
+	                            var changeSet = CreateAstAndTakeDiff(result, path);
+	                            changeSetCount += changeSet.Count;
+	                            Logger.Activate();
+	                            var repoName = comment.repository.full_name.Split('/');
+	                            var astChange =
+	                                new AstChange(
+	                                    GithubUrl(new[] {repoName[0], repoName[1]}, comment.pull_requests.number),
+	                                    changeSet,
+	                                    result.DiffHunk.Patch);
+	                            if (changeSet.Count > 0) {
+                                    if (isTarget)
+                                        WriteOut(writer, astChange);
+                                    else
+                                        WriteOut(writer2, astChange);
+	                            }
+	                        } catch (Exception e) {
+	                            errorCount++;
+	                            Logger.Error(e.Message);
 	                        }
-	                        targetComments++;
-	                        Logger.Info("{0} ReviewComment {1}", targetComments, comment.url);
-	                        parsedDiffs.Add(comment.diff_hunk);
-	                        var path = comment.path;
-	                        if (! path.EndsWith(".java")) continue;
-	                        var diffPatcher = new CoarseDiffPatcher(comment);
-	                        var result = await diffPatcher.GetBothOldAndNewFiles();
-	                        if (result.NewCode == null) {
-	                            if (result.DiffHunk != null) Logger.Info("Skipped {0}", comment.url);
-	                            continue;
-	                        }
-	                        Logger.Deactivate();
-	                        var changeSet = CreateAstAndTakeDiff(result, path);
-	                        changeSetCount += changeSet.Count;
-	                        Logger.Activate();
-	                        var repoName = comment.repository.full_name.Split('/');
-	                        var astChange =
-	                            new AstChange(GithubUrl(new[] {repoName[0], repoName[1]}, comment.pull_requests.number),
-	                                changeSet,
-	                                result.DiffHunk.Patch);
-	                        if (changeSet.Count > 0) {
-	                            WriteOut(writer, astChange);
-	                        }
-	                    } catch (Exception e) {
-	                        errorCount++;
-	                        Logger.Error(e.Message);
 	                    }
+	                    Logger.Info("TargetComments: {0}", targetComments);
+	                    Logger.Info("ChangeSetCount: {0}", changeSetCount);
+	                    Logger.Info("ErrorCount: {0}", errorCount);
 	                }
-                    Logger.Info("TargetComments: {0}", targetComments);
-                    Logger.Info("ChangeSetCount: {0}", changeSetCount);
-                    Logger.Info("ErrorCount: {0}", errorCount);
 	            }
 	        }
         }
