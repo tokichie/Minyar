@@ -64,6 +64,10 @@ namespace Minyar.Github {
         }
 
         public static DiffHunk ParseDiffHunk(string hunk) {
+            if (! Regex.IsMatch(hunk, diffChangedLinePattern)) {
+                Logger.Info("Failed to create new diff hunk");
+                return new DiffHunk(0, 0, 0, 0, "");
+            }
             var line = Regex.Matches(hunk, diffChangedLinePattern)[0];
             return new DiffHunk(
                 int.Parse(line.Groups[1].Value),

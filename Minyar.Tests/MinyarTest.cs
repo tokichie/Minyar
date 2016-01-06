@@ -146,11 +146,11 @@ namespace Minyar.Tests {
 	    public async Task TestBlobDownload() {
 	        var sha = "795023f32ed2cb6cd081d7c5f6c44f2f2bcde552";
 	        var client = OctokitClient.Client;
-            ApiRateLimit.CheckLimit();
-	        //var data = await client.Repository.Commits.Get("elastic", "elasticsearch", sha);
-	        var data =
-	            new WebClient().DownloadString(
-	                "https://raw.githubusercontent.com/elastic/elasticsearch/795023f32ed2cb6cd081d7c5f6c44f2f2bcde552/src/main/java/org/elasticsearch/gateway/GatewayMetaState.java");
+	        var owner = "rstudio";
+	        var name = owner;
+            var pull = await PullRequestCache.LoadPullFromDatabase(owner, name, 466);
+	        var head_sha = JsonConverter.Deserialize<PullRequest>(pull.raw_json).Head.Sha;
+	        var cmp = await client.Repository.Commits.Compare(owner, name, pull.base_sha, head_sha);
             ApiRateLimit.CheckLimit();
 	    }
 

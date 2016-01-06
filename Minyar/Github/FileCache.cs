@@ -22,12 +22,12 @@ namespace Minyar.Github {
         }
 
         public static bool FileExistsInDatabase(string owner, string name, string sha, string path) {
-            using (var model = new MinyarModel()) {
-                return
-                    model.files.Any(
-                        f =>
-                            f.commit.repository.full_name == owner + "/" + name && f.commit_sha == sha && f.path == path);
-            }
+            var res = false;
+            using (var model = new MinyarModel())
+                res = model.files.Any(
+                    f =>
+                        f.commit.repository.full_name == owner + "/" + name && f.commit_sha == sha && f.path == path);
+            return res;
         }
 
         public static string LoadFile(string owner, string name, string sha, string path) {
@@ -74,7 +74,7 @@ namespace Minyar.Github {
                 {
                     return model.files.First(f => f.commit_sha == sha && f.path == path).content;
                 }
-                var repo = model.repositories.First(r => r.full_name == owner + "/" + name);
+                await CommitCache.LoadCommitFromDatabase(owner, name, sha);
                 IReadOnlyList<RepositoryContent> repoContents;
                 try
                 {
@@ -104,6 +104,14 @@ namespace Minyar.Github {
             Directory.CreateDirectory(Path.Combine(filepath, ".."));
             using (var writer = new StreamWriter(filepath)) {
                 writer.Write(content);
+            }
+        }
+
+        public static void SaveFileToDatabase(string sha, string path, string content) {
+            using (var model = new MinyarModel()) {
+                var file = new file(sha, path, content);
+                model.files.Add(file);
+                model.SaveChanges();
             }
         }
     }

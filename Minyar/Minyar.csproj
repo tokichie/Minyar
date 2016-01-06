@@ -382,6 +382,10 @@
     <Compile Include="Migrations\201512251540506_AlterColumnOnPullRequest.Designer.cs">
       <DependentUpon>201512251540506_AlterColumnOnPullRequest.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201512310702083_AddColumnToReviewComents.cs" />
+    <Compile Include="Migrations\201512310702083_AddColumnToReviewComents.Designer.cs">
+      <DependentUpon>201512310702083_AddColumnToReviewComents.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Migrations\MySqlHistoryContext.cs" />
     <Compile Include="OutputWriter.cs" />
@@ -508,6 +512,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201512251540506_AlterColumnOnPullRequest.resx">
       <DependentUpon>201512251540506_AlterColumnOnPullRequest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201512310702083_AddColumnToReviewComents.resx">
+      <DependentUpon>201512310702083_AddColumnToReviewComents.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="..\packages\Accord.3.0.2\build\Accord.targets" Condition="Exists('..\packages\Accord.3.0.2\build\Accord.targets')" />

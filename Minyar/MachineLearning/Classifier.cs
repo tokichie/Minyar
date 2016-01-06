@@ -40,8 +40,8 @@ namespace Minyar.MachineLearning {
                 doubleInputs.Add(CompareWithGroundTruth(set));
             }
             var smo = new SequentialMinimalOptimization(svm, doubleInputs.ToArray(), labelsForInput.ToArray());
-            //smo.UseComplexityHeuristic = true;
-            smo.Complexity = 0.3;
+            smo.UseComplexityHeuristic = true;
+            //smo.Complexity = 0.3;
             Error = smo.Run();
         }
 

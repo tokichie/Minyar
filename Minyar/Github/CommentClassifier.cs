@@ -17,9 +17,9 @@ namespace Minyar.Github {
         public static async Task<bool> IsTarget(review_comments comment) {
             if (comment.pull_requests.merged_commit_sha == null) return false;
             var commentedLine = comment.diff_hunk.Split('\n').Last().Trim('-', '+').Trim();
-            var sha = comment.pull_requests.merged_commit_sha;
-            var commit = await CommitCache.LoadCommitFromDatabase(comment.repository_id, sha);
-            if (! commit.GetFiles().Any(f => f.Filename == comment.path)) return false;
+            var sha = JsonConverter.Deserialize<PullRequest>(comment.pull_requests.raw_json).Head.Sha;
+            //var commit = await CommitCache.LoadCommitFromDatabase(comment.repository_id, sha);
+            //if (! commit.GetFiles().Any(f => f.Filename == comment.path)) return false;
             var fileContent = await FileCache.LoadContentFromDatabase(comment.repository_id, sha, comment.path);
             return ! fileContent.Contains(commentedLine);
         }
