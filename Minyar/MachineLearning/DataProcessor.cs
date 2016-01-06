@@ -14,17 +14,45 @@ namespace Minyar.MachineLearning {
             
         }
 
+        public class MlItem {
+            public HashSet<string> Items { get; set; }
+            public string Tokens { get; set; }
+
+            public MlItem(HashSet<string> items, string tokens) {
+                Items = items;
+                Tokens = tokens;
+            }
+        }
+
         private string negativeFilePath;
         private string positiveFilePath;
         private List<ItemWrapper> negativeItems;
         private List<ItemWrapper> positiveItems;
 
-        public List<HashSet<string>> NegativeItems {
-            get { return negativeItems.Select(i => new HashSet<string>(i.Items.Select(j => j.Symbol))).ToList(); }
+        public List<MlItem> NegativeItems {
+            get {
+                return new List<MlItem>(
+                    negativeItems.Select(
+                        i => new MlItem(
+                            new HashSet<string>(i.Items.Select(j => j.Symbol)),
+                            string.Join(" ", i.Items.Where(j => j.NodeType == "identifier").Select(j => j.ChangedToken))
+                            )
+                        )
+                    ).ToList();
+            }
         } 
 
-        public List<HashSet<string>> PositiveItems {
-            get { return positiveItems.Select(i => new HashSet<string>(i.Items.Select(j => j.Symbol))).ToList(); }
+        public List<MlItem> PositiveItems {
+            get {
+                return new List<MlItem>(
+                    positiveItems.Select(
+                        i => new MlItem(
+                            new HashSet<string>(i.Items.Select(j => j.Symbol)),
+                            string.Join(" ", i.Items.Where(j => j.NodeType == "identifier").Select(j => j.ChangedToken))
+                            )
+                        )
+                    ).ToList();
+            }
         } 
 
         public DataProcessor(string negativePath, string positivePath) {

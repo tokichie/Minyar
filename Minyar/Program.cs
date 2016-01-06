@@ -66,11 +66,11 @@ namespace Minyar {
 
         private static void GenerateClosedItemsets() {
             //var path = Path.Combine("..", "..", "..", "data", "20151226153505-all.txt");
-            var path = Path.Combine("..", "..", "..", "data", "20160105-unchanged-mining-913.txt");
+            var path = Path.Combine("..", "..", "..", "data", "20160105-unchanged-mining-1619.txt");
             var miner = new ItTreeMiner(path);
             miner.GenerateClosedItemSets();
             var res = miner.GetMinedItemSets();
-            using (var writer = new StreamWriter(Path.Combine("..", "..", "..", "data", "mining", "20160105-500-unchanged.json"))) writer.Write(JsonConvert.SerializeObject(res));
+            using (var writer = new StreamWriter(Path.Combine("..", "..", "..", "data", "mining", "20160106-5-50-unchanged.json"))) writer.Write(JsonConvert.SerializeObject(res));
         }
 
 	    private static void Start(int index, int count) {

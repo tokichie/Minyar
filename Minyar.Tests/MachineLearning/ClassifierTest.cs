@@ -19,7 +19,7 @@ namespace Minyar.MachineLearning.Tests {
 
         [Test]
         public void ClassifyTest() {
-            var changedPath = Path.Combine("..", "..", "..", "data", "20160105-changed-training.txt");
+            var changedPath = Path.Combine("..", "..", "..", "data", "20160105-changed-training-2.txt");
             var unchangedPath = Path.Combine("..", "..", "..", "data", "20160105-unchanged-training.txt");
             var processor = new DataProcessor(changedPath, unchangedPath);
             processor.Sample(sampleCount, 5);
@@ -39,26 +39,29 @@ namespace Minyar.MachineLearning.Tests {
             }
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
             using (var writer = new StreamWriter(Path.Combine("..", "..", "..", "data", "Experiment-" + timestamp + ".txt"))) {
+                var precision = res.Where(i => i[0] > 0).Average(i => i[0]);
+                var recall = res.Where(i => i[0] > 0).Average(i => i[1]);
                 writer.WriteLine("Count: {0}", res.Count(i => i[0] > 0));
                 writer.WriteLine("Precision:");
                 writer.WriteLine(" Min: {0}", res.Where(i => i[0] > 0).Min(i => i[0]));
                 writer.WriteLine(" Max: {0}", res.Where(i => i[0] > 0).Max(i => i[0]));
-                writer.WriteLine(" Ave: {0}", res.Where(i => i[0] > 0).Average(i => i[0]));
+                writer.WriteLine(" Ave: {0}", precision);
                 writer.WriteLine("Recall:");
                 writer.WriteLine(" Min: {0}", res.Where(i => i[0] > 0).Min(i => i[1]));
                 writer.WriteLine(" Max: {0}", res.Where(i => i[0] > 0).Max(i => i[1]));
-                writer.WriteLine(" Ave: {0}", res.Where(i => i[0] > 0).Average(i => i[1]));
+                writer.WriteLine(" Ave: {0}", recall);
                 writer.WriteLine("Accuracy:");
                 writer.WriteLine(" Min: {0}", res.Where(i => i[0] > 0).Min(i => i[2]));
                 writer.WriteLine(" Max: {0}", res.Where(i => i[0] > 0).Max(i => i[2]));
                 writer.WriteLine(" Ave: {0}", res.Where(i => i[0] > 0).Average(i => i[2]));
+                writer.WriteLine("F-measure: {0}", 2.0 * recall * precision / (recall + precision));
             }
             Console.WriteLine("finish");
         }
 
-        private double[] Classify(List<HashSet<string>> trainingNegaItems, List<HashSet<string>> trainingPosiItems, List<HashSet<string>> testNegaItems, List<HashSet<string>> testPosiItems) {
+        private double[] Classify(List<DataProcessor.MlItem> trainingNegaItems, List<DataProcessor.MlItem> trainingPosiItems, List<DataProcessor.MlItem> testNegaItems, List<DataProcessor.MlItem> testPosiItems) {
             var classifier = new Classifier();
-            using (var reader = new StreamReader(Path.Combine("..", "..", "..", "data", "GroundTruth-20160105-0.5both.json"))) {
+            using (var reader = new StreamReader(Path.Combine("..", "..", "..", "data", "GroundTruth-20160106-0.5both.json"))) {
                 var truths = JsonConvert.DeserializeObject<List<HashSet<string>>>(reader.ReadToEnd());
                 classifier.AddRangeTruth(truths);
             }

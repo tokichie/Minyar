@@ -64,10 +64,10 @@ namespace Minyar.Tests {
 
         [Test]
         public void CalcPatternsSim() {
-            var filenames = new[] { "5-50", "50-500", "500-" };
+            var filenames = new[] { "5-50", "50-800", "800-" };
             var res = new List<ItemTidSet<string, RepeatableTid>>();
             foreach (var filename in filenames) {
-                var path = Path.Combine("..", "..", "..", "data", "mining", "20160105-" + filename + ".json");
+                var path = Path.Combine("..", "..", "..", "data", "mining", "20160106-" + filename + ".json");
                 var patterns =
                     Main.ReadFromJson<HashSet<ItemTidSet<string, RepeatableTid>>>(path)
                         .Where(i => i.ItemCount > 4)
@@ -87,7 +87,7 @@ namespace Minyar.Tests {
                 res.AddRange(selected);
             }
             foreach (var filename in filenames) {
-                var path = Path.Combine("..", "..", "..", "data", "mining", "20160105-" + filename + "-unchanged.json");
+                var path = Path.Combine("..", "..", "..", "data", "mining", "20160106-" + filename + "-unchanged.json");
                 var patterns =
                     Main.ReadFromJson<HashSet<ItemTidSet<string, RepeatableTid>>>(path)
                         .Where(i => i.ItemCount > 4)
@@ -106,17 +106,17 @@ namespace Minyar.Tests {
                 }
                 res.AddRange(selected);
             }
-            using (var writer = new StreamWriter(Path.Combine("..", "..", "..", "data", "GroundTruth-20160105-0.5both.json"))) {
+            using (var writer = new StreamWriter(Path.Combine("..", "..", "..", "data", "GroundTruth-20160106-0.5both.json"))) {
                 writer.WriteLine(JsonConvert.SerializeObject(res.Select(i => i.Items)));
             }
         }
 
         [Test]
         public void RemoveDuplicatedLines() {
-            var path = Path.Combine("..", "..", "..", "data", "20160104034312-changed.txt");
+            var path = Path.Combine("..", "..", "..", "data", "20160105062836-changed.txt");
             var exists = new HashSet<ItemWrapper>();
             using (var reader = new StreamReader(path)) {
-                using (var writer = new StreamWriter(Path.Combine(path, "..", "20160105-changed.txt"))) {
+                using (var writer = new StreamWriter(Path.Combine(path, "..", "20160105-changed-2.txt"))) {
                     foreach (var line in reader.ReadLines()) {
                         var item = JsonConverter.Deserialize<ItemWrapper>(line.Trim());
                         if (exists.Contains(item) || item.Items.Count < 5) continue;
@@ -159,7 +159,7 @@ namespace Minyar.Tests {
 
         [Test]
         public void ShuffleAndTake() {
-            var path = Path.Combine("..", "..", "..", "data", "20160105-unchanged.txt");
+            var path = Path.Combine("..", "..", "..", "data", "20160105-unchanged-mining.txt");
             var dic = new Dictionary<string, List<AstChange>>();
             using (var reader = new StreamReader(path)) {
                 foreach (var line in reader.ReadLines()) {
@@ -176,23 +176,23 @@ namespace Minyar.Tests {
                 var training = new List<AstChange>();
                 foreach (var item in dic.OrderBy(it => it.Value.Count)) {
                     var items = item.Value;
-                    if (items.Count / 2 == 0) {
+                    if (items.Count / 2 <= 120) {
                         training.AddRange(items);
                     } else {
-                        var take = Math.Min(items.Count / 2, 120);
+                        var take = Math.Min(items.Count / 2, 200);
                         var shuffle = items.Shuffle().ToList();
                         training.AddRange(shuffle.Take(take));
-                        //mining.AddRange(shuffle.Skip(take));
+                        mining.AddRange(shuffle.Skip(take));
                     }
                 }
                 //mining.AddRange(training.Skip(500));
-                training = training.GetRange(0, 913);
-                using (var writer = new StreamWriter(Path.Combine(path, "..", "20160105-unchanged-mining-913.txt"))) {
+                training = training.GetRange(0, 1619);
+                using (var writer = new StreamWriter(Path.Combine(path, "..", "20160105-unchanged-mining-1619.txt"))) {
                     foreach (var item in training) {
                         writer.WriteLine(item);
                     }
                 }
-                //using (var writer = new StreamWriter(Path.Combine(path, "..", "20160105-unchanged-mining.txt"))) {
+                //using (var writer = new StreamWriter(Path.Combine(path, "..", "20160105-unchanged-mining-1619.txt"))) {
                 //    foreach (var item in mining)
                 //        writer.WriteLine(item);
                 //}
