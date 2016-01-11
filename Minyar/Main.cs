@@ -45,12 +45,13 @@ namespace Minyar {
 	        var errorCount = 0;
 	        Directory.CreateDirectory(Path.Combine("..", "..", "..", "data"));
 	        using (var model = new MinyarModel()) {
+	            model.Database.CommandTimeout = 600;
                 //comments = model.review_comments.Where(rc => rc.for_diff == 1).ToList();
 	            var comments = new List<review_comments>();
 	            try {
 	                //comments =
 	                //    commentIds.Select(id => model.review_comments.FirstOrDefault(rc => rc.original_id == id)).ToList();
-	                comments = model.review_comments.Where(rc => rc.id > 63787).Take(50000).ToList();
+	                comments = model.review_comments.Where(rc => rc.id >= 203635).ToList();
 	            } catch (Exception e) {
 	                Console.WriteLine(e.Message);
 	            }

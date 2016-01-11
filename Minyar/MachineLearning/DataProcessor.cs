@@ -7,6 +7,7 @@ using FP.DAL.DAO;
 using Minyar.Extensions;
 using Paraiba.Collections.Generic;
 using Paraiba.IO;
+using Paraiba.Linq;
 
 namespace Minyar.MachineLearning {
     public class DataProcessor {
@@ -72,7 +73,7 @@ namespace Minyar.MachineLearning {
                 var items = new List<ItemWrapper>();
                 foreach (var line in reader.ReadLines()) { 
                     var itemWrapper = ItemWrapper.Deserialize(line.Trim());
-                    if (itemWrapper.Items.Count < minItemCount) continue;
+                    if (itemWrapper.Items/*.Select(i => i.Symbol).ToHashSet()*/.Count < minItemCount) continue;
                     items.Add(itemWrapper);
                 }
                 if (items.Count < count) throw new DataShortageException();

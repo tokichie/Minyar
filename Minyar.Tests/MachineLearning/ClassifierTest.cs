@@ -12,15 +12,15 @@ using Paraiba.Linq;
 namespace Minyar.MachineLearning.Tests {
     [TestFixture()]
     public class ClassifierTest {
-        private static int sampleCount = 500;
-        private static int trainingCount = 400;
+        private static int sampleCount = 1000;
+        private static int trainingCount = 800;
         private static int classifyCount = sampleCount - trainingCount;
         private static int K = 10;
 
         [Test]
         public void ClassifyTest() {
-            var changedPath = Path.Combine("..", "..", "..", "data", "20160105-changed-training-2.txt");
-            var unchangedPath = Path.Combine("..", "..", "..", "data", "20160105-unchanged-training.txt");
+            var changedPath = Path.Combine("..", "..", "..", "data", "all-changed-training.txt");
+            var unchangedPath = Path.Combine("..", "..", "..", "data", "all-unchanged-training.txt");
             var processor = new DataProcessor(changedPath, unchangedPath);
             processor.Sample(sampleCount, 5);
             var res = new List<double[]>();
@@ -61,7 +61,7 @@ namespace Minyar.MachineLearning.Tests {
 
         private double[] Classify(List<DataProcessor.MlItem> trainingNegaItems, List<DataProcessor.MlItem> trainingPosiItems, List<DataProcessor.MlItem> testNegaItems, List<DataProcessor.MlItem> testPosiItems) {
             var classifier = new Classifier();
-            using (var reader = new StreamReader(Path.Combine("..", "..", "..", "data", "GroundTruth-20160106-0.5both.json"))) {
+            using (var reader = new StreamReader(Path.Combine("..", "..", "..", "data", "GroundTruth-all-0.5both-5.json"))) {
                 var truths = JsonConvert.DeserializeObject<List<HashSet<string>>>(reader.ReadToEnd());
                 classifier.AddRangeTruth(truths);
             }

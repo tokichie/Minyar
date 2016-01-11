@@ -16,12 +16,12 @@ namespace Minyar.Tests {
     public class DataFormatConverterTest {
         [Test]
         public void HorizontalToVerticalTest() {
-            var path = Path.Combine("..", "..", "..", "data", "20160105-changed-mining.txt");
+            var path = Path.Combine("..", "..", "..", "data", "all-unchanged-5-100-ng-mining.txt");
             var data = new List<ItemWrapper>();
             using (var reader = new StreamReader(path)) {
                 foreach (var line in reader.ReadLines()) {
                     var itemWrapper = ItemWrapper.Deserialize(line.Trim());
-                    if (itemWrapper.Items.Count < 4) continue;
+                    if (itemWrapper.Items.Count < 1) continue;
                     data.Add(itemWrapper);
                 }
             }
