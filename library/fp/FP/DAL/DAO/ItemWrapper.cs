@@ -18,6 +18,7 @@ namespace FP.DAL.DAO {
 
         public static ItemWrapper Deserialize(string json) {
 	        var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = 10000000;
 	        return serializer.Deserialize<ItemWrapper>(json);
         }
 
