@@ -30,7 +30,7 @@ namespace Minyar.Charm {
             ClosedItemsets = new List<ItemTidSet<string, RepeatableTid>>();
             detectedSets = new Dictionary<int, List<ItemTidSet<string, RepeatableTid>>>();
             skipFlag = new HashSet<ItemTidSet<string, RepeatableTid>>();
-            CharmExtend(transactions.Where(t => t.GetFrequency() >= 100)// && t.GetFrequency() < 1000)
+            CharmExtend(transactions.Where(t => t.GetFrequency() >= 100 && t.GetFrequency() < 1000)
                 .OrderBy(t => t.GetFrequency()).ToList());
         }
 

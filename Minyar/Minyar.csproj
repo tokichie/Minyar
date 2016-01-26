@@ -315,7 +315,12 @@
     <Compile Include="Extensions\LinqExtension.cs" />
     <Compile Include="JsonConverter.cs" />
     <Compile Include="Logger.cs" />
-    <Compile Include="MachineLearning\Classifier.cs" />
+    <Compile Include="MachineLearning\ClassifierBase.cs" />
+    <Compile Include="MachineLearning\LogisticRegression.cs" />
+    <Compile Include="MachineLearning\DecisionTree.cs" />
+    <Compile Include="MachineLearning\NaiveBayes.cs" />
+    <Compile Include="MachineLearning\SupportVectorMachine.cs" />
+    <Compile Include="MachineLearning\IClassifier.cs" />
     <Compile Include="MachineLearning\DataProcessor.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Migrations\201512201029045_Initial.cs" />

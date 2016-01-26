@@ -72,10 +72,10 @@ namespace Minyar.Tests {
 
         [Test]
         public void CalcPatternsSim() {
-            var filenames = new[] { "100-" };//, "100-1000", "500-" };
+            var filenames = new[] { "5-30", "30-1500", "1500-" };
             var res = new List<ItemTidSet<string, RepeatableTid>>();
             foreach (var filename in filenames) {
-                var path = Path.Combine("..", "..", "..", "data", "mining", "all-" + filename + "-ng-changed.json");
+                var path = Path.Combine("..", "..", "..", "data", "mining", "all-" + filename + "-changed.json");
                 var patterns =
                     Main.ReadFromJson<HashSet<ItemTidSet<string, RepeatableTid>>>(path)
                         .Where(i => i.Items.Count >= 3).OrderByDescending(i => i.ItemCount)
@@ -95,7 +95,7 @@ namespace Minyar.Tests {
                 res.AddRange(selected);
             }
             foreach (var filename in filenames) {
-                var path = Path.Combine("..", "..", "..", "data", "mining", "all-" + filename + "-ng-unchanged.json");
+                var path = Path.Combine("..", "..", "..", "data", "mining", "all-" + filename + "-unchanged.json");
                 var patterns =
                     Main.ReadFromJson<HashSet<ItemTidSet<string, RepeatableTid>>>(path)
                         .Where(i => i.Items.Count >= 3).OrderByDescending(i => i.ItemCount)
@@ -126,9 +126,10 @@ namespace Minyar.Tests {
                     if (c >= res[j].ItemCount * 0.5) ff.Add(j);
                 }
             }
+            //var selected_ = res;
             using (
                 var writer =
-                    new StreamWriter(Path.Combine("..", "..", "..", "data", "GroundTruth-all-0.5both-7.json"))) {
+                    new StreamWriter(Path.Combine("..", "..", "..", "data", "GroundTruth-all-0.5both-9.json"))) {
                 writer.WriteLine(JsonConvert.SerializeObject(selected_.Select(i => i.Items)));
             }
         }
