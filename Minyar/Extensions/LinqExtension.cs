@@ -37,5 +37,27 @@ namespace Minyar.Extensions {
         public static int Median<T>(this IEnumerable<T> numbers, Func<T, int> selector) {
             return (from num in numbers select selector(num)).Median();
         }
+
+        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source) {
+            return source.Shuffle(new Random());
+        }
+
+        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source, Random rng) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (rng == null) throw new ArgumentNullException("rng");
+
+            return source.ShuffleIterator(rng);
+        }
+
+        private static IEnumerable<T> ShuffleIterator<T>(
+            this IEnumerable<T> source, Random rng) {
+            var buffer = source.ToList();
+            for (int i = 0; i < buffer.Count; i++) {
+                int j = rng.Next(i, buffer.Count);
+                yield return buffer[j];
+
+                buffer[j] = buffer[i];
+            }
+        }
     }
 }

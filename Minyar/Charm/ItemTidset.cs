@@ -42,10 +42,15 @@ namespace Minyar.Charm {
             Tids = new HashSet<T2>(it.Tids);
         }
 
+        public ItemTidSet() {
+            Items = new SortedSet<T1>();
+            Tids = new HashSet<T2>();
+        } 
+
         public int GetFrequency() {
             if (typeof (T2) != typeof (RepeatableTid)) return Tids.Count;
             var tids = Tids as HashSet<RepeatableTid>;
-            return tids.Min(i => i.Occurrences);
+            return tids.Sum(i => i.Occurrences);
         }
 
         public static bool operator >=(ItemTidSet<T1, T2> left, ItemTidSet<T1, T2> right) {

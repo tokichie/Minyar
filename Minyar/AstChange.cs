@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Paraiba.Core;
 
 namespace Minyar {
     public class AstChange {
@@ -19,6 +20,22 @@ namespace Minyar {
             GithubUrl = githubUrl;
             Items = changeSet;
             DiffHunk = diffHunk;
+        }
+
+        public AstChange() {
+            
+        }
+
+        public override bool Equals(object obj) {
+            var right = obj as AstChange;
+            if (right == null) return false;
+            if (Items.Count == right.Items.Count && GithubUrl == right.GithubUrl &&
+                DiffHunk.SubstringAfter("@@ ") == right.DiffHunk.SubstringAfter("@@ ")) return true;
+            return false;
+        }
+
+        public override int GetHashCode() {
+            return ToString().GetHashCode();
         }
 
         public override string ToString() {

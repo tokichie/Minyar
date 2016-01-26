@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using FP.DAO;
+using Paraiba.Core;
 
 namespace FP.DAL.DAO {
     public class ItemWrapper {
@@ -17,7 +18,27 @@ namespace FP.DAL.DAO {
 
         public static ItemWrapper Deserialize(string json) {
 	        var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = 10000000;
 	        return serializer.Deserialize<ItemWrapper>(json);
+        }
+
+        public override bool Equals(object obj) {
+            var right = obj as ItemWrapper;
+            if (right == null) return false;
+            if (Items.Count == right.Items.Count && GithubUrl == right.GithubUrl &&
+                DiffHunk.SubstringAfter("@@ ") == right.DiffHunk.SubstringAfter("@@ ")) return true;
+            return false;
+        }
+
+        public override int GetHashCode() {
+            return ToString().GetHashCode();
+        }
+
+        public override string ToString() {
+            var diffhunk = DiffHunk.SubstringAfter("@@ ").SubstringBefore("\n");
+            var sb = new StringBuilder();
+            sb.Append(GithubUrl).Append("@@ ").Append(diffhunk);
+            return sb.ToString();
         }
     }
 }

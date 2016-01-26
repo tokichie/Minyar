@@ -2,12 +2,14 @@
 using Minyar.Github;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Code2Xml.Core.SyntaxTree;
+using Minyar.Database;
 using Newtonsoft.Json;
 using Octokit;
 using FileMode = System.IO.FileMode;
@@ -19,6 +21,7 @@ namespace Minyar {
 
 		public Main() {
 			Repositories = new List<string[]>();
+            parsedDiffs = new HashSet<string>();
 		}
 
 		public Main(List<string[]> repositories) {
@@ -31,9 +34,93 @@ namespace Minyar {
 
 
 	    private HashSet<string> parsedDiffs;
-         
-	    public async Task Start(List<Repository> repositories) {
-            parsedDiffs = new HashSet<string>();
+
+	    public async Task StartUsingDatabase() {
+            var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+	        //var negaPath = Path.Combine("..", "..", "..", "data", "Positive.json");
+	        //var commentIds = ReadFromJson<List<int>>(negaPath);
+	        var changeSetCount = 0;
+	        var targetComments = 0;
+	        var progressCount = 0;
+	        var errorCount = 0;
+	        Directory.CreateDirectory(Path.Combine("..", "..", "..", "data"));
+	        using (var model = new MinyarModel()) {
+	            model.Database.CommandTimeout = 600;
+                //comments = model.review_comments.Where(rc => rc.for_diff == 1).ToList();
+	            var comments = new List<review_comments>();
+	            try {
+	                //comments =
+	                //    commentIds.Select(id => model.review_comments.FirstOrDefault(rc => rc.original_id == id)).ToList();
+<<<<<<< HEAD
+	                comments = model.review_comments.Where(rc => rc.id >= 203635).ToList();
+=======
+	                comments = model.review_comments.Where(rc => rc.id > 206917 && rc.id <= 208417).ToList();
+>>>>>>> ac5a97542a347b2222c251671980ced9811ab027
+	            } catch (Exception e) {
+	                Console.WriteLine(e.Message);
+	            }
+	            using (var writer =
+	                new StreamWriter(new FileStream(Path.Combine("..", "..", "..", "data", timestamp + "-changed.txt"),
+	                    FileMode.Append))
+	                ) {
+	                using (var writer2 =
+	                    new StreamWriter(
+	                        new FileStream(Path.Combine("..", "..", "..", "data", timestamp + "-unchanged.txt"),
+	                            FileMode.Append))
+	                    ) {
+	                    writer.AutoFlush = true;
+                        writer2.AutoFlush = true;
+	                    foreach (var comment in comments) {
+	                        if (comment == null) continue;
+	                        progressCount++;
+	                        Logger.Info("#{0} / {1}", progressCount, comments.Count);
+	                        try {
+	                            var isTarget = await CommentClassifier.IsTarget(comment);
+	                            if (parsedDiffs.Contains(comment.diff_hunk)) {
+	                                Logger.Info("This comment' diff is already parsed");
+	                                continue;
+	                            }
+	                            targetComments++;
+	                            Logger.Info("{0} ReviewComment {1}", targetComments, comment.url);
+	                            parsedDiffs.Add(comment.diff_hunk);
+	                            var path = comment.path;
+	                            if (! path.EndsWith(".java")) continue;
+	                            var diffPatcher = new CoarseDiffPatcher(comment);
+	                            var result = await diffPatcher.GetBothOldAndNewFiles();
+	                            if (result.NewCode == null) {
+	                                if (result.DiffHunk != null) Logger.Info("Skipped {0}", comment.url);
+	                                continue;
+	                            }
+	                            Logger.Deactivate();
+	                            var changeSet = CreateAstAndTakeDiff(result, path);
+	                            changeSetCount += changeSet.Count;
+	                            Logger.Activate();
+	                            var repoName = comment.repository.full_name.Split('/');
+	                            var astChange =
+	                                new AstChange(
+	                                    GithubUrl(new[] {repoName[0], repoName[1]}, comment.pull_requests.number),
+	                                    changeSet,
+	                                    result.DiffHunk.Patch);
+	                            if (changeSet.Count > 0) {
+                                    if (isTarget)
+                                        WriteOut(writer, astChange);
+                                    else
+                                        WriteOut(writer2, astChange);
+	                            }
+	                        } catch (Exception e) {
+	                            errorCount++;
+	                            Logger.Error(e.Message);
+	                        }
+	                    }
+	                    Logger.Info("TargetComments: {0}", targetComments);
+	                    Logger.Info("ChangeSetCount: {0}", changeSetCount);
+	                    Logger.Info("ErrorCount: {0}", errorCount);
+	                }
+	            }
+	        }
+        }
+
+        public async Task Start(List<Repository> repositories) {
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
 	        var changeSetCount = 0;
             foreach (var repo in repositories) {
@@ -100,11 +187,9 @@ namespace Minyar {
 
 	    public static T ReadFromJson<T>(string path)
 	    {
-            var resolver = new PrivateSetterContractResolver();
-            var serializeSettings = new JsonSerializerSettings {ContractResolver = resolver};
 	        var json = new StreamReader(path).ReadToEnd();
-            return JsonConvert.DeserializeObject<T>(json, serializeSettings);
-        }
+	        return JsonConverter.Deserialize<T>(json);
+	    }
 
 	    public static void WriteOutJson(object obj, string path) {
 	        var json = JsonConvert.SerializeObject(obj);

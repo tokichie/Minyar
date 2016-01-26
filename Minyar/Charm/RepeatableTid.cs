@@ -14,6 +14,8 @@ namespace Minyar.Charm {
             Occurrences = occurences;
         }
 
+        public RepeatableTid() { }
+
         public int CompareTo(object obj) {
             var right = obj as RepeatableTid;
             return Tid.CompareTo(right.Tid);
