@@ -69,12 +69,12 @@ namespace Minyar.MachineLearning.Tests {
         }
 
         private double[] Classify(List<DataProcessor.MlItem> trainingNegaItems, List<DataProcessor.MlItem> trainingPosiItems, List<DataProcessor.MlItem> testNegaItems, List<DataProcessor.MlItem> testPosiItems) {
-            var classifier = new SupportVectorMachine();
+            var classifier = new DecisionTree();
             using (var reader = new StreamReader(Path.Combine("..", "..", "..", "data", "GroundTruth-all-0.5both-8.json"))) {
                 var truths = JsonConvert.DeserializeObject<List<HashSet<string>>>(reader.ReadToEnd());
                 classifier.AddRangeTruth(truths);
             }
-            classifier.AddRangeInputs(trainingNegaItems, -1);
+            classifier.AddRangeInputs(trainingNegaItems, 0);
             classifier.AddRangeInputs(trainingPosiItems, 1);
             classifier.Train();
             var res = new List<double>();
@@ -82,14 +82,14 @@ namespace Minyar.MachineLearning.Tests {
             int unchangedTrue = 0;
             foreach (var item in testNegaItems) {
                 var score = classifier.Classify(item);
-                if (Math.Sign(score) < 0) changedTrue++;
-                //if (score == 0.0) changedTrue++;
+                //if (Math.Sign(score) < 0) changedTrue++;
+                if (score == 0.0) changedTrue++;
                 res.Add(score);
             }
             foreach (var item in testPosiItems) {
                 var score = classifier.Classify(item);
-                if (Math.Sign(score) > 0) unchangedTrue++;
-                //if (score == 1.0) unchangedTrue++;
+                //if (Math.Sign(score) > 0) unchangedTrue++;
+                if (score == 1.0) unchangedTrue++;
                 res.Add(score);
             }
             var tp = changedTrue;
@@ -97,8 +97,10 @@ namespace Minyar.MachineLearning.Tests {
             var fp = classifyCount - unchangedTrue;
             var tn = unchangedTrue;
             var accuracy = (double)(tp + tn) / classifyCount / 2.0;
-            var precision = 0.5 * tp / (tp + fp) + 0.5 * tn / (tn + fn);
-            var recall = 0.5 * tp / (tp + fn) + 0.5 * tn / (tn + fp);
+            //var precision = 0.5 * tp / (tp + fp) + 0.5 * tn / (tn + fn);
+            //var recall = 0.5 * tp / (tp + fn) + 0.5 * tn / (tn + fp);
+            var precision = (double)tp / (tp + fp);
+            var recall = (double)tp / (tp + fn);
             var f = 2.0 * recall * precision / (recall + precision);
             //if (double.IsNaN(recall)) recall = 0;
             //Console.WriteLine("Precision: {0}, Recall: {1}", precision, recall);

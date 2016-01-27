@@ -51,11 +51,7 @@ namespace Minyar {
 	            try {
 	                //comments =
 	                //    commentIds.Select(id => model.review_comments.FirstOrDefault(rc => rc.original_id == id)).ToList();
-<<<<<<< HEAD
 	                comments = model.review_comments.Where(rc => rc.id >= 203635).ToList();
-=======
-	                comments = model.review_comments.Where(rc => rc.id > 206917 && rc.id <= 208417).ToList();
->>>>>>> ac5a97542a347b2222c251671980ced9811ab027
 	            } catch (Exception e) {
 	                Console.WriteLine(e.Message);
 	            }
