@@ -9,6 +9,15 @@ namespace Minyar.Database
     [Table("minyar.diffs")]
     public partial class diff
     {
+        public diff() { }
+
+        public diff(string patch, string baseSha, string headSha, string path) {
+            diff1 = patch;
+            base_sha = baseSha;
+            head_sha = headSha;
+            this.path = path;
+        }
+
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int id { get; set; }
 
