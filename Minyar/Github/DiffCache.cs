@@ -24,7 +24,8 @@ namespace Minyar.Github {
                 var compare = await OctokitClient.Client.Repository.Commits.Compare(owner, name, baseSha, headSha);
                 ApiRateLimit.CheckLimit();
                 var fileCmp = compare.Files.First(f => f.Filename == path);
-                var diff = new diff(fileCmp.Patch, baseSha, headSha, path);
+                var json = JsonConverter.Serialize(fileCmp);
+                var diff = new diff(fileCmp.Patch, baseSha, headSha, path, json);
                 model.diffs.Add(diff);
                 model.SaveChanges();
                 return diff;

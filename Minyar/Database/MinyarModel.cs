@@ -86,7 +86,7 @@ namespace Minyar.Database {
                 .HasForeignKey(e => e.head_sha);
 
             modelBuilder.Entity<diff>()
-                .Property(e => e.diff1)
+                .Property(e => e.patch)
                 .IsUnicode(false);
 
             modelBuilder.Entity<diff>()

@@ -14,8 +14,8 @@ namespace Minyar.Github {
             return prefix.ToLower() == "can you" || body.EndsWith("?");
         }
 
-        public static async Task<bool> IsTarget(review_comments comment) {
-            if (comment.pull_requests.merged_commit_sha == null) return false;
+        public static async Task<bool> IsChanged(review_comments comment) {
+            //if (comment.pull_requests.merged_commit_sha == null) return false;
             var commentedLine = comment.diff_hunk.Split('\n').Last().Trim('-', '+').Trim();
             var sha = JsonConverter.Deserialize<PullRequest>(comment.pull_requests.raw_json).Head.Sha;
             //var commit = await CommitCache.LoadCommitFromDatabase(comment.repository_id, sha);

@@ -34,27 +34,27 @@ namespace Minyar.Tests.Github {
             var newLine = newHunk.NewRange.StartLine + space + plus;
         }
 
-        [Test]
-        public async Task TestDiffPatcher() {
-            var prComment = await OctokitClient.Client.Repository.PullRequest.Comment.GetComment("tokichie", "Hogepiyo",
-                46083950);
-            var diffPatcher = new CoarseDiffPatcher(prComment);
-            var res = await diffPatcher.GetBothOldAndNewFiles();
-            Assert.That(res.OldCode == "HOGEPIYO\n\nKORILAKKUMA\n\nNICEBOAT\n\nHOGEPIYO\n\nRILAKKUMA\n\nKIIROITORI\n");
-            Assert.That(res.NewCode == "HOGEPIYO\n\nKORILAKKUMA\n\nNICEBOAT\n\nHOGEPIYO\n\nRILAKKUMA\n\nKIIROITORI\n\nHATENA\n");
-        }
+        //[Test]
+        //public async Task TestDiffPatcher() {
+        //    var prComment = await OctokitClient.Client.Repository.PullRequest.Comment.GetComment("tokichie", "Hogepiyo",
+        //        46083950);
+        //    var diffPatcher = new CoarseDiffPatcher(prComment);
+        //    var res = await diffPatcher.GetBothOldAndNewFiles();
+        //    Assert.That(res.OldCode == "HOGEPIYO\n\nKORILAKKUMA\n\nNICEBOAT\n\nHOGEPIYO\n\nRILAKKUMA\n\nKIIROITORI\n");
+        //    Assert.That(res.NewCode == "HOGEPIYO\n\nKORILAKKUMA\n\nNICEBOAT\n\nHOGEPIYO\n\nRILAKKUMA\n\nKIIROITORI\n\nHATENA\n");
+        //}
 
-        [Test]
-        public async Task TestDiffPatcherWithMultipleDiffHunk() {
-            var prComment = await OctokitClient.Client.Repository.PullRequest.Comment.GetComment("tokichie", "pattern-detection",
-                21068083);
-            var diffPatcher = new CoarseDiffPatcher(prComment);
-            var res = await diffPatcher.GetBothOldAndNewFiles();
-            var set1 = res.OldCode.Split('\n');
-            var set2 = res.NewCode.Split('\n');
-            var diff = set2.Except(set1);
-            Assert.That(string.Join("", diff.Select(i => i.Trim())) == "String[] lines = diff.split(System.lineSeparator());String ref = lines[0];List<Double> scoreList = new ArrayList<>();for (int j = 1; j < lines.length; j++) {String line = lines[j];double score = LcsComparator.calculateSimilarity(ref, line);scoreList.add(score);System.out.println(scoreList.toString());");
-            Assert.That(res.DiffHunk.UnifiedRange == "-107,6 +107,17");
-        }
+        //[Test]
+        //public async Task TestDiffPatcherWithMultipleDiffHunk() {
+        //    var prComment = await OctokitClient.Client.Repository.PullRequest.Comment.GetComment("tokichie", "pattern-detection",
+        //        21068083);
+        //    var diffPatcher = new CoarseDiffPatcher(prComment);
+        //    var res = await diffPatcher.GetBothOldAndNewFiles();
+        //    var set1 = res.OldCode.Split('\n');
+        //    var set2 = res.NewCode.Split('\n');
+        //    var diff = set2.Except(set1);
+        //    Assert.That(string.Join("", diff.Select(i => i.Trim())) == "String[] lines = diff.split(System.lineSeparator());String ref = lines[0];List<Double> scoreList = new ArrayList<>();for (int j = 1; j < lines.length; j++) {String line = lines[j];double score = LcsComparator.calculateSimilarity(ref, line);scoreList.add(score);System.out.println(scoreList.toString());");
+        //    Assert.That(res.DiffHunk.UnifiedRange == "-107,6 +107,17");
+        //}
     }
 }

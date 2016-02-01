@@ -35,12 +35,15 @@ namespace Minyar.Github {
 
         public CoarseDiffPatcher() { }
 
-        public async Task<PatchResult> GetBothOldAndNewFiles() {
+        public async Task<PatchResult[]> GetBothOldAndNewFiles() {
+            var res = new List<PatchResult>();
             try {
                 var commitId = comment.position == null ? comment.original_commit_id : comment.commit_id;
                 var diffHunk = comment.diff_hunk;
                 var path = comment.path;
                 var commit = await CommitCache.LoadCommitFromDatabase(repoOwner, repoName, commitId);
+                var rawCommit = JsonConverter.Deserialize<GitHubCommit>(commit.raw_json);
+                var author = rawCommit.Author.Login;
                 //if (!commit.GetFiles().Any(f => f.Filename == path)) {
                 //    Logger.Info("Deleted diffhunk");
                 //    return new PatchResult();
@@ -51,39 +54,40 @@ namespace Minyar.Github {
                 var parentId = pull.base_sha;
                 //var parentId = commit.parent_sha;
                 var head_sha = JsonConverter.Deserialize<PullRequest>(pull.raw_json).Head.Sha;
-                var cmp = await OctokitClient.Client.Repository.Commits.Compare(repoOwner, repoName, pull.base_sha, head_sha);
-                var filePatch = cmp.Files.First(f => f.Filename == path).Patch;
-                var oldFileContent = await FileCache.LoadContentFromDatabase(repoOwner, repoName, parentId, path);
-                var newFileContent = await LoadNewFileContent(commitId, path, diffHunk, oldFileContent, filePatch);
-                var newHunk = GetNewDiffHunk(oldFileContent, newFileContent);
-                //var oldLine = newHunk.OldRange.StartLine + Regex.Matches(diffHunk, "\n ").Count + Regex.Matches(diffHunk, "\n-").Count - 1;
-                //var newLine = newHunk.NewRange.StartLine + Regex.Matches(diffHunk, "\n ").Count + Regex.Matches(diffHunk, "\n\\+").Count - 1;
-                //if (oldLine <= 0 || newLine <= 0)
-                //    return new PatchResult(null, null, newHunk);
-                //newHunk = new DiffHunk(oldLine - 3, 6, newLine - 3, 6, diffHunk);
-                if (newHunk.OldRange.StartLine == 0 && newHunk.OldRange.ChunkSize == 0 ||
-                    newHunk.NewRange.StartLine == 0 && newHunk.NewRange.ChunkSize == 0) {
-                    Logger.Info("Newly created or deleted file");
-                    return new PatchResult(null, null, newHunk);
+                var diff = await DiffCache.LoadDiffFromDatabase(repoOwner, repoName, pull.base_sha, head_sha, path);
+                foreach (var hunk in GithubDiff.ParseAllDiffHunks(diff.patch)) {
+                    var ghDiff = new GithubDiff(hunk.Patch);
+                    var hasComment = ghDiff.IsWithinRange(hunk.Patch, diffHunk);
+                    var isChanged = hasComment && await CommentClassifier.IsChanged(comment);
+                    var oldFileContent = await FileCache.LoadContentFromDatabase(repoOwner, repoName, parentId, path);
+                    var newFileContent = await LoadNewFileContent(commitId, path, diffHunk, oldFileContent, hunk.Patch);
+                    var newHunk = GetNewDiffHunk(oldFileContent, newFileContent);
+                    if (newHunk.OldRange.StartLine == 0 && newHunk.OldRange.ChunkSize == 0 ||
+                        newHunk.NewRange.StartLine == 0 && newHunk.NewRange.ChunkSize == 0) {
+                        Logger.Info("Newly created or deleted file");
+                        if (Math.Max(newHunk.OldRange.ChunkSize, newHunk.NewRange.ChunkSize) > 500) continue;
+                        res.Add(new PatchResult(oldFileContent, newFileContent, newHunk, hasComment, isChanged, author));
+                    } else {
+                        res.Add(new PatchResult(oldFileContent, newFileContent, newHunk, hasComment, isChanged, author));
+                    }
                 }
-                return new PatchResult(oldFileContent, newFileContent, newHunk);
             } catch (Exception e) {
                 Console.WriteLine(e);
                 Logger.Error(e.ToString());
             }
-            return new PatchResult();
+            return res.ToArray();
         }
 
         private async Task<string> LoadNewFileContent(string commitId, string path, string diffHunk, string oldFileContent, string filePatch) {
             var newFileContent = "";
             var diff = new GithubDiff(filePatch);
-            var patch = diff.GetInRangeHunk(GithubDiff.ParseAllDiffHunks(diffHunk)[0]);
-            if (patch == null) return newFileContent;
-            newFileContent = await FileCache.LoadContentFromDatabase(repoOwner, repoName, commitId, path);
-            if (diff.DiffHunkList.Count > 1) {
-                newFileContent = Patch(oldFileContent, patch.Patch);
-            }
-            FileCache.SaveFileToDatabase(commitId, path, newFileContent);
+            //var patch = diff.GetInRangeHunk(GithubDiff.ParseAllDiffHunks(diffHunk)[0]);
+            //if (patch == null) return newFileContent;
+            //newFileContent = await FileCache.LoadContentFromDatabase(repoOwner, repoName, commitId, path);
+            //if (diff.DiffHunkList.Count > 1) {
+            newFileContent = Patch(oldFileContent, filePatch);
+            //}
+            //FileCache.SaveFileToDatabase(commitId, path, newFileContent);
             return newFileContent;
         }
 

@@ -11,11 +11,12 @@ namespace Minyar.Database
     {
         public diff() { }
 
-        public diff(string patch, string baseSha, string headSha, string path) {
-            diff1 = patch;
+        public diff(string patch, string baseSha, string headSha, string path, string json) {
+            this.patch = patch;
             base_sha = baseSha;
             head_sha = headSha;
             this.path = path;
+            raw_json = json;
         }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -24,7 +25,7 @@ namespace Minyar.Database
         [Column("diff")]
         [Required]
         [StringLength(16777215)]
-        public string diff1 { get; set; }
+        public string patch { get; set; }
 
         [Required]
         [StringLength(40)]
@@ -37,6 +38,10 @@ namespace Minyar.Database
         [Required]
         [StringLength(260)]
         public string path { get; set; }
+
+        [Required]
+        [StringLength(16777215)]
+        public string raw_json { get; set; }
 
         [Column(TypeName = "timestamp")]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

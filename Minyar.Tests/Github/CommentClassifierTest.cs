@@ -30,7 +30,7 @@ namespace Minyar.Tests.Github {
             using (var model = new MinyarModel()) {
                 var comments = model.review_comments.Where(rc => rc.for_diff == 1).Take(100).ToList();
                 foreach (var comment in comments) {
-                    var isTarget = await CommentClassifier.IsTarget(comment);
+                    var isTarget = await CommentClassifier.IsChanged(comment);
                     Console.WriteLine(isTarget);
                 }
             }

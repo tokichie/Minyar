@@ -110,8 +110,8 @@ namespace Minyar {
 	        var main = new Main();
             var repositories = Minyar.Main.ReadFromJson<List<Repository>>(
                 Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "JavaRepositories.json"));
-	        var task = main.Start(repositories.GetRange(index, count));
-	        task.Wait();
+	        //var task = main.Start(repositories.GetRange(index, count));
+	        //task.Wait();
             File.Create(@"C:\Users\Yuta\Dropbox\ifttt\" + DateTime.Now.ToString("yyyyMMddHHmmss"));
 	    }
 

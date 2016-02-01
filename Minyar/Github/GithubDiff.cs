@@ -106,6 +106,10 @@ namespace Minyar.Github {
             return null;
         }
 
+        public bool IsWithinRange(string left, string right) {
+            return IsWithinRange(ParseDiffHunk(left), ParseDiffHunk(right));
+        }
+
         private bool IsWithinRange(DiffHunk left, DiffHunk right) {
             var leftOldEndline = left.OldRange.StartLine + left.OldRange.ChunkSize - 1;
             var rightOldEndline = right.OldRange.StartLine + right.OldRange.ChunkSize - 1;
