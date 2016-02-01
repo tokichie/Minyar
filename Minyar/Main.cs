@@ -233,13 +233,12 @@ namespace Minyar {
 
 	    private Tuple<HashSet<ChangePair>, bool, bool> CreateAstAndTakeDiff(PatchResult diffResult, string filePath) {
 	        var orgAst = Program.GenerateAst(diffResult.OldCode);
-	        var orgAncestors = orgAst.Ancestors().Any(a => a.Name == "MethodDeclaration");
 	        var cmpAst = Program.GenerateAst(diffResult.NewCode);
-	        var cmpAncestors = cmpAst.Ancestors().Any(a => a.Name == "MethodDeclaration");
 	        var lineChange = new LineChange(diffResult.DiffHunk);
             var mapper = new TreeMapping(orgAst, cmpAst, filePath, new List<LineChange> {lineChange});
             mapper.Map(log);
-	        return new Tuple<HashSet<ChangePair>, bool, bool>(mapper.ChangeSet, orgAncestors, cmpAncestors);
+	        return new Tuple<HashSet<ChangePair>, bool, bool>(mapper.ChangeSet, mapper.OrgIsInnerOfMethod,
+	            mapper.CmpIsInnerOfMethod);
 	    }
 
 	    private HashSet<ChangePair> CreateAstAndTakeDiff

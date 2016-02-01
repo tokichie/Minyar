@@ -18,6 +18,8 @@ namespace Minyar {
         private HashSet<AstNode> targetNodes;
 	    private CodeRange orgCodeRange;
 	    private CodeRange cmpCodeRange;
+	    public bool OrgIsInnerOfMethod;
+	    public bool CmpIsInnerOfMethod;
 
 		public HashSet<ChangePair> ChangeSet { get; private set; }
 
@@ -55,6 +57,7 @@ namespace Minyar {
             orgOuterMostRoot = orgCodeRange.FindOutermostNode(orgTree);
 		    if (orgOuterMostRoot == null)
 		        orgOuterMostRoot = orgTree;
+	        OrgIsInnerOfMethod = orgOuterMostRoot.Ancestors().Any(a => a.Name == "MethodDeclaration");
 
 		    cmpCodeRange = new CodeRange(
 		        new CodeLocation(cmpRange[0], 0),
@@ -62,6 +65,7 @@ namespace Minyar {
 		    cmpOuterMostRoot = cmpCodeRange.FindOutermostNode(cmpTree);
 		    if (cmpOuterMostRoot == null)
 		        cmpOuterMostRoot = cmpTree; 
+	        CmpIsInnerOfMethod = cmpOuterMostRoot.Ancestors().Any(a => a.Name == "MethodDeclaration");
 	    }
 
 		/// <summary>
