@@ -40,7 +40,10 @@ namespace Minyar {
         }
 
         public override int GetHashCode() {
-            return ToString().GetHashCode();
+            var sb = new StringBuilder();
+            sb.Append(GithubUrl).Append(DiffHunk.SubstringAfter("@@ "));
+            //return ToString().GetHashCode();
+            return sb.ToString().GetHashCode();
         }
 
         public override string ToString() {

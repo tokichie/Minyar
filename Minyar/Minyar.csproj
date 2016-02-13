@@ -317,6 +317,7 @@
     <Compile Include="JsonConverter.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MachineLearning\ClassifierBase.cs" />
+    <Compile Include="MachineLearning\MlCache.cs" />
     <Compile Include="MachineLearning\LogisticRegression.cs" />
     <Compile Include="MachineLearning\DecisionTree.cs" />
     <Compile Include="MachineLearning\NaiveBayes.cs" />

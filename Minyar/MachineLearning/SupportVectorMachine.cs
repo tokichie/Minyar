@@ -6,7 +6,7 @@ namespace Minyar.MachineLearning {
         private Accord.MachineLearning.VectorMachines.SupportVectorMachine svm;
 
         public void Train() {
-            svm = new Accord.MachineLearning.VectorMachines.SupportVectorMachine(GroundTruths.Count);//+ AdditionalFeature.Count);
+            svm = new Accord.MachineLearning.VectorMachines.SupportVectorMachine(GroundTruths.Count + 7);//+ AdditionalFeature.Count);
             var inputs = new List<double[]>();
             foreach (var set in InputData) {
                 inputs.Add(CompareWithGroundTruth(set));

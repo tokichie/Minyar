@@ -72,10 +72,10 @@ namespace Minyar.Tests {
 
         [Test]
         public void CalcPatternsSim() {
-            var filenames = new[] { "5-30", "30-1500", "1500-" };
+            var filenames = new[] { new [] { "10-1000", "10-1000" }, new [] { "1000-20000", "1000-50000" }, new [] { "20000-", "50000-" } };
             var res = new List<ItemTidSet<string, RepeatableTid>>();
             foreach (var filename in filenames) {
-                var path = Path.Combine("..", "..", "..", "data", "mining", "all-" + filename + "-changed.json");
+                var path = Path.Combine("..", "..", "..", "data", "mining", "all-" + filename[1] + "-changed.json");
                 var patterns =
                     Main.ReadFromJson<HashSet<ItemTidSet<string, RepeatableTid>>>(path)
                         .Where(i => i.Items.Count >= 3).OrderByDescending(i => i.ItemCount)
@@ -95,7 +95,7 @@ namespace Minyar.Tests {
                 res.AddRange(selected);
             }
             foreach (var filename in filenames) {
-                var path = Path.Combine("..", "..", "..", "data", "mining", "all-" + filename + "-unchanged.json");
+                var path = Path.Combine("..", "..", "..", "data", "mining", "all-" + filename[0] + "-unchanged.json");
                 var patterns =
                     Main.ReadFromJson<HashSet<ItemTidSet<string, RepeatableTid>>>(path)
                         .Where(i => i.Items.Count >= 3).OrderByDescending(i => i.ItemCount)
@@ -129,22 +129,22 @@ namespace Minyar.Tests {
             //var selected_ = res;
             using (
                 var writer =
-                    new StreamWriter(Path.Combine("..", "..", "..", "data", "GroundTruth-all-0.5both-9.json"))) {
+                    new StreamWriter(Path.Combine("..", "..", "..", "data", "GroundTruth-newall-0.5both-2.json"))) {
                 writer.WriteLine(JsonConvert.SerializeObject(selected_.Select(i => i.Items)));
             }
         }
 
         [Test]
         public void RemoveDuplicatedLines() {
-            var path = Path.Combine("..", "..", "..", "data", "all-unchanged-5-100.txt");
+            var path = Path.Combine("..", "..", "..", "data", "new_all", "all-unchanged.txt");
             var exists = new HashSet<AstChange>();
-            var ng = new HashSet<string>(new [] {"identifier", "SimpleName"});
+            //var ng = new HashSet<string>(new [] {"identifier", "SimpleName"});
             using (var reader = new StreamReader(path)) {
-                using (var writer = new StreamWriter(Path.Combine(path, "..", "all-unchanged-5-100-ng.txt"))) {
+                using (var writer = new StreamWriter(Path.Combine(path, "..", "all-unchanged-5.txt"))) {
                     foreach (var line in reader.ReadLines()) {
                         var item = JsonConverter.Deserialize<AstChange>(line.Trim());
-                        item.Items = item.Items.Where(i => !ng.Contains(i.NodeType)).ToHashSet();
-                        if (exists.Contains(item) || item.Items.Count < 5 || item.Items.Count > 100) continue;
+                        //item.Items = item.Items.Where(i => !ng.Contains(i.NodeType)).ToHashSet();
+                        if (exists.Contains(item) || item.Items.Count < 5/* || item.Items.Count > 100*/) continue;
                         exists.Add(item);
                         writer.WriteLine(item);
                     }
@@ -220,7 +220,7 @@ namespace Minyar.Tests {
 
         [Test]
         public void ShuffleAndTake() {
-            var path = Path.Combine("..", "..", "..", "data", "all-changed-5-100-ng.txt");
+            var path = Path.Combine("..", "..", "..", "data", "new_all", "all-unchanged-13765.txt");
             var dic = new Dictionary<string, List<AstChange>>();
             using (var reader = new StreamReader(path)) {
                 foreach (var line in reader.ReadLines()) {
@@ -236,7 +236,7 @@ namespace Minyar.Tests {
                 var mining = new List<AstChange>();
                 var training = new List<AstChange>();
                 var idx = 0;
-                var total = 1000;
+                var total = 2000;
                 foreach (var item in dic.OrderBy(it => it.Value.Count)) {
                     var items = item.Value;
                     idx++;
@@ -255,12 +255,12 @@ namespace Minyar.Tests {
                 }
                 //mining.AddRange(training.Skip(2000));
                 //training = training.GetRange(0, 2000);
-                using (var writer = new StreamWriter(Path.Combine(path, "..", "all-changed-5-100-ng-training.txt"))) {
+                using (var writer = new StreamWriter(Path.Combine(path, "..", "all-unchanged-training.txt"))) {
                     foreach (var item in training) {
                         writer.WriteLine(item);
                     }
                 }
-                using (var writer = new StreamWriter(Path.Combine(path, "..", "all-changed-5-100-ng-mining.txt"))) {
+                using (var writer = new StreamWriter(Path.Combine(path, "..", "all-unchanged-mining.txt"))) {
                     foreach (var item in mining)
                         writer.WriteLine(item);
                 }
@@ -276,8 +276,8 @@ namespace Minyar.Tests {
 
         [Test]
         public void ConcatData() {
-            var path = Path.Combine("..", "..", "..", "data", "alldata");
-            var files = Directory.GetFiles(path);
+            var path = Path.Combine("..", "..", "..", "data", "new_all");
+            var files = Directory.GetFiles(path, "*.txt");
             foreach (var file in files) {
                 using (var reader = new StreamReader(file)) {
                     if (file.EndsWith("unchanged.txt")) {
@@ -295,14 +295,15 @@ namespace Minyar.Tests {
 
         [Test]
         public void ExamineData() {
-            var path = Path.Combine("..", "..", "..", "data", "all-changed-5-100-mining.txt");
+            var path = Path.Combine("..", "..", "..", "data", "new_all", "all-changed-unique.txt");
             var c = 0;
-            var list = new List<int>();
+            var list = new List<AstChange>();
             using (var reader = new StreamReader(path)) {
                 foreach (var line in reader.ReadLines()) {
                     var change = JsonConverter.Deserialize<AstChange>(line.Trim());
+                    list.Add(change);
                     //list.Add(GithubDiff.ParseDiffHunk(change.DiffHunk));
-                    list.Add(change.DiffHunk.SubstringAfter(" @@\n").Length);
+                    //list.Add(change.DiffHunk.SubstringAfter(" @@\n").Length);
                     //list.Add(change.Items.Count);
                     //if (line.Trim().StartsWith("{") && line.Trim().EndsWith("}")) continue;
                     //Console.Write(line.Substring(0, 30));
@@ -310,18 +311,30 @@ namespace Minyar.Tests {
                     c++;
                 }
             }
-            //var addave = list.Average(i => i.NewRange.ChunkSize);
-            //var addmed = list.Median(i => i.NewRange.ChunkSize);
-            //var delave = list.Average(i => i.OldRange.ChunkSize);
-            //var delmed = list.Median(i => i.OldRange.ChunkSize);
-            //var addsum = list.Sum(i => (i.NewRange.ChunkSize - addave) * (i.NewRange.ChunkSize - addave));
-            //var addsigma = Math.Sqrt(addsum / c);
-            //var delsum = list.Sum(i => (i.OldRange.ChunkSize - delave) * (i.OldRange.ChunkSize - delave));
-            //var delsigma = Math.Sqrt(delsum / c);
-            var ave = list.Average();
-            var med = list.Median();
-            var sum = list.Sum(i => (i - ave) * (i - ave));
-            var sigma = Math.Sqrt(sum / c);
+            path = Path.Combine("..", "..", "..", "data", "new_all", "all-unchanged-13765.txt");
+            using (var reader = new StreamReader(path)) {
+                foreach (var line in reader.ReadLines()) {
+                    var change = JsonConverter.Deserialize<AstChange>(line.Trim());
+                    list.Add(change);
+                    c++;
+                }
+            }
+            var addave = list.Average(i => i.Addition);
+            var addmed = list.Median(i => i.Addition);
+            var delave = list.Average(i => i.Deletion);
+            var delmed = list.Median(i => i.Deletion);
+            var addsum = list.Sum(i => (i.Addition - addave) * (i.Addition - addave));
+            var addsigma = Math.Sqrt(addsum / c);
+            var delsum = list.Sum(i => (i.Deletion - delave) * (i.Deletion - delave));
+            var delsigma = Math.Sqrt(delsum / c);
+            var addmin = list.Min(i => i.Addition);
+            var addmax = list.Max(i => i.Addition);
+            var delmin = list.Min(i => i.Deletion);
+            var delmax = list.Max(i => i.Deletion);
+            //var ave = list.Average();
+            //var med = list.Median();
+            //var sum = list.Sum(i => (i - ave) * (i - ave));
+            //var sigma = Math.Sqrt(sum / c);
             Console.WriteLine(c);
         }
     }

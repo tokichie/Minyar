@@ -4,6 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Minyar.Database;
+using Minyar.Github;
+using Octokit;
+using Paraiba.Core;
 
 namespace Minyar.MachineLearning {
     public abstract class ClassifierBase {
@@ -11,7 +15,22 @@ namespace Minyar.MachineLearning {
         protected List<HashSet<string>> GroundTruths;
         protected List<DataProcessor.MlItem> InputData;
         protected List<int> LabelsForInput; 
-        protected List<string> AdditionalFeature; 
+        protected List<string> AdditionalFeature;
+
+        private readonly double addAve = 58.66;
+        private readonly double addStd = 106.55;
+        private readonly double delAve = 17.89;
+        private readonly double delStd = 82.19;
+        private readonly double forkAve = 434.71;
+        private readonly double forkStd = 666.15;
+        private readonly double starAve = 1282.07;
+        private readonly double starStd = 1599.83;
+        private readonly double addMax = 1990;
+        private readonly double delMax = 1932;
+        private readonly double forkMax = 6229;
+        private readonly double forkMin = 6;
+        private readonly double starMax = 6229;
+        private readonly double starMin = 6;
 
         public ClassifierBase() {
             GroundTruths = new List<HashSet<string>>();
@@ -46,9 +65,34 @@ namespace Minyar.MachineLearning {
                 //    res.Add(0);
                 //}
             }
+            //res.Add(((inputs.Addition - addAve) / addStd + 1.0) / 2.0);
+            //res.Add(((inputs.Deletion - delAve) / delStd + 1.0) / 2.0);
+            res.Add(inputs.Addition / addMax);
+            res.Add(inputs.Deletion / delMax);
+            res.Add(inputs.OrgIsInner ? 1 : 0);
+            res.Add(inputs.CmpIsInner ? 1 : 0);
+            res.AddRange(CheckCollaborator(inputs.PullUrl));
             //foreach (var str in AdditionalFeature) {
             //    res.Add(inputs.Tokens.ToLower().Contains(str.ToLower()) ? 1 : 0);
             //}
+            return res.ToArray();
+        }
+
+        private double[] CheckCollaborator(string pullUrl) {
+            if (MlCache.Exists(pullUrl)) return MlCache.FeatureCache[pullUrl].ToArray();
+            var num = int.Parse(pullUrl.SubstringAfterLast("/"));
+            var fullname = pullUrl.SubstringAfter("github.com/").SubstringBefore("/pull");
+            var res = new List<double>();
+            var repo = MlCache.RepoCache.First(r => r.full_name == fullname);
+            var ghRepo = JsonConverter.Deserialize<Repository>(repo.raw_json);
+            var pull = MlCache.PullCache.First(p => p.repository_id == repo.original_id && p.number == num);
+            var ghPull = JsonConverter.Deserialize<PullRequest>(pull.raw_json);
+            var pullCreator = ghPull.User.Login;
+            var owner = ghRepo.Owner.Login;
+            res.Add((ghRepo.StargazersCount - starMin) / (starMax - starMin));
+            res.Add((ghRepo.ForksCount - forkMin) / (forkMax - forkMin));
+            res.Add(pullCreator == owner ? 1 : 0);
+            MlCache.FeatureCache[pullUrl] = res;
             return res.ToArray();
         }
     }

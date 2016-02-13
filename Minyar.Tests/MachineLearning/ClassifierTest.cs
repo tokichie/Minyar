@@ -12,16 +12,17 @@ using Paraiba.Linq;
 namespace Minyar.MachineLearning.Tests {
     [TestFixture()]
     public class ClassifierTest {
-        private static int sampleCount = 1000;
-        private static int trainingCount = 900;
+        private static int sampleCount = 2000;
+        private static int trainingCount = 1800;
         private static int classifyCount = sampleCount - trainingCount;
         private static int K = 10;
 
         [Test]
         public void ClassifyTest() {
+            MlCache.Fetch();
             //while (true) {
-                var changedPath = Path.Combine("..", "..", "..", "data", "all-changed-training.txt");
-                var unchangedPath = Path.Combine("..", "..", "..", "data", "all-unchanged-training.txt");
+                var changedPath = Path.Combine("..", "..", "..", "data", "new_all", "all-changed-training.txt");
+                var unchangedPath = Path.Combine("..", "..", "..", "data", "new_all", "all-unchanged-training.txt");
                 var processor = new DataProcessor(changedPath, unchangedPath);
                 processor.Sample(sampleCount, 5);
                 var res = new List<double[]>();
@@ -69,29 +70,34 @@ namespace Minyar.MachineLearning.Tests {
         }
 
         private double[] Classify(List<DataProcessor.MlItem> trainingNegaItems, List<DataProcessor.MlItem> trainingPosiItems, List<DataProcessor.MlItem> testNegaItems, List<DataProcessor.MlItem> testPosiItems) {
+            Console.WriteLine("Classify");
             var classifier = new DecisionTree();
-            using (var reader = new StreamReader(Path.Combine("..", "..", "..", "data", "GroundTruth-all-0.5both-8.json"))) {
+            using (var reader = new StreamReader(Path.Combine("..", "..", "..", "data", "GroundTruth-newall-0.5both-2.json"))) {
                 var truths = JsonConvert.DeserializeObject<List<HashSet<string>>>(reader.ReadToEnd());
                 classifier.AddRangeTruth(truths);
             }
             classifier.AddRangeInputs(trainingNegaItems, 0);
             classifier.AddRangeInputs(trainingPosiItems, 1);
             classifier.Train();
+            Console.WriteLine("Finish training");
             var res = new List<double>();
             int changedTrue = 0;
             int unchangedTrue = 0;
+            Console.WriteLine("Start classifying");
             foreach (var item in testNegaItems) {
                 var score = classifier.Classify(item);
                 //if (Math.Sign(score) < 0) changedTrue++;
                 if (score == 0.0) changedTrue++;
                 res.Add(score);
             }
+            Console.WriteLine("Finish negatives");
             foreach (var item in testPosiItems) {
                 var score = classifier.Classify(item);
                 //if (Math.Sign(score) > 0) unchangedTrue++;
                 if (score == 1.0) unchangedTrue++;
                 res.Add(score);
             }
+            Console.WriteLine("Finish positives");
             var tp = changedTrue;
             var fn = classifyCount - changedTrue;
             var fp = classifyCount - unchangedTrue;
@@ -105,6 +111,52 @@ namespace Minyar.MachineLearning.Tests {
             //if (double.IsNaN(recall)) recall = 0;
             //Console.WriteLine("Precision: {0}, Recall: {1}", precision, recall);
             return new[] { precision, recall, accuracy, f };
+        }
+
+        [Test]
+        public void Labeling() {
+            MlCache.Fetch();
+            var changedPath = Path.Combine("..", "..", "..", "data", "new_all", "all-changed-training.txt");
+            var unchangedPath = Path.Combine("..", "..", "..", "data", "new_all", "all-unchanged-training.txt");
+            var processor = new DataProcessor(changedPath, unchangedPath);
+            processor.Sample(sampleCount, 5);
+            var classifier = new DecisionTree();
+            using (var reader = new StreamReader(Path.Combine("..", "..", "..", "data", "GroundTruth-newall-0.5both-2.json"))) {
+                var truths = JsonConvert.DeserializeObject<List<HashSet<string>>>(reader.ReadToEnd());
+                classifier.AddRangeTruth(truths);
+            }
+            classifier.AddRangeInputs(processor.NegativeItems, 0);
+            classifier.AddRangeInputs(processor.PositiveItems, 1);
+            classifier.Train();
+            var expChangedPath = Path.Combine("..", "..", "..", "data", "new_all", "all-experiment-changed.txt");
+            var expUnchangedPath = Path.Combine("..", "..", "..", "data", "new_all", "all-experiment-unchanged.txt");
+            var expProcessor = new DataProcessor(expChangedPath, expUnchangedPath);
+            expProcessor.Sample(10, 5);
+            foreach (var item in expProcessor.NegativeItems) {
+                var score = classifier.Classify(item);
+                Console.WriteLine(score == 0 ? "C" : "U");
+            }
+            foreach (var item in expProcessor.PositiveItems) {
+                var score = classifier.Classify(item);
+                Console.WriteLine(score == 0 ? "C" : "U");
+            }
+        }
+
+        [Test]
+        public void DecisionTreeAnalysis() {
+            MlCache.Fetch();
+            var changedPath = Path.Combine("..", "..", "..", "data", "new_all", "all-changed-training.txt");
+            var unchangedPath = Path.Combine("..", "..", "..", "data", "new_all", "all-unchanged-training.txt");
+            var processor = new DataProcessor(changedPath, unchangedPath);
+            processor.Sample(sampleCount, 5);
+            var classifier = new DecisionTree();
+            using (var reader = new StreamReader(Path.Combine("..", "..", "..", "data", "GroundTruth-newall-0.5both-2.json"))) {
+                var truths = JsonConvert.DeserializeObject<List<HashSet<string>>>(reader.ReadToEnd());
+                classifier.AddRangeTruth(truths);
+            }
+            classifier.AddRangeInputs(processor.NegativeItems, 0);
+            classifier.AddRangeInputs(processor.PositiveItems, 1);
+            classifier.Train();
         }
     }
 }
