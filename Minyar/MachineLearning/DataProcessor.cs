@@ -18,17 +18,27 @@ namespace Minyar.MachineLearning {
         public class MlItem {
             public HashSet<string> Items { get; set; }
             public string Tokens { get; set; }
+            public string PullUrl { get; set; }
+            public int Addition { get; set; }
+            public int Deletion { get; set; }
+            public bool OrgIsInner { get; set; }
+            public bool CmpIsInner { get; set; }
 
-            public MlItem(HashSet<string> items, string tokens) {
+            public MlItem(HashSet<string> items, string tokens, string pullUrl, int add, int del, bool orgIsInner, bool cmpIsInner) {
                 Items = items;
                 Tokens = tokens;
+                PullUrl = pullUrl;
+                Addition = add;
+                Deletion = del;
+                OrgIsInner = orgIsInner;
+                CmpIsInner = cmpIsInner;
             }
         }
 
         private string negativeFilePath;
         private string positiveFilePath;
-        private List<ItemWrapper> negativeItems;
-        private List<ItemWrapper> positiveItems;
+        private List<AstChange> negativeItems;
+        private List<AstChange> positiveItems;
 
         public List<MlItem> NegativeItems {
             get {
@@ -36,7 +46,12 @@ namespace Minyar.MachineLearning {
                     negativeItems.Select(
                         i => new MlItem(
                             new HashSet<string>(i.Items.Select(j => j.Symbol)),
-                            string.Join(" ", i.Items.Where(j => j.NodeType == "identifier").Select(j => j.ChangedToken))
+                            string.Join(" ", i.Items.Where(j => j.NodeType == "identifier").Select(j => j.ChangedToken)),
+                            i.GithubUrl,
+                            i.Addition,
+                            i.Deletion,
+                            i.OrgIsInnerOfMethod,
+                            i.CmpIsInnerOfMethod
                             )
                         )
                     ).ToList();
@@ -49,7 +64,12 @@ namespace Minyar.MachineLearning {
                     positiveItems.Select(
                         i => new MlItem(
                             new HashSet<string>(i.Items.Select(j => j.Symbol)),
-                            string.Join(" ", i.Items.Where(j => j.NodeType == "identifier").Select(j => j.ChangedToken))
+                            string.Join(" ", i.Items.Where(j => j.NodeType == "identifier").Select(j => j.ChangedToken)),
+                            i.GithubUrl,
+                            i.Addition,
+                            i.Deletion,
+                            i.OrgIsInnerOfMethod,
+                            i.CmpIsInnerOfMethod
                             )
                         )
                     ).ToList();
@@ -59,8 +79,8 @@ namespace Minyar.MachineLearning {
         public DataProcessor(string negativePath, string positivePath) {
             negativeFilePath = negativePath;
             positiveFilePath = positivePath;
-            negativeItems = new List<ItemWrapper>();
-            positiveItems = new List<ItemWrapper>();
+            negativeItems = new List<AstChange>();
+            positiveItems = new List<AstChange>();
         }
 
         public void Sample(int count, int minItemCount) {
@@ -68,13 +88,14 @@ namespace Minyar.MachineLearning {
             SampleRandomly(positiveFilePath, ref positiveItems, count, minItemCount);
         }
 
-        private void SampleRandomly(string path, ref List<ItemWrapper> itemList, int count, int minItemCount) {
+        private void SampleRandomly(string path, ref List<AstChange> itemList, int count, int minItemCount) {
             using (var reader = new StreamReader(path)) {
-                var items = new List<ItemWrapper>();
+                var items = new List<AstChange>();
                 foreach (var line in reader.ReadLines()) { 
-                    var itemWrapper = ItemWrapper.Deserialize(line.Trim());
-                    if (itemWrapper.Items/*.Select(i => i.Symbol).ToHashSet()*/.Count < minItemCount) continue;
-                    items.Add(itemWrapper);
+                    //var itemWrapper = AstChange.Deserialize(line.Trim());
+                    var astChange = JsonConverter.Deserialize<AstChange>(line.Trim());
+                    if (astChange.Items/*.Select(i => i.Symbol).ToHashSet()*/.Count < minItemCount) continue;
+                    items.Add(astChange);
                 }
                 if (items.Count < count) throw new DataShortageException();
                 itemList.AddRange(items.Shuffle().Take(count));

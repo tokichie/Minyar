@@ -12,12 +12,12 @@ namespace Minyar {
         private HashSet<string> patternSet;
         private string filePath;
 
-        public List<ItemWrapper> MatchedItems; 
+        public List<FP.DAL.DAO.ItemWrapper> MatchedItems; 
 
         public PatternMatcher(string path, HashSet<string> pattern) {
             filePath = path;
             patternSet = pattern;
-            MatchedItems = new List<ItemWrapper>();
+            MatchedItems = new List<FP.DAL.DAO.ItemWrapper>();
         }
 
         public void Match() {
@@ -25,7 +25,7 @@ namespace Minyar {
             using (var file = new StreamReader(filePath)) {
                 var line = "";
                 while ((line = file.ReadLine()) != null) {
-                    var itemWrapper = ItemWrapper.Deserialize(line.Trim());
+                    var itemWrapper = FP.DAL.DAO.ItemWrapper.Deserialize(line.Trim());
                     var set = new HashSet<string>();
                     foreach (var item in itemWrapper.Items) {
                         if (!set.Contains(item.Symbol))

@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using java.security.acl;
 using Minyar;
+using Minyar.Database;
 using Minyar.Github;
 using Octokit;
 using FileMode = System.IO.FileMode;
@@ -45,8 +46,8 @@ namespace Minyar.Tests {
             var minyar = new Main();
             var repositories = Main.ReadFromJson<List<Repository>>(
                 Path.Combine("..", "..", "TestData", "JavaRepositories.json"));
-	        var task = minyar.Start(repositories.GetRange(1, 99));
-	        task.Wait();
+	        //var task = minyar.Start(repositories.GetRange(1, 99));
+	        //task.Wait();
             File.Create(@"C:\Users\Yuta\Dropbox\ifttt\" + DateTime.Now.ToString("yyyyMMddHHmmss"));
         }
 
@@ -151,6 +152,17 @@ namespace Minyar.Tests {
             var pull = await PullRequestCache.LoadPullFromDatabase(owner, name, 466);
 	        var head_sha = JsonConverter.Deserialize<PullRequest>(pull.raw_json).Head.Sha;
 	        var cmp = await client.Repository.Commits.Compare(owner, name, pull.base_sha, head_sha);
+            ApiRateLimit.CheckLimit();
+	    }
+
+        [Test]
+	    public void TestCollaborator() {
+	        var client = OctokitClient.Client;
+	        var name = "tokichie";
+            using (var model = new MinyarModel()) {
+                var repo = model.repositories.First();
+                var ghRepo = JsonConverter.Deserialize<Repository>(repo.raw_json);
+            }
             ApiRateLimit.CheckLimit();
 	    }
 

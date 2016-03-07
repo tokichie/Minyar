@@ -12,9 +12,14 @@ using Paraiba.Core;
 
 namespace Minyar {
     public class AstChange {
-        [DataMember(Name = "GithubUrl")] public string GithubUrl;
-        [DataMember(Name = "Items")] public HashSet<ChangePair> Items;
-        [DataMember(Name = "DiffHunk")] public string DiffHunk;
+        [DataMember(Name = "GithubUrl")] public string GithubUrl { get; set; }
+        [DataMember(Name = "Items")] public HashSet<ChangePair> Items { get; set; }
+        [DataMember(Name = "DiffHunk")] public string DiffHunk { get; set; }
+        public string Author { get; set; }
+        public int Addition { get; set; }
+        public int Deletion { get; set; }
+        public bool OrgIsInnerOfMethod { get; set; }
+        public bool CmpIsInnerOfMethod { get; set; }
 
         public AstChange(string githubUrl, HashSet<ChangePair> changeSet, string diffHunk) {
             GithubUrl = githubUrl;
@@ -35,7 +40,10 @@ namespace Minyar {
         }
 
         public override int GetHashCode() {
-            return ToString().GetHashCode();
+            var sb = new StringBuilder();
+            sb.Append(GithubUrl).Append(DiffHunk.SubstringAfter("@@ "));
+            //return ToString().GetHashCode();
+            return sb.ToString().GetHashCode();
         }
 
         public override string ToString() {

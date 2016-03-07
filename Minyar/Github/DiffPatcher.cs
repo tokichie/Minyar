@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Minyar.Github {
     public interface DiffPatcher {
-        Task<PatchResult> GetBothOldAndNewFiles();
+        Task<PatchResult[]> GetBothOldAndNewFiles();
         string Patch(string content, string patch);
     }
 }

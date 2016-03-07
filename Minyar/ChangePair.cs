@@ -2,6 +2,7 @@
 using Code2Xml.Core.SyntaxTree;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Text;
 
 namespace Minyar {
 	public class ChangePair {
@@ -22,6 +23,14 @@ namespace Minyar {
         public string OriginalPath;
         [DataMember(Name = "ChangedPath")]
         public string ChangedPath;
+
+	    public string Symbol {
+	        get {
+                var sb = new StringBuilder();
+	            sb.Append(Operation).Append(":").Append(NodeType);
+	            return sb.ToString();
+	        }
+	    }
 
 		public ChangePair(CstChangeOperation op, string filePath, AstNode orgNode = null, AstNode cmpNode = null) {
 			this.Operation = op;

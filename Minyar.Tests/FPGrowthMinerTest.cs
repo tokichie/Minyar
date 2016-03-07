@@ -122,7 +122,7 @@ namespace Minyar.Tests {
 	    [Test]
 	    public void SerializeTest() {
 	        using (var reader = new StreamReader(Path.Combine("..", "..", "TestData", "elasticsearch20151203210710.txt"))) {
-	            var wrapper = ItemWrapper.Deserialize(reader.ReadToEnd());
+	            var wrapper = FP.DAL.DAO.ItemWrapper.Deserialize(reader.ReadToEnd());
 	        }
 	    }
 

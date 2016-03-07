@@ -8,7 +8,7 @@ using Minyar.Charm;
 
 namespace Minyar {
     public class DataFormatConverter {
-        public static List<ItemTidSet<string, RepeatableTid>> HorizontalToVertical(List<ItemWrapper> data) {
+        public static List<ItemTidSet<string, RepeatableTid>> HorizontalToVertical(List<FP.DAL.DAO.ItemWrapper> data) {
             var counter = new Dictionary<string, Dictionary<int, int>>(); 
             int tid = 0;
             foreach (var item in data) {

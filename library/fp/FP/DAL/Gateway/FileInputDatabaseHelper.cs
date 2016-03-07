@@ -7,6 +7,7 @@ using FP.DAL.DAO;
 using FP.DAL.Gateway.Interface;
 using System.IO;
 using FP.DAO;
+using Newtonsoft.Json;
 
 namespace FP.DAL.Gateway
 {
@@ -57,13 +58,13 @@ namespace FP.DAL.Gateway
 			try
 			{
 				if ((line = inputFilePointer.ReadLine()) != null) {
-				    var itemWrapper = ItemWrapper.Deserialize(line.Trim());
-				    foreach (var item in itemWrapper.Items) {
-				        transaction.Add(new Item(item.Symbol));
-				    }
-				    //transaction = new list<string>(line.trim().split(new []{"$&$"}, stringsplitoptions.removeemptyentries));
-				    //transaction = transaction.Select(s => s.Trim()).ToList();
-				}
+                    var itemWrapper = ItemWrapper.Deserialize(line.Trim());
+                    foreach (var item in itemWrapper.Items) {
+                        transaction.Add(new Item(item.Symbol));
+                    }
+                    //transaction = new list<string>(line.trim().split(new []{"$&$"}, stringsplitoptions.removeemptyentries));
+                    //transaction = transaction.Select(s => s.Trim()).ToList();
+                }
 				else
 				{
 					return transaction;

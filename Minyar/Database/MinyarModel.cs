@@ -14,7 +14,7 @@ namespace Minyar.Database {
     public partial class MinyarModel : DbContext {
         //public static readonly string credentialPath = Path.Combine("..", "..", "..", "Minyar", "Resources",
         //    "credentials.json");
-        public static readonly string credentialPath = @"d:\repos\Minyar\Minyar\Resources\credentials.json";
+        public static readonly string credentialPath = @"c:\repos\Minyar\Minyar\Resources\credentials.json";
 
         public MinyarModel() : base(FormatConnectionString()) {
             //this.Configuration.LazyLoadingEnabled = false;
@@ -86,7 +86,7 @@ namespace Minyar.Database {
                 .HasForeignKey(e => e.head_sha);
 
             modelBuilder.Entity<diff>()
-                .Property(e => e.diff1)
+                .Property(e => e.patch)
                 .IsUnicode(false);
 
             modelBuilder.Entity<diff>()

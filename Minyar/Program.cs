@@ -99,19 +99,19 @@ namespace Minyar {
 
         private static void GenerateClosedItemsets() {
             //var path = Path.Combine("..", "..", "..", "data", "20151226153505-all.txt");
-            var path = Path.Combine("..", "..", "..", "data", "all-unchanged-mining.txt");
+            var path = Path.Combine("..", "..", "..", "..", "data", "new_all", "all-changed-mining.txt");
             var miner = new ItTreeMiner(path);
             miner.GenerateClosedItemSets();
             var res = miner.GetMinedItemSets();
-            using (var writer = new StreamWriter(Path.Combine("..", "..", "..", "data", "mining", "all-100-1000-unchanged.json"))) writer.Write(JsonConvert.SerializeObject(res));
+            using (var writer = new StreamWriter(Path.Combine("..", "..", "..", "..", "data", "mining", "all-10-1000-changed.json"))) writer.Write(JsonConvert.SerializeObject(res));
         }
 
 	    private static void Start(int index, int count) {
 	        var main = new Main();
             var repositories = Minyar.Main.ReadFromJson<List<Repository>>(
                 Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "JavaRepositories.json"));
-	        var task = main.Start(repositories.GetRange(index, count));
-	        task.Wait();
+	        //var task = main.Start(repositories.GetRange(index, count));
+	        //task.Wait();
             File.Create(@"C:\Users\Yuta\Dropbox\ifttt\" + DateTime.Now.ToString("yyyyMMddHHmmss"));
 	    }
 

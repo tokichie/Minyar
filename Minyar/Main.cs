@@ -51,11 +51,7 @@ namespace Minyar {
 	            try {
 	                //comments =
 	                //    commentIds.Select(id => model.review_comments.FirstOrDefault(rc => rc.original_id == id)).ToList();
-<<<<<<< HEAD
-	                comments = model.review_comments.Where(rc => rc.id >= 203635).ToList();
-=======
-	                comments = model.review_comments.Where(rc => rc.id > 206917 && rc.id <= 208417).ToList();
->>>>>>> ac5a97542a347b2222c251671980ced9811ab027
+	                comments = model.review_comments.Where(rc => rc.id > 203354).ToList();
 	            } catch (Exception e) {
 	                Console.WriteLine(e.Message);
 	            }
@@ -75,7 +71,7 @@ namespace Minyar {
 	                        progressCount++;
 	                        Logger.Info("#{0} / {1}", progressCount, comments.Count);
 	                        try {
-	                            var isTarget = await CommentClassifier.IsTarget(comment);
+	                            //var isTarget = await CommentClassifier.IsChanged(comment);
 	                            if (parsedDiffs.Contains(comment.diff_hunk)) {
 	                                Logger.Info("This comment' diff is already parsed");
 	                                continue;
@@ -86,28 +82,36 @@ namespace Minyar {
 	                            var path = comment.path;
 	                            if (! path.EndsWith(".java")) continue;
 	                            var diffPatcher = new CoarseDiffPatcher(comment);
-	                            var result = await diffPatcher.GetBothOldAndNewFiles();
-	                            if (result.NewCode == null) {
-	                                if (result.DiffHunk != null) Logger.Info("Skipped {0}", comment.url);
-	                                continue;
-	                            }
-	                            Logger.Deactivate();
-	                            var changeSet = CreateAstAndTakeDiff(result, path);
-	                            changeSetCount += changeSet.Count;
-	                            Logger.Activate();
-	                            var repoName = comment.repository.full_name.Split('/');
-	                            var astChange =
-	                                new AstChange(
-	                                    GithubUrl(new[] {repoName[0], repoName[1]}, comment.pull_requests.number),
-	                                    changeSet,
-	                                    result.DiffHunk.Patch);
-	                            if (changeSet.Count > 0) {
-                                    if (isTarget)
-                                        WriteOut(writer, astChange);
-                                    else
-                                        WriteOut(writer2, astChange);
-	                            }
-	                        } catch (Exception e) {
+	                            var results = await diffPatcher.GetBothOldAndNewFiles();
+	                            foreach (var result in results) {
+
+                                    if (result.NewCode == null) {
+                                        if (result.DiffHunk != null) Logger.Info("Skipped {0}", comment.url);
+                                        continue;
+                                    }
+                                    Logger.Deactivate();
+                                    var asts = CreateAstAndTakeDiff(result, path);
+	                                var changeSet = asts.Item1;
+                                    changeSetCount += changeSet.Count;
+                                    Logger.Activate();
+                                    var repoName = comment.repository.full_name.Split('/');
+                                    var astChange =
+                                        new AstChange(
+                                            GithubUrl(new[] { repoName[0], repoName[1] }, comment.pull_requests.number),
+                                            changeSet,
+                                            result.DiffHunk.Patch);
+	                                astChange.Addition = result.DiffHunk.NewRange.ChunkSize;
+	                                astChange.Deletion = result.DiffHunk.OldRange.ChunkSize;
+	                                astChange.OrgIsInnerOfMethod = asts.Item2;
+	                                astChange.CmpIsInnerOfMethod = asts.Item3;
+                                    if (changeSet.Count > 0) {
+                                        if (result.IsChanged)
+                                            WriteOut(writer, astChange);
+                                        else
+                                            WriteOut(writer2, astChange);
+                                    }
+                                }
+                            } catch (Exception e) {
 	                            errorCount++;
 	                            Logger.Error(e.Message);
 	                        }
@@ -120,67 +124,67 @@ namespace Minyar {
 	        }
         }
 
-        public async Task Start(List<Repository> repositories) {
-            var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-	        var changeSetCount = 0;
-            foreach (var repo in repositories) {
-                var owner = repo.Owner.Login;
-                var name = repo.Name;
-                var basePath = Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "items", owner);
-                Directory.CreateDirectory(basePath);
-                Logger.Info("Repository {0}", repo.FullName);
-                var filePaths = Directory.GetFiles(
-                    Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "Comments", owner, name),
-                    "*-PullComments.json"
-                    );
-                using (
-                    var writer =
-                        new StreamWriter(new FileStream(Path.Combine(basePath, name + timestamp + "-posi.txt"), FileMode.Append))) {
-                    writer.AutoFlush = true;
-                    using (
-                        var negawriter =
-                            new StreamWriter(new FileStream(Path.Combine(basePath, name + timestamp + "-nega.txt"),
-                                FileMode.Append))) {
-                        negawriter.AutoFlush = true;
-                        foreach (var filePath in filePaths) {
-                            var fileName = filePath.Split('\\').Last();
-                            var pullNumber = int.Parse(fileName.Substring(0, fileName.IndexOf('-')));
-                            Logger.Info("Pull #{0}", pullNumber);
-                            var reviewComments =
-                                ReadFromJson<Dictionary<string, PullRequestReviewComment>>(filePath);
-                            foreach (var item in reviewComments) {
-                                var reviewComment = item.Value;
-                                var isQuestion = CommentClassifier.isQuestion(reviewComment);
-                                Logger.Info("ReviewComment {0} {1}", reviewComment.Url, isQuestion);
-                                if (parsedDiffs.Contains(reviewComment.DiffHunk)) {
-                                    continue;
-                                }
-                                parsedDiffs.Add(reviewComment.DiffHunk);
-                                var path = reviewComment.Path;
-                                if (!path.EndsWith(".java")) continue;
-                                var diffPatcher = new CoarseDiffPatcher(reviewComment);
-                                var result = await diffPatcher.GetBothOldAndNewFiles();
-                                if (result.NewCode == null) {
-                                    if (result.DiffHunk != null) Logger.Info("Skipped {0}", reviewComment.Url);
-                                    continue;
-                                }
-                                //Logger.Deactivate();
-                                var changeSet = CreateAstAndTakeDiff(result, path);
-                                changeSetCount += changeSet.Count;
-                                //Logger.Activate();
-                                var astChange = new AstChange(GithubUrl(new[] { owner, name }, pullNumber), changeSet,
-                                    result.DiffHunk.Patch);
-                                if (changeSet.Count > 0) {
-                                    var w = isQuestion ? negawriter : writer;
-                                    WriteOut(w, astChange);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-	        Logger.Info("ChangeSetCount: {0}", changeSetCount);
-	    }
+     //   public async Task Start(List<Repository> repositories) {
+     //       var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+	    //    var changeSetCount = 0;
+     //       foreach (var repo in repositories) {
+     //           var owner = repo.Owner.Login;
+     //           var name = repo.Name;
+     //           var basePath = Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "items", owner);
+     //           Directory.CreateDirectory(basePath);
+     //           Logger.Info("Repository {0}", repo.FullName);
+     //           var filePaths = Directory.GetFiles(
+     //               Path.Combine("..", "..", "..", "Minyar.Tests", "TestData", "Comments", owner, name),
+     //               "*-PullComments.json"
+     //               );
+     //           using (
+     //               var writer =
+     //                   new StreamWriter(new FileStream(Path.Combine(basePath, name + timestamp + "-posi.txt"), FileMode.Append))) {
+     //               writer.AutoFlush = true;
+     //               using (
+     //                   var negawriter =
+     //                       new StreamWriter(new FileStream(Path.Combine(basePath, name + timestamp + "-nega.txt"),
+     //                           FileMode.Append))) {
+     //                   negawriter.AutoFlush = true;
+     //                   foreach (var filePath in filePaths) {
+     //                       var fileName = filePath.Split('\\').Last();
+     //                       var pullNumber = int.Parse(fileName.Substring(0, fileName.IndexOf('-')));
+     //                       Logger.Info("Pull #{0}", pullNumber);
+     //                       var reviewComments =
+     //                           ReadFromJson<Dictionary<string, PullRequestReviewComment>>(filePath);
+     //                       foreach (var item in reviewComments) {
+     //                           var reviewComment = item.Value;
+     //                           var isQuestion = CommentClassifier.isQuestion(reviewComment);
+     //                           Logger.Info("ReviewComment {0} {1}", reviewComment.Url, isQuestion);
+     //                           if (parsedDiffs.Contains(reviewComment.DiffHunk)) {
+     //                               continue;
+     //                           }
+     //                           parsedDiffs.Add(reviewComment.DiffHunk);
+     //                           var path = reviewComment.Path;
+     //                           if (!path.EndsWith(".java")) continue;
+     //                           var diffPatcher = new CoarseDiffPatcher(reviewComment);
+     //                           var result = await diffPatcher.GetBothOldAndNewFiles();
+     //                           if (result.NewCode == null) {
+     //                               if (result.DiffHunk != null) Logger.Info("Skipped {0}", reviewComment.Url);
+     //                               continue;
+     //                           }
+     //                           //Logger.Deactivate();
+     //                           var changeSet = CreateAstAndTakeDiff(result, path);
+     //                           changeSetCount += changeSet.Count;
+     //                           //Logger.Activate();
+     //                           var astChange = new AstChange(GithubUrl(new[] { owner, name }, pullNumber), changeSet,
+     //                               result.DiffHunk.Patch);
+     //                           if (changeSet.Count > 0) {
+     //                               var w = isQuestion ? negawriter : writer;
+     //                               WriteOut(w, astChange);
+     //                           }
+     //                       }
+     //                   }
+     //               }
+     //           }
+     //       }
+	    //    Logger.Info("ChangeSetCount: {0}", changeSetCount);
+	    //}
 
 	    public async Task StartMining() {
 	    }
@@ -223,16 +227,18 @@ namespace Minyar {
 			//}
 			//builder.Remove(builder.Length - 3, 3);
 			//writer.WriteLine(builder.ToString());
-            writer.WriteLine(astChange);
+            //writer.WriteLine(astChange);
+            writer.WriteLine(JsonConverter.Serialize(astChange));
 		}
 
-	    private HashSet<ChangePair> CreateAstAndTakeDiff(PatchResult diffResult, string filePath) {
-	        var orgCst = Program.GenerateAst(diffResult.OldCode);
-	        var cmpCst = Program.GenerateAst(diffResult.NewCode);
+	    private Tuple<HashSet<ChangePair>, bool, bool> CreateAstAndTakeDiff(PatchResult diffResult, string filePath) {
+	        var orgAst = Program.GenerateAst(diffResult.OldCode);
+	        var cmpAst = Program.GenerateAst(diffResult.NewCode);
 	        var lineChange = new LineChange(diffResult.DiffHunk);
-            var mapper = new TreeMapping(orgCst, cmpCst, filePath, new List<LineChange> {lineChange});
+            var mapper = new TreeMapping(orgAst, cmpAst, filePath, new List<LineChange> {lineChange});
             mapper.Map(log);
-	        return mapper.ChangeSet;
+	        return new Tuple<HashSet<ChangePair>, bool, bool>(mapper.ChangeSet, mapper.OrgIsInnerOfMethod,
+	            mapper.CmpIsInnerOfMethod);
 	    }
 
 	    private HashSet<ChangePair> CreateAstAndTakeDiff
