@@ -6,14 +6,16 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Accord.MachineLearning.DecisionTrees;
 using Newtonsoft.Json;
+using Paraiba.Core;
 using Paraiba.Linq;
 
 namespace Minyar.MachineLearning.Tests {
     [TestFixture()]
     public class ClassifierTest {
-        private static int sampleCount = 2000;
-        private static int trainingCount = 1800;
+        private static int sampleCount = 1000;
+        private static int trainingCount = 900;
         private static int classifyCount = sampleCount - trainingCount;
         private static int K = 10;
 
@@ -21,8 +23,8 @@ namespace Minyar.MachineLearning.Tests {
         public void ClassifyTest() {
             MlCache.Fetch();
             //while (true) {
-                var changedPath = Path.Combine("..", "..", "..", "data", "new_all", "all-changed-training.txt");
-                var unchangedPath = Path.Combine("..", "..", "..", "data", "new_all", "all-unchanged-training.txt");
+                var changedPath = Path.Combine("..", "..", "..", "data", "all-changed-training.txt");
+                var unchangedPath = Path.Combine("..", "..", "..", "data", "all-unchanged-training.txt");
                 var processor = new DataProcessor(changedPath, unchangedPath);
                 processor.Sample(sampleCount, 5);
                 var res = new List<double[]>();
@@ -72,7 +74,7 @@ namespace Minyar.MachineLearning.Tests {
         private double[] Classify(List<DataProcessor.MlItem> trainingNegaItems, List<DataProcessor.MlItem> trainingPosiItems, List<DataProcessor.MlItem> testNegaItems, List<DataProcessor.MlItem> testPosiItems) {
             Console.WriteLine("Classify");
             var classifier = new DecisionTree();
-            using (var reader = new StreamReader(Path.Combine("..", "..", "..", "data", "GroundTruth-newall-0.5both-2.json"))) {
+            using (var reader = new StreamReader(Path.Combine("..", "..", "..", "data", "GroundTruth-all-0.5both-8.json"))) {
                 var truths = JsonConvert.DeserializeObject<List<HashSet<string>>>(reader.ReadToEnd());
                 classifier.AddRangeTruth(truths);
             }
@@ -150,13 +152,53 @@ namespace Minyar.MachineLearning.Tests {
             var processor = new DataProcessor(changedPath, unchangedPath);
             processor.Sample(sampleCount, 5);
             var classifier = new DecisionTree();
-            using (var reader = new StreamReader(Path.Combine("..", "..", "..", "data", "GroundTruth-newall-0.5both-2.json"))) {
+            using (var reader = new StreamReader(Path.Combine("..", "..", "..", "data", "GroundTruth-newall-0.5both-3.json"))) {
                 var truths = JsonConvert.DeserializeObject<List<HashSet<string>>>(reader.ReadToEnd());
                 classifier.AddRangeTruth(truths);
             }
             classifier.AddRangeInputs(processor.NegativeItems, 0);
             classifier.AddRangeInputs(processor.PositiveItems, 1);
             classifier.Train();
+            var tree = classifier.Tree;
+            var treePath = Path.Combine("..", "..", "..", "data", "new_all", "decision-tree2.dt");
+            tree.Save(treePath);
+        }
+
+        [Test]
+        public void DecisionTreeAnalysisLoad() {
+            var treePath = Path.Combine("..", "..", "..", "data", "new_all", "decision-tree2.dt");
+            var tree = Accord.MachineLearning.DecisionTrees.DecisionTree.Load(treePath);
+            var truths = new List<HashSet<string>>();
+            using (
+                var reader =
+                    new StreamReader(Path.Combine("..", "..", "..", "data", "GroundTruth-newall-0.5both-3.json"))) {
+                truths = JsonConvert.DeserializeObject<List<HashSet<string>>>(reader.ReadToEnd());
+            }
+            TraverseTree(tree.Root, ref truths);
+            //foreach (var node in tree.Traverse(DecisionTreeTraversal.BreadthFirst)) {
+            //    Console.WriteLine(node);
+            //}
+        }
+
+        private void TraverseTree(DecisionNode node, ref List<HashSet<string>> truths, int depth = 0) {
+            var str = node.ToString();//.SubstringBefore(" ");
+            var idx = 0;
+            if (!node.IsRoot) idx = int.Parse(str.SubstringBefore(" "));
+            var d = depth * 4;// + 4 - str.SubstringBefore(" ").Length;
+            if (d < 0) d = 0;
+            for (int i = 0; i < d; i++) Console.Write(" ");
+            Console.WriteLine(str);
+            for (int i = 0; i < d; i++) Console.Write(" ");
+            if (!node.IsRoot && idx < truths.Count) Console.WriteLine(string.Join(" ", truths[idx]));
+            else Console.WriteLine();
+            if (node.IsLeaf) {
+                for (int i = 0; i < d; i++) Console.Write(" ");
+                Console.WriteLine("Output: {0}", node.Output);
+                return;
+            }
+            foreach (var n in node.Branches) {
+                TraverseTree(n, ref truths, depth + 1);
+            }
         }
     }
 }

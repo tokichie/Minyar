@@ -89,7 +89,7 @@ namespace Minyar.Tests {
                     for (int j = 0; j < patterns.Count; j++) {
                         if (f.Contains(j)) continue;
                         var c = patterns[i].Items.Intersect(patterns[j].Items).Count();
-                        if (c >= patterns[j].ItemCount * 0.5) f.Add(j);
+                        if (c >= patterns[j].ItemCount * 0.2) f.Add(j);
                     }
                 }
                 res.AddRange(selected);
@@ -109,7 +109,7 @@ namespace Minyar.Tests {
                     for (int j = 0; j < patterns.Count; j++) {
                         if (f.Contains(j)) continue;
                         var c = patterns[i].Items.Intersect(patterns[j].Items).Count();
-                        if (c >= patterns[j].ItemCount * 0.5) f.Add(j);
+                        if (c >= patterns[j].ItemCount * 0.2) f.Add(j);
                     }
                 }
                 res.AddRange(selected);
@@ -129,7 +129,7 @@ namespace Minyar.Tests {
             //var selected_ = res;
             using (
                 var writer =
-                    new StreamWriter(Path.Combine("..", "..", "..", "data", "GroundTruth-newall-0.5both-2.json"))) {
+                    new StreamWriter(Path.Combine("..", "..", "..", "data", "GroundTruth-newall-0.5both-3.json"))) {
                 writer.WriteLine(JsonConvert.SerializeObject(selected_.Select(i => i.Items)));
             }
         }
@@ -220,7 +220,7 @@ namespace Minyar.Tests {
 
         [Test]
         public void ShuffleAndTake() {
-            var path = Path.Combine("..", "..", "..", "data", "new_all", "all-unchanged-13765.txt");
+            var path = Path.Combine("..", "..", "..", "data", "new_all", "all-changed-unique.txt");
             var dic = new Dictionary<string, List<AstChange>>();
             using (var reader = new StreamReader(path)) {
                 foreach (var line in reader.ReadLines()) {

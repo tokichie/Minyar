@@ -67,11 +67,17 @@ namespace Minyar.MachineLearning {
             }
             //res.Add(((inputs.Addition - addAve) / addStd + 1.0) / 2.0);
             //res.Add(((inputs.Deletion - delAve) / delStd + 1.0) / 2.0);
-            res.Add(inputs.Addition / addMax);
-            res.Add(inputs.Deletion / delMax);
-            res.Add(inputs.OrgIsInner ? 1 : 0);
-            res.Add(inputs.CmpIsInner ? 1 : 0);
-            res.AddRange(CheckCollaborator(inputs.PullUrl));
+
+            //res.Add(inputs.Addition >= addAve ? 1 : 0);
+            //res.Add(inputs.Deletion >= delAve ? 1 : 0);
+
+            //res.Add(inputs.Addition / addMax);
+            //res.Add(inputs.Deletion / delMax);
+            //res.Add(inputs.OrgIsInner ? 1 : 0);
+            //res.Add(inputs.CmpIsInner ? 1 : 0);
+
+            //res.AddRange(CheckCollaborator(inputs.PullUrl));
+
             //foreach (var str in AdditionalFeature) {
             //    res.Add(inputs.Tokens.ToLower().Contains(str.ToLower()) ? 1 : 0);
             //}
@@ -89,6 +95,8 @@ namespace Minyar.MachineLearning {
             var ghPull = JsonConverter.Deserialize<PullRequest>(pull.raw_json);
             var pullCreator = ghPull.User.Login;
             var owner = ghRepo.Owner.Login;
+            //res.Add(ghRepo.StargazersCount >= starAve ? 1 : 0);
+            //res.Add(ghRepo.ForksCount >= forkAve ? 1 : 0);
             res.Add((ghRepo.StargazersCount - starMin) / (starMax - starMin));
             res.Add((ghRepo.ForksCount - forkMin) / (forkMax - forkMin));
             res.Add(pullCreator == owner ? 1 : 0);

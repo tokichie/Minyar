@@ -6,12 +6,13 @@ namespace Minyar.MachineLearning {
         private Accord.MachineLearning.VectorMachines.SupportVectorMachine svm;
 
         public void Train() {
-            svm = new Accord.MachineLearning.VectorMachines.SupportVectorMachine(GroundTruths.Count + 7);//+ AdditionalFeature.Count);
+            svm = new Accord.MachineLearning.VectorMachines.SupportVectorMachine(GroundTruths.Count + 5);//+ AdditionalFeature.Count);
             var inputs = new List<double[]>();
             foreach (var set in InputData) {
                 inputs.Add(CompareWithGroundTruth(set));
             }
             var smo = new SequentialMinimalOptimization(svm, inputs.ToArray(), LabelsForInput.ToArray());
+            //var smo = new ProbabilisticCoordinateDescent(svm, inputs.ToArray(), LabelsForInput.ToArray());
             //smo.UseComplexityHeuristic = true;
             smo.Complexity = 0.5;
             Error = smo.Run();
