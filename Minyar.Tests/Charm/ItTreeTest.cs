@@ -46,7 +46,7 @@ namespace Minyar.Tests.Charm {
             var g = new ItemTidSet<string, RepeatableTid>(new [] {"g"},
                 new [] {new RepeatableTid(2, 1), new RepeatableTid(3, 2)});
             var transactions = new List<ItemTidSet<string, RepeatableTid>>(new[] { a, b, c, d, e, f, g });
-            var it = new ItTree(transactions, 2);
+            var it = new ItTree(transactions, 2, 2, 2);
             var res = it.GetClosedItemSets();
             var cg = new ItemTidSet<string, RepeatableTid>(new [] {"c", "g"},
                 new [] {new RepeatableTid(2, 1), new RepeatableTid(3, 2)});
@@ -60,7 +60,7 @@ namespace Minyar.Tests.Charm {
 
         [Test]
         public void TestIntersect() {
-            var it = new ItTree(null, 0);
+            var it = new ItTree(null, 0, 0, 0);
             var obj = new PrivateObject(it);
             var c = new[] { new RepeatableTid(1, 3), new RepeatableTid(2, 4), new RepeatableTid(3, 3) };
             var d = new[] { new RepeatableTid(1, 1), new RepeatableTid(2, 3), new RepeatableTid(3, 2) };

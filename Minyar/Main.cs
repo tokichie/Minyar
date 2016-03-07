@@ -35,7 +35,7 @@ namespace Minyar {
 
 	    private HashSet<string> parsedDiffs;
 
-	    public async Task StartUsingDatabase() {
+	    public async Task StartUsingDatabase(int minid, int maxid) {
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
 	        //var negaPath = Path.Combine("..", "..", "..", "data", "Positive.json");
 	        //var commentIds = ReadFromJson<List<int>>(negaPath);
@@ -51,7 +51,7 @@ namespace Minyar {
 	            try {
 	                //comments =
 	                //    commentIds.Select(id => model.review_comments.FirstOrDefault(rc => rc.original_id == id)).ToList();
-	                comments = model.review_comments.Where(rc => rc.id > 203354).ToList();
+	                comments = model.review_comments.Where(rc => rc.id >= minid && rc.id <= maxid).ToList();
 	            } catch (Exception e) {
 	                Console.WriteLine(e.Message);
 	            }

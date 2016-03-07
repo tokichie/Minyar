@@ -13,18 +13,23 @@ namespace Minyar {
     public class ItTreeMiner {
         private ItTree itTree;
         private string inputFilePath;
-        public int Threshold;
+        private int absoluteThreshold;
+        private int dynamicThreshold;
+        private int freqMin;
+        private int freqMax;
 
         public List<ItemTidSet<string, RepeatableTid>> ClosedItemSets; 
 
         public ItTreeMiner(string inputPath) {
             inputFilePath = inputPath;
-            Threshold = -1;
         }
 
-        public ItTreeMiner(string inputPath, int threshold) {
+        public ItTreeMiner(string inputPath, int absoluteThreshold, int dynamicThreshold, int freqMin, int freqMax = 0) {
             inputFilePath = inputPath;
-            Threshold = threshold;
+            this.absoluteThreshold = absoluteThreshold;
+            this.dynamicThreshold = dynamicThreshold;
+            this.freqMin = freqMin;
+            this.freqMax = freqMax;
         }
 
         public void GenerateClosedItemSets() {
@@ -38,9 +43,8 @@ namespace Minyar {
                     lineCount++;
                 }
             }
-            if (Threshold == -1) Threshold = lineCount / 2;
             var convertedData = DataFormatConverter.HorizontalToVertical(data);
-            var itTree = new ItTree(convertedData, Threshold);
+            var itTree = new ItTree(convertedData, absoluteThreshold, dynamicThreshold, freqMin, freqMax);
             ClosedItemSets = itTree.GetClosedItemSets().OrderByDescending(i => i.SupportCount).ToList();
         }
 

@@ -42,7 +42,7 @@ namespace MinyarClient.Model {
         }
 
         public void StartMiningUsingCharm(string filePath, int threshold) {
-            var miner = threshold == -1 ? new ItTreeMiner(filePath) : new ItTreeMiner(filePath, threshold);
+            var miner = new ItTreeMiner(filePath);
             miner.GenerateClosedItemSets();
             var itemSets = new ObservableCollection<ItemTidSet<string, RepeatableTid>>(miner.GetMinedItemSets());
             MinedItemSets = itemSets;

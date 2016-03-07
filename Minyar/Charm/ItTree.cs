@@ -9,15 +9,19 @@ namespace Minyar.Charm {
         private int minSup;
         private int absoluteThreshold;
         private int dynamicThreshold;
+        private int freqMin;
+        private int freqMax;
         private Dictionary<int, List<ItemTidSet<string, RepeatableTid>>> detectedSets;
         private HashSet<ItemTidSet<string, RepeatableTid>> skipFlag;
 
         public List<ItemTidSet<string, RepeatableTid>> ClosedItemsets; 
 
-        public ItTree(List<ItemTidSet<string, RepeatableTid>> transactions, int minSup) {
+        public ItTree(List<ItemTidSet<string, RepeatableTid>> transactions, int absoluteThreshold, int dynamicThreshold, int freqMin, int freqMax = 0) {
             this.transactions = transactions;
-            absoluteThreshold = 10;
-            dynamicThreshold = 10;
+            this.absoluteThreshold = absoluteThreshold;
+            this.dynamicThreshold = dynamicThreshold;
+            this.freqMin = freqMin;
+            this.freqMax = freqMax;
             ClosedItemsets = new List<ItemTidSet<string, RepeatableTid>>();
         }
 
@@ -30,8 +34,12 @@ namespace Minyar.Charm {
             ClosedItemsets = new List<ItemTidSet<string, RepeatableTid>>();
             detectedSets = new Dictionary<int, List<ItemTidSet<string, RepeatableTid>>>();
             skipFlag = new HashSet<ItemTidSet<string, RepeatableTid>>();
-            CharmExtend(transactions.Where(t => t.GetFrequency() >= 10 && t.GetFrequency() < 1000)
-                .OrderBy(t => t.GetFrequency()).ToList());
+            if (freqMax == 0) {
+                CharmExtend(transactions.Where(t => t.GetFrequency() >= freqMin).OrderBy(t => t.GetFrequency()).ToList());
+            } else {
+                CharmExtend(transactions.Where(t => t.GetFrequency() >= freqMin && t.GetFrequency() < freqMax)
+                    .OrderBy(t => t.GetFrequency()).ToList());
+            }
         }
 
         // http://www.cs.rpi.edu/tr/99-10.pdf p.10

@@ -29,7 +29,12 @@ namespace Minyar {
                     Start(index, 100 - index);
                     break;
                 case "db":
-                    StartDb();
+                    int minid, maxid;
+                    Console.WriteLine("Min id: ");
+                    int.TryParse(Console.ReadLine(), out minid);
+                    Console.WriteLine("Max id: ");
+                    int.TryParse(Console.ReadLine(), out maxid);
+                    StartDb(minid, maxid);
                     break;
                 case "crawl":
                     crawler.ExploreStarredRepositories();
@@ -69,9 +74,9 @@ namespace Minyar {
 		    Console.ReadKey();
 		}
 
-	    private static void StartDb() {
+	    private static void StartDb(int minid, int maxid) {
 	        var main = new Main();
-	        var task = main.StartUsingDatabase();
+	        var task = main.StartUsingDatabase(minid, maxid);
 	        task.Wait();
 	    }
 
@@ -100,7 +105,7 @@ namespace Minyar {
         private static void GenerateClosedItemsets() {
             //var path = Path.Combine("..", "..", "..", "data", "20151226153505-all.txt");
             var path = Path.Combine("..", "..", "..", "..", "data", "new_all", "all-changed-mining.txt");
-            var miner = new ItTreeMiner(path);
+            var miner = new ItTreeMiner(path, 10, 10, 10, 1000);
             miner.GenerateClosedItemSets();
             var res = miner.GetMinedItemSets();
             using (var writer = new StreamWriter(Path.Combine("..", "..", "..", "..", "data", "mining", "all-10-1000-changed.json"))) writer.Write(JsonConvert.SerializeObject(res));
