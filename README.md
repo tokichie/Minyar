@@ -5,7 +5,10 @@ Github mining tools :cat2:
 This program needs Standard NLP model data.
 If required files are not found, test will download and extract data automatically.
 
-## credentials
+## Requirements
+- http://www.mysql.com/why-mysql/windows/visualstudio/
+
+## Credentials
 - Minyar/Resources/AuthInfo.txt（GitHubAPIのアクセスTokenを1行だけ書く）
 - Minyar/Resources/credentials.json（DB用のアクセス情報を書く）
   - {“Database”: {“Server”: “localhost”, “DatabaseName”: ~~, “UserId”: ~~, “Password”: ~~}}
